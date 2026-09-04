@@ -38,9 +38,15 @@ def test_resume_rejects_changed_semantic_arguments() -> None:
         lr=5e-5, weight_decay=0.01, warmup_ratio=0.2, dev_frac=0.15,
         telephony_prob=0.3, fvad_weight=0.5, use_context=False,
         min_context_coverage=0.5, no_fvad=False, freeze_encoder=False, workers=4,
-        seed=0, max_steps=None,
+        seed=0, max_steps=None, fused_adamw=None, compile_model=False,
+        compile_mode="reduce-overhead",
     )
     saved = vars(args).copy()
     saved["seed"] = 99
     with pytest.raises(ValueError, match="seed"):
+        _validate_resume_args({"args": saved}, args)
+
+    saved = vars(args).copy()
+    saved["compile_model"] = True
+    with pytest.raises(ValueError, match="compile_model"):
         _validate_resume_args({"args": saved}, args)

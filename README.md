@@ -25,7 +25,7 @@ without adding a large model to the latency-critical path.
 ## Local development
 
 ```bash
-uv sync --extra data --extra dev
+uv sync --extra data --extra dev --extra tracking
 uv run pytest -q
 ```
 
@@ -36,6 +36,24 @@ uv run eot-mine --manifest data/raw/clips.jsonl --out data/mined --resume
 uv run eot-train --samples data/mined/samples.jsonl --out runs/base --epochs 3
 uv run eot-export --checkpoint runs/base/model.pt --out artifacts/eot.onnx
 ```
+
+On an NVIDIA GPU, the measured local fast path keeps the original batch size
+while enabling four audio workers, fused AdamW, and a compiled training forward:
+
+```bash
+uv run eot-train \
+  --samples data/mined/samples.jsonl \
+  --out runs/base \
+  --epochs 3 \
+  --batch-size 32 \
+  --workers 4 \
+  --compile-model \
+  --wandb-project happyrobot-eot
+```
+
+Fused AdamW is selected automatically on CUDA. W&B logging is opt-in and stores
+one stable run id under the output directory so checkpoint resumes update the
+same remote run. Use `eot-benchmark-mfu` to repeat the local MFU/throughput grid.
 
 The Smart Turn corpus does not contain paired previous-agent text. The primary
 training run must therefore remain audio-only; `--use-context` is an ablation for

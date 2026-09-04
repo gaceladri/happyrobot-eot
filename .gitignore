@@ -1,6 +1,7 @@
 # Local environments and caches
 .venv/
 .pytest_cache/
+wandb/
 **/__pycache__/
 *.py[cod]
 .DS_Store

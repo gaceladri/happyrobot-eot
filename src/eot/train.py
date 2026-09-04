@@ -13,6 +13,7 @@ import math
 import os
 import platform
 import random
+import secrets
 import shutil
 import sys
 import time
@@ -233,6 +234,7 @@ def _validate_resume_args(checkpoint: dict, args: argparse.Namespace) -> None:
         "base_model", "base_revision", "epochs", "batch_size", "lr", "weight_decay",
         "warmup_ratio", "dev_frac", "telephony_prob", "fvad_weight", "use_context",
         "min_context_coverage", "no_fvad", "freeze_encoder", "workers", "seed", "max_steps",
+        "fused_adamw", "compile_model", "compile_mode",
     )
     mismatches = {
         key: (saved[key], getattr(args, key))
@@ -325,6 +327,10 @@ def train(args: argparse.Namespace) -> Path:
         model = EOTModel(cfg)
     model = model.to(device)
     print(f"params total={model.num_params():,} trainable={model.num_params(True):,}")
+    train_model = (
+        torch.compile(model, mode=args.compile_mode)
+        if args.compile_model else model
+    )
 
     loader_generator = torch.Generator()
     loader_generator.manual_seed(args.seed)
@@ -347,6 +353,10 @@ def train(args: argparse.Namespace) -> Path:
         # epoch. This makes a mid-epoch restart replay the skipped augmentations.
         "persistent_workers": False,
     }
+    # W&B starts a background async manager. Spawned workers avoid inheriting
+    # that live process state, which is invalid after a POSIX fork.
+    if args.workers > 0 and args.wandb_project:
+        common_loader["multiprocessing_context"] = "spawn"
     tr = DataLoader(
         MinedDataset(tr_rows, telephony_prob=args.telephony_prob, seed=args.seed),
         batch_size=args.batch_size,
@@ -363,7 +373,12 @@ def train(args: argparse.Namespace) -> Path:
     )
 
     params = [parameter for parameter in model.parameters() if parameter.requires_grad]
-    optimizer = torch.optim.AdamW(params, lr=args.lr, weight_decay=args.weight_decay)
+    use_fused_adamw = device.type == "cuda" if args.fused_adamw is None else args.fused_adamw
+    if use_fused_adamw and device.type != "cuda":
+        raise ValueError("fused AdamW requires a CUDA device")
+    optimizer = torch.optim.AdamW(
+        params, lr=args.lr, weight_decay=args.weight_decay, fused=use_fused_adamw
+    )
     use_amp = device.type == "cuda"
     scaler = torch.amp.GradScaler(enabled=use_amp)
     if restored is not None:
@@ -420,10 +435,45 @@ def train(args: argparse.Namespace) -> Path:
         "split": diagnostics,
         "context_coverage": {"train": train_context_coverage, "dev": dev_context_coverage},
         "samples_sha256": samples_sha256,
+        "performance": {
+            "compile_model": args.compile_model,
+            "compile_mode": args.compile_mode,
+            "fused_adamw": use_fused_adamw,
+        },
     }
     provenance_path = out_dir / "provenance.jsonl"
     append_jsonl_record(provenance_path, runtime)
     atomic_write_json(out_dir / "provenance.json", runtime)
+
+    wandb_run = None
+    if args.wandb_project:
+        import wandb
+
+        wandb_path = out_dir / "wandb.json"
+        if wandb_path.exists():
+            wandb_metadata = json.loads(wandb_path.read_text())
+            wandb_run_id = str(wandb_metadata["run_id"])
+        else:
+            wandb_run_id = secrets.token_hex(4)
+            wandb_metadata = {
+                "run_id": wandb_run_id,
+                "project": args.wandb_project,
+                "entity": args.wandb_entity,
+                "name": args.wandb_name or out_dir.name,
+                "group": args.wandb_group,
+            }
+            atomic_write_json(wandb_path, wandb_metadata)
+        wandb_run = wandb.init(
+            project=args.wandb_project,
+            entity=args.wandb_entity,
+            name=args.wandb_name or out_dir.name,
+            group=args.wandb_group,
+            id=wandb_run_id,
+            resume="allow",
+            mode=args.wandb_mode,
+            job_type="train",
+            config=json.loads(json.dumps(runtime, default=str)),
+        )
 
     t0 = time.time()
     completed_epoch = False
@@ -450,7 +500,9 @@ def train(args: argparse.Namespace) -> Path:
             b = {key: value.to(device, non_blocking=pin_memory) for key, value in batch.items()}
             optimizer.zero_grad(set_to_none=True)
             with torch.autocast(device_type=device.type, enabled=use_amp):
-                output = model(b["input_features"], b["context_ids"], b["labels"], b["fvad"], b["fvad_mask"])
+                output = train_model(
+                    b["input_features"], b["context_ids"], b["labels"], b["fvad"], b["fvad_mask"]
+                )
             scaler.scale(output["loss"]).backward()
             scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(params, 1.0)
@@ -480,11 +532,17 @@ def train(args: argparse.Namespace) -> Path:
                     checkpoints_dir / "last.pt",
                 )
             if step % args.log_every == 0:
+                mean_loss = running_loss / max(1, steps_this_log)
                 print(
                     f"ep{epoch} step{step}/{planned_total_steps} "
-                    f"loss={running_loss / max(1, steps_this_log):.4f} "
+                    f"loss={mean_loss:.4f} "
                     f"lr={lr_at(step):.2e} {time.time() - t0:.0f}s"
                 )
+                if wandb_run is not None:
+                    wandb_run.log(
+                        {"train/loss": mean_loss, "train/lr": lr_at(step), "train/epoch": epoch},
+                        step=step,
+                    )
                 running_loss = 0.0
                 steps_this_log = 0
 
@@ -527,6 +585,18 @@ def train(args: argparse.Namespace) -> Path:
         append_jsonl_record(provenance_path, {"event": "epoch_end", **metrics, "is_best": is_best})
         atomic_write_json(out_dir / "history.json", {"config": vars(args), "history": history})
         print(json.dumps(metrics, sort_keys=True))
+        if wandb_run is not None:
+            wandb_run.log(
+                {
+                    "dev/auc": metrics["auc"],
+                    "dev/acc_at_0_5": metrics["acc@0.5"],
+                    "dev/n": metrics["n"],
+                    "dev/pos_rate": metrics["pos_rate"],
+                    "epoch": epoch,
+                },
+                step=step,
+            )
+            wandb_run.summary["best_auc"] = best_auc
         completed_epoch = True
         resume_batch = 0
 
@@ -541,6 +611,8 @@ def train(args: argparse.Namespace) -> Path:
         atomic_copy(last_path, out_dir / "model.pt")
     if not completed_epoch and not last_path.exists():
         raise RuntimeError("training completed no epoch and produced no checkpoint")
+    if wandb_run is not None:
+        wandb_run.finish()
     return out_dir
 
 
@@ -568,10 +640,26 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--freeze-encoder", action="store_true", help="ablation only")
     parser.add_argument("--workers", type=int, default=0)
     parser.add_argument("--pin-memory", action=argparse.BooleanOptionalAction, default=None)
+    parser.add_argument(
+        "--fused-adamw", action=argparse.BooleanOptionalAction, default=None,
+        help="use fused AdamW; defaults to enabled on CUDA and disabled elsewhere",
+    )
+    parser.add_argument("--compile-model", action="store_true", help="compile the training forward with torch.compile")
+    parser.add_argument(
+        "--compile-mode", choices=("default", "reduce-overhead", "max-autotune"),
+        default="reduce-overhead",
+    )
     parser.add_argument("--device", default=None)
     parser.add_argument("--require-cuda", action="store_true")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--log-every", type=int, default=20)
+    parser.add_argument("--wandb-project", default=None, help="enable W&B logging in this project")
+    parser.add_argument("--wandb-entity", default=None)
+    parser.add_argument("--wandb-name", default=None)
+    parser.add_argument("--wandb-group", default=None)
+    parser.add_argument(
+        "--wandb-mode", choices=("online", "offline", "disabled"), default="online"
+    )
     parser.add_argument("--max-steps", type=int, default=None)
     parser.add_argument(
         "--checkpoint-every",
