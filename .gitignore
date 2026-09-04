@@ -1,0 +1,35 @@
+# Local environments and caches
+.venv/
+.pytest_cache/
+**/__pycache__/
+*.py[cod]
+.DS_Store
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Council/research scratch space (final reports live under output/)
+tmp/
+
+# Training data, caches, checkpoints, exports, and benchmark outputs
+data/
+cache/
+runs/
+exports/
+eval/
+artifacts/
+models/
+*.pt
+*.pth
+*.onnx
+*.wav
+*.flac
+*.parquet
+*.log
+
+# Packaging/build output
+build/
+dist/
+*.egg-info/

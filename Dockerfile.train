@@ -1,0 +1,58 @@
+# syntax=docker/dockerfile:1.7
+# GPU training/evaluation image for RunPod Pods.
+#
+# Build from Apple Silicon with:
+#   docker buildx build --platform linux/amd64 -f Dockerfile.train \
+#     -t REGISTRY/happyrobot-eot-train:0.1.0 --push .
+#
+# This digest is the linux/amd64 manifest behind the exact base shown in RunPod's
+# custom-template documentation. It contains Python 3.12, Torch 2.8.0+cu128 and
+# CUDA 12.8.1. Never run `uv sync` in this image: the repository lock currently
+# resolves a different Torch/CUDA tuple.
+ARG RUNPOD_TRAIN_BASE="runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404@sha256:4d1721e62b56d345c83b4fd6090664be6daf9312caab5b2e76f23d8231941851"
+ARG TARGETPLATFORM=linux/amd64
+FROM --platform=${TARGETPLATFORM} ${RUNPOD_TRAIN_BASE}
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    TOKENIZERS_PARALLELISM=false \
+    EOT_ROOT=/workspace/eot \
+    HF_HOME=/workspace/eot/cache/huggingface \
+    HF_DATASETS_CACHE=/workspace/eot/cache/huggingface/datasets \
+    TORCH_HOME=/workspace/eot/cache/torch \
+    UV_SYSTEM_PYTHON=1
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        ffmpeg git libsndfile1 rsync tmux \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=ghcr.io/astral-sh/uv:0.10.4 /uv /usr/local/bin/uv
+
+WORKDIR /opt/eot
+COPY requirements/runpod-train.txt requirements/runpod-train.lock ./requirements/
+
+# Install application dependencies around the already-tested Torch/CUDA stack.
+# The explicit Torch constraint makes an accidental upgrade a resolver error.
+RUN printf 'torch==2.8.0\n' > /tmp/runpod-base-constraints.txt \
+    && uv pip install --system --no-cache \
+        --constraint /tmp/runpod-base-constraints.txt \
+        -r requirements/runpod-train.lock \
+    && rm /tmp/runpod-base-constraints.txt
+
+COPY pyproject.toml ./
+COPY src ./src
+RUN uv pip install --system --no-deps -e . \
+    && python -c "import torch; assert torch.__version__.startswith('2.8.0'), torch.__version__; assert torch.version.cuda == '12.8', torch.version.cuda; print('training image:', torch.__version__, 'CUDA', torch.version.cuda)"
+
+COPY scripts/runpod.sh /usr/local/bin/eot-runpod
+RUN chmod 0755 /usr/local/bin/eot-runpod
+RUN find /opt/eot/pyproject.toml /opt/eot/requirements /opt/eot/src /usr/local/bin/eot-runpod \
+        -type f -print0 \
+    | sort -z \
+    | xargs -0 sha256sum \
+    | sha256sum \
+    | cut -d ' ' -f 1 > /opt/eot/SOURCE_SHA256
+
+# Deliberately inherit the RunPod image ENTRYPOINT and CMD (/start.sh). Keeping
+# the template start command blank preserves Jupyter/SSH and an interactive Pod.
+WORKDIR /workspace
