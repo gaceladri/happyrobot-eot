@@ -12,7 +12,6 @@ import os
 import platform
 import random
 import secrets
-import shutil
 import sys
 import time
 from dataclasses import asdict
@@ -23,10 +22,13 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-from eot.data.dataset import MinedDataset, collate, read_samples
+from eot.data.dataset import MinedDataset, collate
 from eot.data.splits import grouped_split
-from eot.eval.metrics import roc_auc
-from eot.io import append_jsonl_record, atomic_write_json, atomic_write_jsonl, read_jsonl_records, sha256_file
+from eot.io import (
+    append_jsonl_record, atomic_copy, atomic_replace, atomic_write_json, atomic_write_jsonl, read_jsonl_records,
+    read_samples, sha256_file,
+)
+from eot.metrics import roc_auc
 from eot.modeling.model import EOTConfig, EOTModel, load_checkpoint
 
 
@@ -94,28 +96,7 @@ def restore_rng_state(state: dict[str, Any] | None) -> None:
 
 def atomic_torch_save(payload: dict, path: Path) -> None:
     """Write a checkpoint next to its destination and atomically publish it."""
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-    try:
-        torch.save(payload, tmp)
-        with tmp.open("rb") as f:
-            os.fsync(f.fileno())
-        os.replace(tmp, path)
-    finally:
-        tmp.unlink(missing_ok=True)
-
-
-def atomic_copy(source: Path, destination: Path) -> None:
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    tmp = destination.with_name(f".{destination.name}.{os.getpid()}.tmp")
-    try:
-        shutil.copyfile(source, tmp)
-        with tmp.open("rb") as f:
-            os.fsync(f.fileno())
-        os.replace(tmp, destination)
-    finally:
-        tmp.unlink(missing_ok=True)
+    atomic_replace(path, lambda tmp: torch.save(payload, tmp))
 
 
 def should_save_best(current: float, best: float | None, *, has_best: bool) -> bool:
@@ -231,7 +212,7 @@ def _load_checkpoint(path: Path) -> dict:
     return torch.load(path, map_location="cpu", weights_only=False)
 
 
-def _validate_resume_args(checkpoint: dict, args: argparse.Namespace) -> None:
+def validate_resume_args(checkpoint: dict, args: argparse.Namespace) -> None:
     """Reject changes that would alter samples, gradients, or the LR schedule."""
     saved = checkpoint.get("args") or {}
     protected = (
@@ -285,7 +266,7 @@ def train(args: argparse.Namespace) -> Path:
         raise FileExistsError(f"{out_dir} already contains a run; pass --resume or choose a new --out")
     restored = _load_checkpoint(resume_path) if resume_path is not None else None
     if restored is not None:
-        _validate_resume_args(restored, args)
+        validate_resume_args(restored, args)
 
     samples_sha256 = sha256_file(args.samples)
     if restored is not None and restored.get("samples_sha256") not in (None, samples_sha256):

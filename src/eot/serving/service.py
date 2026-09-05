@@ -20,7 +20,6 @@ Design notes
 from __future__ import annotations
 import argparse
 import asyncio
-import hashlib
 import json
 import os
 import time
@@ -35,25 +34,22 @@ from fastapi.responses import JSONResponse
 from eot import __version__
 from eot.audio import SAMPLE_RATE, WINDOW_SECONDS, load_audio_bytes, log_mel, resample, to_mono
 from eot.context import CTX_LEN, hash_context
+from eot.io import sha256_file
+from eot.onnx import cpu_session, input_names, model_feed
 
 
 class Engine:
     def __init__(self, onnx_path: str, threads: int = 2):
-        import onnxruntime as ort
-
-        so = ort.SessionOptions()
-        so.intra_op_num_threads = threads
-        so.inter_op_num_threads = 1
-        so.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
-        self.sess = ort.InferenceSession(onnx_path, so, providers=["CPUExecutionProvider"])
-        self.input_names = {item.name for item in self.sess.get_inputs()}
-        self.sha = hashlib.sha256(Path(onnx_path).read_bytes()).hexdigest()[:16]
+        self.sess = cpu_session(onnx_path, threads)
+        self.input_names = input_names(self.sess)
+        digest = sha256_file(Path(onnx_path))
+        self.sha = digest[:16]
         meta = Path(onnx_path).with_suffix(".json")
         self.meta = json.loads(meta.read_text()) if meta.exists() else {}
         if self.meta.get("accepted") is False:
             raise ValueError("model artifact failed export validation")
         recorded_sha = self.meta.get("sha256")
-        if recorded_sha and recorded_sha != hashlib.sha256(Path(onnx_path).read_bytes()).hexdigest():
+        if recorded_sha and recorded_sha != digest:
             raise ValueError("model checksum does not match its metadata")
         self.use_context = bool(self.meta.get("use_context", False))
         self.use_fvad = bool(self.meta.get("use_fvad", True))
@@ -70,10 +66,7 @@ class Engine:
         feats = log_mel(x16k, normalize=self.normalize_audio)[None]
         t1 = time.perf_counter()
         ctx = hash_context(agent_text)[None] if (self.use_context and agent_text) else np.zeros((1, CTX_LEN), np.int64)
-        feed = {"input_features": feats}
-        if "context_ids" in self.input_names:
-            feed["context_ids"] = ctx
-        p, f = self.sess.run(None, feed)
+        p, f = self.sess.run(None, model_feed(self.input_names, feats, ctx))
         t2 = time.perf_counter()
         return float(p[0]), [float(v) for v in f[0]], (t1 - t0) * 1000, (t2 - t1) * 1000
 

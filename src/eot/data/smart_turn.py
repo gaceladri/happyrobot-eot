@@ -12,16 +12,15 @@ from collections import Counter
 from pathlib import Path
 from typing import Iterable, Iterator
 
-import numpy as np
-
 from eot.audio import decode_payload
-from eot.io import append_jsonl_record, atomic_write_json, atomic_write_jsonl, read_jsonl_records, resolve_record_path, safe_audio_filename, sha256_file, write_wav
+from eot.io import (
+    append_jsonl_record, atomic_write_json, atomic_write_jsonl, atomic_write_wav, read_jsonl_records, resolve_record_path,
+    safe_audio_filename, sha256_file,
+)
 from eot.labeling.samples import Clip
 
 
 SMART_TURN_TRAIN = "pipecat-ai/smart-turn-data-v3.2-train"
-
-
 SMART_TURN_TEST = "pipecat-ai/smart-turn-data-v3.2-test"
 
 
@@ -195,8 +194,7 @@ def acquire_clips(
                 )
             prior_path = resolve_record_path(manifest, prior["path"])
             if not prior_path.exists():
-                write_wav(prior_path, clip.audio, clip.sr)
-                prior["sha256"] = sha256_file(prior_path)
+                prior["sha256"] = atomic_write_wav(prior_path, clip.audio, clip.sr)
                 atomic_write_jsonl(manifest, existing.values())
             elif prior.get("sha256") and sha256_file(prior_path) != prior["sha256"]:
                 raise ValueError(f"acquired audio failed checksum validation: {prior_path}")
@@ -205,7 +203,6 @@ def acquire_clips(
             continue
 
         wav = audio_dir / safe_audio_filename(clip_id)
-        write_wav(wav, clip.audio, clip.sr)
         row = {
             "id": clip_id,
             "path": wav.relative_to(out_dir).as_posix(),
@@ -214,7 +211,7 @@ def acquire_clips(
             "agent_text": str(clip.agent_text or ""),
             **provenance,
             "duration_s": round(len(clip.audio) / float(clip.sr), 6),
-            "sha256": sha256_file(wav),
+            "sha256": atomic_write_wav(wav, clip.audio, clip.sr),
         }
         append_jsonl_record(manifest, row)
         existing[clip_id] = row

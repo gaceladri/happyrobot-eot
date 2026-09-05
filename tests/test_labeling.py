@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from eot.labeling.apptek import Conversation, Segment, decide, merge_intervals, speech_intervals, words_in
+from eot.labeling.apptek import Segment, decide, merge_intervals, speech_intervals, words_in
 from eot.audio import (
     SAMPLE_RATE,
     PauseDetector,
@@ -224,7 +224,7 @@ def test_helpers():
 def test_krisp_score_rows_and_metrics(tmp_path: Path):
     import soundfile as sf
 
-    from eot.data.krisp import metrics, score
+    from eot.eval.krisp import metrics, score
 
     rng = np.random.default_rng(0)
     clips = tmp_path / "clips"

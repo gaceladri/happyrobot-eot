@@ -31,10 +31,8 @@ from typing import Iterable
 
 import numpy as np
 
-from eot.eval.metrics import pareto_front
-
-
-GRID_STEP = 0.1  # eot-bench scores every 100 ms inside a silence span
+from eot.audio import GRID_STEP
+from eot.metrics import pareto_front
 
 
 @dataclass(frozen=True)

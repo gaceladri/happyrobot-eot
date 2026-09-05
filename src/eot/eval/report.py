@@ -22,8 +22,8 @@ from pathlib import Path
 import numpy as np
 
 from eot.audio import SAMPLE_RATE, add_room_tone, load_wav
-from eot.eval.metrics import roc_auc
-from eot.io import atomic_write_json, atomic_write_jsonl, read_jsonl_records, resolve_record_path
+from eot.io import atomic_write_json, atomic_write_jsonl, read_jsonl_records, read_samples, resolve_record_path
+from eot.metrics import roc_auc
 
 
 def combine(inputs: list[Path], caps: list[int], out: Path, seed: int = 0) -> dict:
@@ -61,13 +61,8 @@ def combine(inputs: list[Path], caps: list[int], out: Path, seed: int = 0) -> di
     return report
 
 
-def _auc(y, p) -> float:
-    y, p = np.asarray(y), np.asarray(p)
-    return float(roc_auc(y, p)) if len(set(y.tolist())) == 2 else float("nan")
-
-
 def score_heldout(samples: Path, adapter, batch_size: int = 32, noise_fill: bool = True, seed: int = 0, score_point_only: bool = True) -> list[dict]:
-    rows = read_jsonl_records(samples)
+    rows = read_samples(samples)
     if score_point_only:
         rows = [r for r in rows if abs(float(r["cut_time"]) - float(r["pause_start"]) - 0.2) < 1e-3]
     out, pending, meta = [], [], []
@@ -79,7 +74,7 @@ def score_heldout(samples: Path, adapter, batch_size: int = 32, noise_fill: bool
         meta.clear()
 
     for i, r in enumerate(rows):
-        x = load_wav(resolve_record_path(samples, r["path"]))
+        x = load_wav(r["path"])
         if noise_fill and int(r.get("noise_fill", 0)):
             x = add_room_tone(x, np.random.default_rng(seed * 1_000_003 + i))
         pending.append({"audio": {"array": x, "sampling_rate": SAMPLE_RATE}, "messages": []})
@@ -97,7 +92,7 @@ def summarise_heldout(scored: list[dict], score_point_only: bool = True) -> dict
         rows = [r for r in scored if abs((r["cut_time"] or 0) - (r["pause_start"] or 0) - 0.2) < 1e-3] or scored
     y = [int(r["label"]) for r in rows]
     p = [r["p_eot"] for r in rows]
-    out = {"n": len(rows), "auc": _auc(y, p), "pos_rate": float(np.mean(y)), "by_accent": {}, "by_confidence": {}}
+    out = {"n": len(rows), "auc": roc_auc(np.asarray(y), np.asarray(p)), "pos_rate": float(np.mean(y)), "by_accent": {}, "by_confidence": {}}
     holds = [r for r in rows if int(r["label"]) == 0]
     eots = [r for r in rows if int(r["label"]) == 1]
     for thr in (0.3, 0.5, 0.7):
@@ -108,7 +103,7 @@ def summarise_heldout(scored: list[dict], score_point_only: bool = True) -> dict
         for r in rows:
             groups[str(r.get(field))].append(r)
         for g, rs in sorted(groups.items()):
-            out[key][g] = {"n": len(rs), "auc": _auc([int(r["label"]) for r in rs], [r["p_eot"] for r in rs])}
+            out[key][g] = {"n": len(rs), "auc": roc_auc(np.array([int(r["label"]) for r in rs]), np.array([r["p_eot"] for r in rs]))}
     bc = [r for r in holds if int(r.get("backchannel") or 0)]
     out["backchannel_holds_p_eot_mean"] = float(np.mean([r["p_eot"] for r in bc])) if bc else None
     return out

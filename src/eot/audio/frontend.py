@@ -13,15 +13,11 @@ import numpy as np
 
 
 SAMPLE_RATE = 16_000
-
-
 WINDOW_SECONDS = 8.0
-
-
 N_MELS = 80
-
-
 N_FRAMES = 800  # 8 s * 100 frames/s (hop 160 @ 16 kHz)
+SCORE_POINT = 0.2  # first decision point inside a pause (EoT Bench / Smart Turn convention)
+GRID_STEP = 0.1  # the harness scores every 100 ms of silence after the score point
 
 
 def to_float32(x: np.ndarray) -> np.ndarray:
@@ -111,12 +107,17 @@ def causal_prefix(raw: np.ndarray, sr: int, cut_time: float, seconds: float = WI
     return resample_antialiased(raw[start:stop], sr)
 
 
+def to_16k(x, sr: int) -> np.ndarray:
+    """Any PCM/float array at ``sr`` -> 16 kHz mono float32 (the package's one waveform convention)."""
+    return resample(to_mono(to_float32(np.asarray(x))), int(sr))
+
+
 def load_wav(path: str | os.PathLike) -> np.ndarray:
     """Read any soundfile-supported file as 16 kHz mono float32."""
     import soundfile as sf
 
     x, sr = sf.read(path, dtype="float32", always_2d=False)
-    return resample(to_mono(to_float32(np.asarray(x))), int(sr))
+    return to_16k(x, sr)
 
 
 def decode_payload(payload) -> np.ndarray:
@@ -126,7 +127,7 @@ def decode_payload(payload) -> np.ndarray:
     """
     if isinstance(payload, dict):
         if payload.get("array") is not None:
-            return resample(to_mono(to_float32(np.asarray(payload["array"]))), int(payload["sampling_rate"]))
+            return to_16k(payload["array"], payload["sampling_rate"])
         if payload.get("bytes") is not None:
             x, sr = load_audio_bytes(payload["bytes"])
             return resample(x, sr)
@@ -134,9 +135,8 @@ def decode_payload(payload) -> np.ndarray:
             return load_wav(payload["path"])
         raise ValueError("unsupported audio payload")
     if isinstance(payload, tuple) and len(payload) == 2:
-        x, sr = payload
-        return resample(to_mono(to_float32(np.asarray(x))), int(sr))
-    return to_mono(to_float32(np.asarray(payload)))
+        return to_16k(*payload)
+    return to_16k(payload, SAMPLE_RATE)
 
 
 def last_window(x: np.ndarray, seconds: float = WINDOW_SECONDS, sr: int = SAMPLE_RATE) -> np.ndarray:
@@ -150,16 +150,9 @@ def last_window(x: np.ndarray, seconds: float = WINDOW_SECONDS, sr: int = SAMPLE
     return out
 
 
-@lru_cache(maxsize=1)
-def _feature_extractor():
-    from transformers import WhisperFeatureExtractor
-
-    return WhisperFeatureExtractor(chunk_length=int(WINDOW_SECONDS), feature_size=N_MELS, sampling_rate=SAMPLE_RATE)
-
-
 def log_mel(x: np.ndarray, sr: int = SAMPLE_RATE, *, normalize: bool = False) -> np.ndarray:
     """Waveform -> ``[80, 800]`` float32 log-mel, Whisper normalisation, last-8 s window."""
-    x = last_window(resample(to_mono(to_float32(x)), sr))
+    x = last_window(to_16k(x, sr))
     if normalize:
         x = (x - x.mean()) / np.sqrt(x.var() + 1e-7)
     # Vectorized STFT avoids the reference NumPy frontend's Python frame loop and never

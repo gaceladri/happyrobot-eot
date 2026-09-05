@@ -20,25 +20,11 @@ def test_eotbench_adapter_import_is_torch_free() -> None:
 def test_audio_only_onnx_adapter_omits_pruned_context(monkeypatch, tmp_path: Path) -> None:
     import onnxruntime as ort
 
+    from conftest import fake_audio_only_session
     from eot.eval import eotbench as module
 
     sessions = []
-
-    class _Input:
-        name = "input_features"
-
-    class _Session:
-        def __init__(self, *_args, **_kwargs):
-            self.last_feed = None
-            sessions.append(self)
-
-        def get_inputs(self):
-            return [_Input()]
-
-        def run(self, _outputs, feed):
-            self.last_feed = feed
-            return np.array([0.25], dtype=np.float32), np.zeros((1, 4), dtype=np.float32)
-
+    _Session = fake_audio_only_session(0.25, sessions)
     monkeypatch.setattr(ort, "InferenceSession", _Session)
     monkeypatch.setattr(module, "log_mel", lambda _audio, **kw: np.zeros((80, 800), dtype=np.float32))
     model_path = tmp_path / "audio-only.onnx"

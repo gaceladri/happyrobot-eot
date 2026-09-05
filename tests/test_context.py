@@ -40,22 +40,10 @@ def test_audio_only_serve_feed_omits_pruned_context_input(tmp_path: Path) -> Non
     """The audio-only ONNX graph has no context input and must still be runnable."""
     from unittest.mock import patch
 
+    from conftest import fake_audio_only_session
     from eot.serving import service as serve
 
-    class _Input:
-        name = "input_features"
-
-    class _Session:
-        def __init__(self, *_args, **_kwargs):
-            self.last_feed = None
-
-        def get_inputs(self):
-            return [_Input()]
-
-        def run(self, _outputs, feed):
-            self.last_feed = feed
-            return np.array([0.5], dtype=np.float32), np.zeros((1, 4), dtype=np.float32)
-
+    _Session = fake_audio_only_session(0.5)
     model_path = tmp_path / "audio-only.onnx"
     model_path.write_bytes(b"test-model")
     with patch("onnxruntime.InferenceSession", _Session), patch.object(serve.Engine, "infer", autospec=True) as warmup:

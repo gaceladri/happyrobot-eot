@@ -41,13 +41,15 @@ import time
 from collections import Counter
 from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
-import numpy as np
-
-from eot.audio import SAMPLE_RATE, WINDOW_SECONDS, PauseDetector, PauseSpan, SileroVAD, Span, digital_silence_fraction, estimate_snr_db, load_wav, silence_spans_adaptive
-from eot.io import atomic_write_json, sha256_file, write_wav
-from eot.labeling.samples import CONFIDENCE_RANK, DEFAULT_SCORE_POINT, Sample, fvad_targets
+from eot.audio import (
+    SAMPLE_RATE, SCORE_POINT, WINDOW_SECONDS, PauseDetector, PauseSpan, Span, digital_silence_fraction, estimate_snr_db,
+    load_wav, silence_spans_adaptive,
+)
+from eot.io import atomic_write_json, read_jsonl_records, write_wav
+from eot.labeling.prefix_mining import build_detector
+from eot.labeling.samples import CONFIDENCE_RANK, Sample, fvad_targets
 
 
 HELDOUT_ACCENTS: tuple[str, ...] = ("en-IN", "en-SG", "en-GB_SCT")
@@ -60,42 +62,20 @@ TECH_RE = re.compile(
     r"breaking up|echo)\b",
     re.I,
 )
-
-
 MIN_AGENT_UTT_S = 0.15  # shorter agent-channel activity is a click or breath, not speech
-
-
 FILLER_RE = re.compile(r"\((uh|um|hmm|mm|er|ah|eh)\)|#\w+|\w+~", re.I)
-
-
 WORD_RE = re.compile(r"[A-Za-z0-9']+")
 
 
 # Oracle thresholds (pre-registered; do not tune after seeing test results).
 BACKCHANNEL_MAX_S = 0.6
-
-
 BACKCHANNEL_MAX_WORDS = 2
-
-
 EOT_CUSTOMER_SILENT_S = 1.0
-
-
 MAX_HOLD_S = 5.0
-
-
 MIN_PAUSE_S = 0.2
-
-
 MIN_SPEECH_BEFORE_S = 0.3
-
-
 AGENT_MERGE_GAP_S = 0.3
-
-
 TECH_WINDOW_S = 10.0
-
-
 GREETING_MIN_WORDS = 3
 
 
@@ -151,10 +131,7 @@ def load_conversations(root: Path, accents: Iterable[str] | None = None) -> list
         accent = meta.parent.name
         if accents is not None and accent not in accents:
             continue
-        for line in meta.read_text().splitlines():
-            if not line.strip():
-                continue
-            row = json.loads(line)
+        for row in read_jsonl_records(meta):
             stem = Path(row["file_name"]).stem
             audio_dir = root / "test" / accent / "audio"
             agent, customer = audio_dir / f"{stem}_channel1.wav", audio_dir / f"{stem}_channel2.wav"
@@ -289,9 +266,10 @@ def label_conversation(
     min_confidence: str = "medium",
     rule_version: str = "v1",
 ) -> tuple[list[Sample], list[Decision], dict]:
-    if rule_version not in ("v1", "v2"):
-        raise ValueError("unknown labeling rule version")
-    grid = sorted(set(float(g) for g in grid) | {DEFAULT_SCORE_POINT})
+    if rule_version not in RULES:
+        raise ValueError(f"unknown labeling rule version {rule_version!r}; choose from {sorted(RULES)}")
+    post_process = RULES[rule_version]
+    grid = sorted(set(float(g) for g in grid) | {SCORE_POINT})
     customer = load_wav(conv.customer_path)
     agent = load_wav(conv.agent_path)
     n = min(len(customer), len(agent))
@@ -321,9 +299,7 @@ def label_conversation(
         if CONFIDENCE_RANK[p.confidence] < rank:
             decisions.append(Decision(p.start, p.end, None, None, None, None, None, f"low_confidence", p.confidence, p.iou))
             continue
-        d = decide(p, cust_speech, agent_speech, conv.segments, greeting_t, total)
-        if rule_version == "v2":
-            d = conservative_decision(d, agent_speech, conv.segments)
+        d = post_process(decide(p, cust_speech, agent_speech, conv.segments, greeting_t, total), agent_speech, conv.segments)
         decisions.append(d)
         if d.label is None:
             continue
@@ -341,7 +317,7 @@ def label_conversation(
             seg = customer[start : int(cut * SAMPLE_RATE)].copy()
             if d.label == 0:
                 tto = d.onset - cut
-                fv, m = fvad_targets(tto, is_eot=False)
+                fv, m = fvad_targets(tto)
             else:
                 tto = d.onset - cut if d.onset is not None else None
                 fv, m = fvad_targets(tto, observed_until=total - cut)
@@ -403,16 +379,22 @@ def conservative_decision(d: Decision, agent_utts: list[Span], segments: list[Se
     return replace(d, label=None, reason=reason)
 
 
+# Decision post-processors by rule version. v1 is the pre-registered rule the shipped model was
+# trained with; v2 abstains where v1 asserted backchannel intent from duration alone.
+RULES: dict[str, Callable[[Decision, list[Span], list[Segment]], Decision]] = {
+    "v1": lambda d, _agent_utts, _segments: d,
+    "v2": conservative_decision,
+}
+
+
 # ---------------------------------------------------------------------------
 # CLI with multiprocessing
 # ---------------------------------------------------------------------------
-
 _WORKER: dict = {}
 
 
-def _init_worker(detector_name: str, threads: int, dirs: dict[str, str], heldout: list[str], rule_version: str = "v1") -> None:
-    vad = SileroVAD(threads=threads) if detector_name == "ensemble" else None
-    _WORKER["detector"] = PauseDetector(detector_name, vad=vad, min_silence=MIN_PAUSE_S)
+def _init_worker(detector_name: str, threads: int, dirs: dict[str, str], heldout: list[str], rule_version: str) -> None:
+    _WORKER["detector"] = build_detector(detector_name, MIN_PAUSE_S, threads)
     _WORKER["dirs"] = {k: Path(v) for k, v in dirs.items()}
     _WORKER["heldout"] = set(heldout)
     _WORKER["rule_version"] = rule_version
@@ -427,10 +409,9 @@ def _work(payload: tuple[Conversation, list[float], str]):
     metas = []
     for s in samples:
         path = out_dir / "audio" / f"{s.id}.wav"
-        write_wav(path, s.audio, atomic=False)
         meta = s.meta()
         meta["path"] = path.relative_to(out_dir).as_posix()
-        meta["sha256"] = sha256_file(path)
+        meta["sha256"] = write_wav(path, s.audio, SAMPLE_RATE)
         metas.append(meta)
     return conv, split, metas, summary
 
@@ -444,7 +425,7 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--grid", type=float, nargs="+", default=[0.2, 0.4, 0.6])
     ap.add_argument("--detector", choices=("ensemble", "legacy", "energy"), default="ensemble")
     ap.add_argument("--min-confidence", choices=("low", "medium", "high"), default="medium")
-    ap.add_argument("--rule-version", choices=("v1", "v2"), default="v1", help="v2 abstains on unreviewed short listener events")
+    ap.add_argument("--rule-version", choices=sorted(RULES), default="v1", help="v2 abstains on unreviewed short listener events")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--limit", type=int, default=None, help="conversations per accent (debug)")
     args = ap.parse_args(argv)

@@ -8,10 +8,10 @@ import soundfile as sf
 
 from eot.data.smart_turn import acquire_clips
 from eot.audio import SAMPLE_RATE, WINDOW_SECONDS, silence_spans
-from eot.data.dataset import MinedDataset, read_samples
+from eot.data.dataset import MinedDataset
 from eot.data.splits import grouped_split
-from eot.io import read_jsonl_records
-from eot.labeling.prefix_mining import _read_manifest, mine_clip, write_samples
+from eot.io import read_jsonl_records, read_samples
+from eot.labeling.prefix_mining import clips_from_manifest, mine_clip, write_samples
 from eot.labeling.samples import Clip, Sample
 
 
@@ -159,7 +159,7 @@ def test_acquisition_resume_is_append_safe_relative_and_relocatable(tmp_path: Pa
 
     relocated = tmp_path / "relocated"
     out.rename(relocated)
-    loaded = list(_read_manifest(relocated / "clips.jsonl"))
+    loaded = list(clips_from_manifest(relocated / "clips.jsonl"))
     assert len(loaded) == 4
     assert {clip.label for clip in loaded} == {0, 1}
 

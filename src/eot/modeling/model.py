@@ -29,7 +29,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from eot.context import CTX_LEN, CTX_VOCAB, hash_context
+from eot.context import CTX_LEN, CTX_VOCAB
 from eot.labeling.samples import HORIZONS
 
 
@@ -49,7 +49,7 @@ class EOTConfig:
     # Stored in checkpoints so restoring a trained model never needs the Hub.
     whisper_config: dict | None = None
     normalize_audio: bool = False
-    encoder_layers: int | None = None  # kept for older pruned checkpoints; pruning is not a training option
+    encoder_layers: int | None = None  # depth of a pruned checkpoint; the training CLI no longer prunes
 
 
 class AttentionPool(nn.Module):
@@ -118,8 +118,11 @@ class EOTModel(nn.Module):
     def encode(self, input_features: torch.Tensor, context_ids: torch.Tensor | None = None) -> torch.Tensor:
         # The model's internal context may be shorter than the shared 8 s frontend contract
         # (``max_source_positions`` < 400); only the trailing frames are encoded, so evaluation
-        # and serving keep feeding exactly the same audio window.
-        input_features = input_features[:, :, -2 * self.cfg.max_source_positions:]
+        # and serving keep feeding exactly the same audio window. Static shapes let tracing drop
+        # the branch, so the default full-window model exports without a Slice node.
+        frames = 2 * self.cfg.max_source_positions
+        if input_features.shape[-1] > frames:
+            input_features = input_features[:, :, -frames:]
         h = self.encoder(input_features=input_features).last_hidden_state
         z = self.pool(h)
         if self.cfg.use_context:
@@ -199,9 +202,3 @@ def load_checkpoint(path: str, map_location: str = "cpu") -> EOTModel:
     model.load_state_dict(ck["state_dict"])
     return model.eval()
 
-
-# Compatibility for callers that historically imported context helpers from this module.
-__all__ = [
-    "CTX_LEN", "CTX_VOCAB", "hash_context", "EOTConfig", "EOTModel", "ExportWrapper",
-    "save_checkpoint", "load_checkpoint",
-]

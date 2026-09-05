@@ -2,14 +2,14 @@ import numpy as np
 import pytest
 
 from eot.labeling.samples import fvad_targets
-from eot.data.krisp import evaluate
+from eot.eval.krisp import evaluate
 from eot.eval.policy import Endpointer, Policy
 
 
 def test_future_speech_does_not_follow_eot_label():
-    assert fvad_targets(None, is_eot=True) == ([0]*4,[0]*4)
+    assert fvad_targets(None) == ([0]*4,[0]*4)
     assert fvad_targets(None, observed_until=.7) == ([0]*4,[1,1,0,0])
-    assert fvad_targets(.9, is_eot=True) == ([0,0,1,1],[1]*4)
+    assert fvad_targets(.9) == ([0,0,1,1],[1]*4)
 
 
 def test_krisp_counts_timeout_cutoff_and_excludes_boundary():
@@ -67,7 +67,7 @@ def test_mining_does_not_cut_after_earlier_vad_onset():
 
 
 def test_vectorized_krisp_sweep_matches_scalar_replay():
-    from eot.data.krisp import sweep
+    from eot.eval.krisp import sweep
     rng=np.random.default_rng(7)
     spans=[]
     for i in range(30):

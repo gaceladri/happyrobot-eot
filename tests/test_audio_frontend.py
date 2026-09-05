@@ -1,7 +1,12 @@
 import numpy as np
 import pytest
-from eot.audio import last_window, log_mel
-from eot.audio.frontend import _feature_extractor
+from transformers import WhisperFeatureExtractor
+
+from eot.audio import N_MELS, SAMPLE_RATE, WINDOW_SECONDS, last_window, log_mel
+
+
+def _feature_extractor():
+    return WhisperFeatureExtractor(chunk_length=int(WINDOW_SECONDS), feature_size=N_MELS, sampling_rate=SAMPLE_RATE)
 
 @pytest.mark.parametrize('normalize',[False,True])
 @pytest.mark.parametrize('length',[0,1600,16000,128000,256000])

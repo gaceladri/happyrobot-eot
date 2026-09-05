@@ -10,13 +10,15 @@ Adapter contract (from ``livekit/eot-bench`` README):
 Run through the official harness (apples-to-apples with the public leaderboard):
 
     pip install -e /path/to/eot-bench
-    EOT_CHECKPOINT=runs/base/model.pt eot-harness predict         --path livekit/eot-bench-data --name en --split validation         --adapter eot.eotbench_adapter:EOTAdapter
+    EOT_CHECKPOINT=runs/base/model.pt eot-harness predict \\
+        --path livekit/eot-bench-data --name en --split validation \\
+        --adapter eot.eval.eotbench:EOTAdapter
 
 Or, without installing the harness, score any dataset in the public schema locally and feed the
 rows to ``eot-sweep`` for quick diagnostics only. Those local aggregate metrics are not an
 official EoT Bench result:
 
-    uv run python -m eot.eotbench_adapter --checkpoint runs/base/model.pt --lang en --out preds.jsonl
+    uv run python -m eot.eval.eotbench --checkpoint runs/base/model.pt --lang en --out preds.jsonl
 
 ``messages`` is used only when the checkpoint was trained with ``--use-context``: the last
 assistant message is hashed exactly like at training time. LiveKit's own v1 adapter sends audio
@@ -24,16 +26,16 @@ only, so a context-aware model is a legitimate, unexploited lever on this benchm
 """
 from __future__ import annotations
 import argparse
-import hashlib
 import json
 import os
 from pathlib import Path
 
 import numpy as np
 
-from eot.audio import SAMPLE_RATE, decode_payload, log_mel
+from eot.audio import GRID_STEP, SAMPLE_RATE, SCORE_POINT, decode_payload, log_mel
 from eot.context import CTX_LEN, hash_context
-from eot.eval.policy import GRID_STEP
+from eot.io import sha256_file
+from eot.onnx import cpu_session, input_names, model_feed
 
 
 def last_assistant_text(messages) -> str:
@@ -47,7 +49,7 @@ class EOTAdapter:
     """Batch adapter; backend is a torch checkpoint (``EOT_CHECKPOINT``) or an ONNX file (``EOT_ONNX``)."""
 
     adapter_id = "whisper-tiny-prefix-mined"
-    score_point = 0.2
+    score_point = SCORE_POINT
     max_audio_sec = 8.0
 
     def __init__(self, checkpoint: str | None = None, onnx: str | None = None, device: str | None = None):
@@ -56,19 +58,14 @@ class EOTAdapter:
         self.use_context = False
         self.normalize_audio = False
         if onnx:
-            import onnxruntime as ort
-
-            options = ort.SessionOptions()
-            options.intra_op_num_threads = int(os.environ.get("EOT_THREADS", "2"))
-            options.inter_op_num_threads = 1
-            self.sess = ort.InferenceSession(onnx, options, providers=["CPUExecutionProvider"])
-            self.input_names = {item.name for item in self.sess.get_inputs()}
+            self.sess = cpu_session(onnx, threads=int(os.environ.get("EOT_THREADS", "2")))
+            self.input_names = input_names(self.sess)
             self.backend = "onnx"
-            self.model_sha = hashlib.sha256(Path(onnx).read_bytes()).hexdigest()
+            self.model_sha = sha256_file(Path(onnx))
             meta = Path(onnx).with_suffix(".json")
-            if meta.exists():
-                self.use_context = bool(json.loads(meta.read_text()).get("use_context", False))
-                self.normalize_audio = bool(json.loads(meta.read_text()).get("normalize_audio", False))
+            info = json.loads(meta.read_text()) if meta.exists() else {}
+            self.use_context = bool(info.get("use_context", False))
+            self.normalize_audio = bool(info.get("normalize_audio", False))
         elif checkpoint:
             import torch
 
@@ -85,7 +82,7 @@ class EOTAdapter:
             self.normalize_audio = self.model.cfg.normalize_audio
             self.backend = "torch"
             self._torch = torch
-            self.model_sha = hashlib.sha256(Path(checkpoint).read_bytes()).hexdigest()
+            self.model_sha = sha256_file(Path(checkpoint))
         else:
             raise RuntimeError("Provide EOT_CHECKPOINT or EOT_ONNX")
         self.adapter_id = (
@@ -100,10 +97,7 @@ class EOTAdapter:
         feats = np.stack([log_mel(decode_payload(item["audio"]), normalize=self.normalize_audio) for item in batch])
         ctx = np.stack([hash_context(last_assistant_text(item.get("messages"))) if self.use_context else np.zeros(CTX_LEN, np.int64) for item in batch])
         if self.backend == "onnx":
-            feed = {"input_features": feats.astype(np.float32)}
-            if "context_ids" in self.input_names:
-                feed["context_ids"] = ctx
-            p, _ = self.sess.run(None, feed)
+            p, _ = self.sess.run(None, model_feed(self.input_names, feats.astype(np.float32), ctx))
             return [float(v) for v in p]
         t = self._torch
         with t.no_grad():

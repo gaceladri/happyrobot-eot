@@ -1,7 +1,6 @@
 """Torch dataset over ``samples.jsonl`` manifests; log-mel is computed on the fly.
 """
 from __future__ import annotations
-import hashlib
 from pathlib import Path
 from typing import Iterable
 
@@ -11,16 +10,8 @@ from torch.utils.data import Dataset
 
 from eot.audio import SAMPLE_RATE, add_room_tone, load_wav, log_mel, telephony_augment
 from eot.context import hash_context
-from eot.io import atomic_write_jsonl, read_jsonl_records, resolve_record_path, safe_audio_filename, sha256_file, write_wav
+from eot.io import atomic_write_jsonl, safe_audio_filename, seed_from_key, write_wav
 from eot.labeling.samples import HORIZONS, Clip
-
-
-def read_samples(path: Path) -> list[dict]:
-    path = Path(path)
-    rows = read_jsonl_records(path)
-    for row in rows:
-        row["path"] = str(resolve_record_path(path, row["path"]))
-    return rows
 
 
 class MinedDataset(Dataset):
@@ -42,9 +33,7 @@ class MinedDataset(Dataset):
     def _sample_rng(self, i: int) -> np.random.Generator:
         # Independent of worker assignment/prefetch, but different across epochs.
         identity = str(self.rows[i].get("id", self.rows[i].get("clip_id", i)))
-        key = f"{self.seed}:{self.epoch}:{identity}".encode()
-        seed = int.from_bytes(hashlib.sha256(key).digest()[:8], "little")
-        return np.random.default_rng(seed)
+        return np.random.default_rng(seed_from_key(f"{self.seed}:{self.epoch}:{identity}"))
 
     def __len__(self) -> int:
         return len(self.rows)
@@ -86,14 +75,13 @@ def clips_to_manifest(clips: Iterable[Clip], out_dir: Path) -> Path:
     rows = []
     for c in clips:
         p = audio_dir / safe_audio_filename(c.id)
-        write_wav(p, c.audio, SAMPLE_RATE)
         rows.append({
             "id": c.id,
             "path": p.relative_to(out_dir).as_posix(),
             "label": c.label,
             "source": c.source,
             "agent_text": c.agent_text,
-            "sha256": sha256_file(p),
+            "sha256": write_wav(p, c.audio, SAMPLE_RATE),
         })
     atomic_write_jsonl(manifest, rows)
     return manifest

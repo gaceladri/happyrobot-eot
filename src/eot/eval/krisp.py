@@ -26,21 +26,16 @@ from pathlib import Path
 
 import numpy as np
 
-from eot.audio import SAMPLE_RATE, decode_payload, load_wav
-from eot.eval.metrics import pareto_front, roc_auc
-from eot.eval.policy import GRID_STEP
+from eot.audio import GRID_STEP, SAMPLE_RATE, SCORE_POINT, decode_payload, load_wav
 from eot.io import atomic_write_json, atomic_write_jsonl, read_jsonl_records, sha256_file, write_wav
+from eot.metrics import pareto_front, roc_auc
+from eot.onnx import cpu_session
 
 
-SCORE_POINT = 0.2
 
 
 MIN_TAIL = 0.2
-
-
 MAX_TAIL = 5.0
-
-
 KRISP_REVISION = "ea19b2743a49b2c2452bf3ced948712020b962bc"
 
 
@@ -56,13 +51,12 @@ def ingest(parquet: Path, out: Path) -> Path:
             x = decode_payload({"bytes": r["audio"]["bytes"]})
             cid = Path(r["filename"]).stem
             path = out / "audio" / f"{cid}.wav"
-            write_wav(path, x, atomic=False)
             rows.append({
                 "id": cid, "path": path.relative_to(out).as_posix(), "label": r["label"],
                 "duration": float(r["duration"]), "measured_duration": round(len(x) / SAMPLE_RATE, 3),
                 "last_silence_duration": float(r["last_silence_duration"]),
                 "speaker_id": str(r["speaker_id"]), "age": r.get("age"), "gender": r.get("gender"),
-                "sha256": sha256_file(path),
+                "sha256": write_wav(path, x, SAMPLE_RATE),
             })
     manifest = out / "clips.jsonl"
     atomic_write_jsonl(manifest, rows)
@@ -126,13 +120,9 @@ def score(clips_manifest: Path, adapter, out: Path, batch_size: int = 32) -> dic
 
 def _load_spans(predictions: Path) -> list[dict]:
     spans: dict[str, dict] = {}
-    with predictions.open() as f:
-        for line in f:
-            if not line.strip():
-                continue
-            r = json.loads(line)
-            s = spans.setdefault(r["id"], {"id": r["id"], "label": r["label"], "speaker_id": r.get("speaker_id", "?"), "span_len": float(r["span_len"]), "points": []})
-            s["points"].append((float(r["silence_dur"]), float(r["p_eot"])))
+    for r in read_jsonl_records(predictions):
+        s = spans.setdefault(r["id"], {"id": r["id"], "label": r["label"], "speaker_id": r.get("speaker_id", "?"), "span_len": float(r["span_len"]), "points": []})
+        s["points"].append((float(r["silence_dur"]), float(r["p_eot"])))
     for s in spans.values():
         s["points"].sort()
     return list(spans.values())
@@ -284,17 +274,13 @@ class SmartTurnPublicAdapter:
     adapter_id = "pipecat-ai/smart-turn-v3.2-public"
 
     def __init__(self, filename: str = "smart-turn-v3.2-gpu.onnx"):
-        import onnxruntime as ort
         from huggingface_hub import hf_hub_download
         from transformers import WhisperFeatureExtractor
 
         path = hf_hub_download("pipecat-ai/smart-turn-v3", filename,
                                revision="f766f81d3cfdf7737ac64aad813d91bbfd56bf93")
         self.model_sha = sha256_file(Path(path))
-        options = ort.SessionOptions()
-        options.intra_op_num_threads = 2
-        options.inter_op_num_threads = 1
-        self.session = ort.InferenceSession(path, options, providers=["CPUExecutionProvider"])
+        self.session = cpu_session(path, threads=2)
         self.fe = WhisperFeatureExtractor(chunk_length=8)
         self.max_samples = 8 * SAMPLE_RATE
 

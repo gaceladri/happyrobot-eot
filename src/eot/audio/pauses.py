@@ -9,14 +9,15 @@ intersection and records how confident that agreement is so training data can be
 filtered instead of trusted.
 """
 from __future__ import annotations
-import hashlib
 import os
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 
-from eot.audio.frontend import SAMPLE_RATE, resample, to_float32, to_mono
+from eot.audio.frontend import SAMPLE_RATE, to_16k
+from eot.io import sha256_file
+from eot.onnx import cpu_session
 
 
 @dataclass(frozen=True)
@@ -77,33 +78,21 @@ def silence_spans(
 
 
 SILERO_VAD_VERSION = "v6.2.1"
-
-
 SILERO_VAD_COMMIT = "7e30209a3e901f9842f81b225f3e93d8199902b1"
-
-
 SILERO_VAD_URL = (
     "https://raw.githubusercontent.com/snakers4/silero-vad/"
     f"{SILERO_VAD_COMMIT}/src/silero_vad/data/silero_vad.onnx"
 )
-
-
 SILERO_VAD_SHA256 = "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
-
-
 SILERO_CHUNK = 512  # 32 ms at 16 kHz
-
-
 SILERO_CONTEXT = 64  # samples of previous chunk the v5+ model expects prepended
-
-
 DIGITAL_SILENCE_DB = -80.0
 
 
 def ensure_silero_vad(path: str | os.PathLike | None = None) -> Path:
     """Return a verified local copy of the pinned Silero VAD ONNX file, downloading if needed."""
     target = Path(path or os.environ.get("EOT_SILERO_VAD") or Path("models/vad") / f"silero_vad_{SILERO_VAD_VERSION}.onnx")
-    if target.exists() and hashlib.sha256(target.read_bytes()).hexdigest() == SILERO_VAD_SHA256:
+    if target.exists() and sha256_file(target) == SILERO_VAD_SHA256:
         return target
     import urllib.request
 
@@ -111,7 +100,7 @@ def ensure_silero_vad(path: str | os.PathLike | None = None) -> Path:
     tmp = target.with_suffix(".partial")
     with urllib.request.urlopen(SILERO_VAD_URL, timeout=60) as response, tmp.open("wb") as f:
         f.write(response.read())
-    digest = hashlib.sha256(tmp.read_bytes()).hexdigest()
+    digest = sha256_file(tmp)
     if digest != SILERO_VAD_SHA256:
         tmp.unlink(missing_ok=True)
         raise RuntimeError(f"Silero VAD checksum mismatch: {digest} != {SILERO_VAD_SHA256}")
@@ -123,19 +112,13 @@ class SileroVAD:
     """Streaming Silero VAD (ONNX Runtime, CPU). ``probabilities`` -> one P(speech) per 32 ms chunk."""
 
     def __init__(self, path: str | os.PathLike | None = None, threads: int = 1):
-        import onnxruntime as ort
-
-        opts = ort.SessionOptions()
-        opts.intra_op_num_threads = int(threads)
-        opts.inter_op_num_threads = 1
-        opts.log_severity_level = 3
         self.path = ensure_silero_vad(path)
-        self.session = ort.InferenceSession(str(self.path), opts, providers=["CPUExecutionProvider"])
+        self.session = cpu_session(self.path, threads, log_severity=3)
         self.sha256 = SILERO_VAD_SHA256
         self.chunk_seconds = SILERO_CHUNK / SAMPLE_RATE
 
     def probabilities(self, x: np.ndarray, sr: int = SAMPLE_RATE) -> np.ndarray:
-        x = resample(to_mono(to_float32(x)), sr)
+        x = to_16k(x, sr)
         n_chunks = int(np.ceil(len(x) / SILERO_CHUNK))
         if n_chunks == 0:
             return np.zeros(0, dtype=np.float32)

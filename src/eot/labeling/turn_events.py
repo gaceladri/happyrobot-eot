@@ -20,8 +20,8 @@ INTERRUPTIONS = {
 NON_SPEECH = {"Awkward Silence", "Channel Bleed", "Laughter", "Non-Speech Noise", "Speech, Non-Linguistic"}
 FLOOR = {"Normal Turn", "Bounded Response"}
 HOLDS = {"Strong Floor Hold", "Filler"}
-KNOWN = BACKCHANNELS | INTERRUPTIONS | NON_SPEECH | FLOOR | HOLDS
-
+FLOOR_OR_HOLDS = FLOOR | HOLDS
+KNOWN = BACKCHANNELS | INTERRUPTIONS | NON_SPEECH | FLOOR_OR_HOLDS
 _TIMESTAMP_RE = re.compile(r"(\d+):([0-5]\d):([0-5]\d)[,.](\d{3})")
 _EVENT_RE = re.compile(r"\[([^\]]+)\]\s*(.*)", re.DOTALL)
 
@@ -108,7 +108,7 @@ def label_pause(
     if len(own) != 1:
         return Target(None, "ambiguous_own_annotation")
     prior = own[0]
-    if prior.kind not in FLOOR | HOLDS:
+    if prior.kind not in FLOOR_OR_HOLDS:
         return Target(None, "not_current_floor_holder")
 
     horizon = min(observed_until, next_own_onset if next_own_onset is not None else observed_until, pause_start + 5.0)

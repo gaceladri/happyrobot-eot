@@ -8,16 +8,19 @@ the experiments that were rejected (encoder pruning, distillation, auxiliary bra
 src/eot/
   io.py          durable JSONL/WAV helpers                      (torch-free)
   context.py     hashed agent-text features                    (torch-free)
+  metrics.py     AUC and Pareto helpers                        (torch-free)
+  onnx.py        onnxruntime session helpers                   (torch-free)
   audio/         front-end, pause detectors, augmentation     (torch-free)
   labeling/      prefix mining, dual-channel oracle, event targets, labeler QA
-  data/          Smart Turn acquisition, Krisp test set, grouped splits, torch dataset
+  data/          Smart Turn acquisition, grouped splits, torch dataset
   modeling/      Whisper-Tiny model, training, weight soups, ONNX export
-  eval/          endpointing policy, EoT Bench adapter, reports, challenge set
+  eval/          endpointing policy, EoT Bench adapter, Krisp test set, reports, challenge set
   serving/       FastAPI + onnxruntime service and load test  (torch-free)
 ```
 
-Each stage imports only from the stages above it. `eot.serving`, `eot.eval.policy` and the ONNX
-path of `eot.eval.eotbench` never import torch, which the tests enforce.
+Each stage imports only from the stages above it (`tests/test_layering.py` checks the import graph).
+`eot.serving`, `eot.eval.policy` and the ONNX path of `eot.eval.eotbench` never import torch, which
+the tests also enforce.
 
 ## What came from where
 
@@ -29,7 +32,7 @@ path of `eot.eval.eotbench` never import torch, which the tests enforce.
 | `modeling.train --exclude-train-ids/--split-seed` | E013/E017 | train-only exclusions after the frozen split; seed replication with a fixed split |
 | `modeling.model` internal context crop | P010 | shorter encoder context behind the same 8 s interface (whisper-base feasibility) |
 | `modeling.soup` | E008/E020 | fixed-alpha weight soups scored on the frozen dev split |
-| `io.write_wav`, `audio.load_wav`, `audio.decode_payload`, `eval.metrics` | unification | one loader, one writer, one AUC, one Pareto front instead of six copies |
+| `io.write_wav`/`atomic_write_wav`, `audio.load_wav`/`decode_payload`/`to_16k`, `metrics`, `onnx` | unification | one loader, one writer (returning the sha256), one AUC, one Pareto front, one onnxruntime session helper instead of many copies |
 
 Dropped: two-layer pruning and soft-label distillation (`OPT student/distilled`, worse frontier),
 the MFU throughput benchmark (research tooling), and the research registry scripts (live in the
@@ -39,7 +42,7 @@ main repository under `research/`).
 
 ```bash
 uv sync --extra data --extra dev
-uv run pytest -q                                   # 90 tests
+uv run pytest -q
 uv run eot-mine --manifest data/raw/clips.jsonl --out data/mined --workers 8
 uv run eot-apptek --root data/raw/apptek/hf --out data/mined/apptek --rule-version v2
 uv run eot-train --samples data/mined/samples.jsonl --out runs/base --max-steps 800

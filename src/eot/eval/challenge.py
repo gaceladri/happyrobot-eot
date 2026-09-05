@@ -22,15 +22,12 @@ from pathlib import Path
 
 import numpy as np
 
-from eot.audio import SAMPLE_RATE
+from eot.audio import SAMPLE_RATE, resample
+from eot.io import atomic_write_jsonl, write_wav
 
 
 DIGITS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
-
-
 CITIES = ["Dallas", "Atlanta", "Chicago", "Memphis", "Laredo", "Phoenix", "Columbus", "Kansas City", "Newark", "Savannah"]
-
-
 FILLERS = ["uh", "um", "let me see", "hold on", "one second", "hmm"]
 
 
@@ -90,8 +87,6 @@ def generate(n: int, seed: int = 0) -> list[dict]:
 
 def synthesize(rows: list[dict], out_dir: Path, tts: str) -> Path:
     """Render segments with a TTS backend and stitch with real silences. Currently: kokoro."""
-    import soundfile as sf
-
     if tts != "kokoro":
         raise ValueError(f"unknown tts backend {tts}")
     from kokoro import KPipeline  # type: ignore
@@ -100,19 +95,18 @@ def synthesize(rows: list[dict], out_dir: Path, tts: str) -> Path:
     voices = ["af_heart", "am_michael", "bf_emma", "am_adam"]
     out_dir.mkdir(parents=True, exist_ok=True)
     manifest = out_dir / "clips.jsonl"
-    with manifest.open("w") as f:
-        for i, r in enumerate(rows):
-            parts = []
-            for seg in r["segments"]:
-                audio = np.concatenate([np.asarray(a) for _, _, a in pipe(seg["text"], voice=voices[i % len(voices)])])
-                audio = np.interp(np.linspace(0, 1, int(len(audio) * SAMPLE_RATE / 24000), endpoint=False), np.linspace(0, 1, len(audio), endpoint=False), audio)
-                parts.append(audio.astype(np.float32))
-                parts.append(np.zeros(int(seg["pause_s"] * SAMPLE_RATE), np.float32))
-            parts.append(np.zeros(int(0.3 * SAMPLE_RATE), np.float32))
-            x = np.concatenate(parts)
-            p = out_dir / f"{r['id']}.wav"
-            sf.write(p, x, SAMPLE_RATE, subtype="PCM_16")
-            f.write(json.dumps({"id": r["id"], "path": str(p), "label": 1, "source": f"challenge_{tts}", "agent_text": r["agent_text"], "category": r["category"]}) + "\n")
+    clips = []
+    for i, r in enumerate(rows):
+        parts = []
+        for seg in r["segments"]:
+            audio = np.concatenate([np.asarray(a) for _, _, a in pipe(seg["text"], voice=voices[i % len(voices)])])
+            parts.append(resample(audio.astype(np.float32), 24_000))
+            parts.append(np.zeros(int(seg["pause_s"] * SAMPLE_RATE), np.float32))
+        parts.append(np.zeros(int(0.3 * SAMPLE_RATE), np.float32))
+        p = out_dir / f"{r['id']}.wav"
+        write_wav(p, np.concatenate(parts), SAMPLE_RATE)
+        clips.append({"id": r["id"], "path": p.name, "label": 1, "source": f"challenge_{tts}", "agent_text": r["agent_text"], "category": r["category"]})
+    atomic_write_jsonl(manifest, clips)
     return manifest
 
 
@@ -125,9 +119,7 @@ def main(argv: list[str] | None = None) -> None:
     args = ap.parse_args(argv)
     rows = generate(args.n, args.seed)
     args.out.mkdir(parents=True, exist_ok=True)
-    with (args.out / "script.jsonl").open("w") as f:
-        for r in rows:
-            f.write(json.dumps(r) + "\n")
+    atomic_write_jsonl(args.out / "script.jsonl", rows)
     summary = {"n": len(rows), "hold_decisions": sum(r["n_hold_decisions"] for r in rows), "categories": sorted({r["category"] for r in rows})}
     if args.tts:
         summary["manifest"] = str(synthesize(rows, args.out / "audio", args.tts))

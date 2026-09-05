@@ -8,7 +8,7 @@ import torch
 
 from argparse import Namespace
 
-from eot.modeling.train import _validate_resume_args, atomic_torch_save, pick_device, should_save_best
+from eot.modeling.train import atomic_torch_save, pick_device, should_save_best, validate_resume_args
 
 
 def test_best_selection_is_nan_safe_and_always_selects_first() -> None:
@@ -44,9 +44,9 @@ def test_resume_rejects_changed_semantic_arguments() -> None:
     saved = vars(args).copy()
     saved["seed"] = 99
     with pytest.raises(ValueError, match="seed"):
-        _validate_resume_args({"args": saved}, args)
+        validate_resume_args({"args": saved}, args)
 
     saved = vars(args).copy()
     saved["compile_model"] = True
     with pytest.raises(ValueError, match="compile_model"):
-        _validate_resume_args({"args": saved}, args)
+        validate_resume_args({"args": saved}, args)

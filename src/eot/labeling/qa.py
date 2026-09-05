@@ -16,7 +16,10 @@ e. distribution  label ratio, kinds, source share, confidence tiers, pause lengt
 f. krisp_tail    our detectors' trailing-silence estimate vs Krisp's human ``last_silence_duration``
                  (independent check of boundary accuracy on real conversational audio).
 
-    uv run eot-qa run --smart-turn-clips data/raw/smart-turn-v3.2-eng/clips.jsonl         --mined data/mined/smart-turn-ensemble/samples.jsonl data/mined/smart-turn-legacy/samples.jsonl         --apptek data/mined/apptek-oracle --apptek-root data/raw/apptek/hf         --krisp-clips data/raw/krisp/clips/clips.jsonl --out eval/labeling_qa
+    uv run eot-qa run --smart-turn-clips data/raw/smart-turn-v3.2-eng/clips.jsonl \\
+        --mined data/mined/smart-turn-ensemble/samples.jsonl data/mined/smart-turn-legacy/samples.jsonl \\
+        --apptek data/mined/apptek-oracle --apptek-root data/raw/apptek/hf \\
+        --krisp-clips data/raw/krisp/clips/clips.jsonl --out eval/labeling_qa
 """
 from __future__ import annotations
 import argparse
@@ -30,7 +33,7 @@ from pathlib import Path
 import numpy as np
 
 from eot.audio import SAMPLE_RATE, PauseDetector, SileroVAD, load_wav, telephony_augment
-from eot.io import read_jsonl_records, resolve_record_path
+from eot.io import atomic_write_jsonl, read_jsonl_records, read_samples, resolve_record_path
 from eot.labeling.apptek import load_conversations
 
 
@@ -173,12 +176,7 @@ def check_single_vs_dual(apptek_dir: Path, horizons=(1.0, 2.0, 3.0, 5.0, float("
 
 def prepare_listening(samples_manifests: list[Path], out_dir: Path, plan: dict[str, int], vad: SileroVAD, seed: int = 0) -> dict:
     rng = random.Random(seed)
-    rows = []
-    for m in samples_manifests:
-        for r in read_jsonl_records(m):
-            r["_path"] = resolve_record_path(m, r["path"])
-            r["_manifest"] = str(m)
-            rows.append(r)
+    rows = [{**r, "_path": Path(r["path"]), "_manifest": str(m)} for m in samples_manifests for r in read_samples(m)]
     buckets = {
         "internal_hold": [r for r in rows if r.get("kind") in ("internal", "oracle_hold") and r.get("cut_confidence") != "low"],
         "eot": [r for r in rows if int(r["label"]) == 1 and r.get("cut_confidence") != "low"],
@@ -206,8 +204,8 @@ def prepare_listening(samples_manifests: list[Path], out_dir: Path, plan: dict[s
         proxy[(bucket, "speech_at_cut" if p_tail > 0.5 else "quiet_at_cut")] += 1
         key.append({"file": name, "bucket": bucket, "id": r["id"], "label": int(r["label"]), "kind": r.get("kind"), "cut_confidence": r.get("cut_confidence"), "manifest": r["_manifest"], "vad_p_speech_last_160ms": round(p_tail, 3)})
         sheet.append({"file": name, "cut_ok": None, "sounds_complete": None, "notes": ""})
-    (out_dir / "KEY_do_not_open_before_listening.jsonl").write_text("".join(json.dumps(k) + "\n" for k in key))
-    (out_dir / "listening_audit.jsonl").write_text("".join(json.dumps(s) + "\n" for s in sheet))
+    atomic_write_jsonl(out_dir / "KEY_do_not_open_before_listening.jsonl", key)
+    atomic_write_jsonl(out_dir / "listening_audit.jsonl", sheet)
     (out_dir / "README.txt").write_text(
         "Blind listening audit. Play audio/NNN.wav in order; for each file set cut_ok (true if the cut is "
         "not inside a word) and sounds_complete (true if the speaker sounds finished) in listening_audit.jsonl. "

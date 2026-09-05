@@ -1,28 +1,29 @@
 """Small, durable file helpers shared by every stage (torch-free).
 
 JSONL manifests are the interchange format between acquisition, labeling, training and
-evaluation. Writes are atomic (temp file + rename) so a crash never leaves a torn manifest;
-per-record fsync is opt-in through ``EOT_DURABLE_WRITES=1`` because it throttles mining on
-shared disks to a few rows per second.
+evaluation. Publishing writes go through one primitive, ``atomic_replace`` (sibling temp file +
+rename), so a crash never leaves a torn file. Per-record fsync is opt-in through
+``EOT_DURABLE_WRITES=1`` because it throttles mining on shared disks to a few rows per second.
 """
+
 from __future__ import annotations
+
 import hashlib
+import io
 import json
 import os
 import re
+import shutil
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 import numpy as np
 
-
-# fsync every record/wav only when asked: on a shared local disk two fsyncs per sample throttle
-# mining to ~5 rows/s. Torn tails are repaired on read either way (``repair_trailing``).
 DURABLE_WRITES = os.environ.get("EOT_DURABLE_WRITES", "0") == "1"
 
 
 def sha256_file(path: Path) -> str:
-    """Return a streaming SHA-256 for a local file."""
+    """Streaming SHA-256 of a local file."""
     digest = hashlib.sha256()
     with Path(path).open("rb") as f:
         for block in iter(lambda: f.read(1024 * 1024), b""):
@@ -30,8 +31,13 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def seed_from_key(key: str) -> int:
+    """Deterministic 64-bit seed from a string key (per-sample RNG streams, matched noise pads)."""
+    return int.from_bytes(hashlib.sha256(key.encode()).digest()[:8], "little")
+
+
 def safe_audio_filename(identifier: str) -> str:
-    """Make a readable filename while hashing the full id to avoid collisions/traversal."""
+    """Readable filename with the full id hashed in, so ids can never collide or escape the directory."""
     raw = str(identifier)
     slug = re.sub(r"[^A-Za-z0-9._-]+", "-", raw).strip("-._")[:64] or "audio"
     return f"{slug}-{hashlib.sha256(raw.encode()).hexdigest()[:12]}.wav"
@@ -45,39 +51,35 @@ def resolve_record_path(manifest: Path, value: str | Path) -> Path:
     return path.resolve()
 
 
-def atomic_write_json(path: Path, payload: Any) -> None:
-    """Durably replace a JSON file without exposing a partially-written version."""
+def atomic_replace(path: Path, write: Callable[[Path], None], *, fsync: bool = True) -> None:
+    """Let ``write`` fill a sibling temp file, optionally fsync it, then publish it with a rename."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(f".{path.name}.{os.getpid()}.tmp")
     try:
-        with tmp.open("w") as f:
-            json.dump(payload, f, indent=2, sort_keys=True, default=str)
-            f.write("\n")
-            f.flush()
-            os.fsync(f.fileno())
+        write(tmp)
+        if fsync:
+            with tmp.open("rb") as f:
+                os.fsync(f.fileno())
         os.replace(tmp, path)
     finally:
         tmp.unlink(missing_ok=True)
+
+
+def atomic_write_json(path: Path, payload: Any) -> None:
+    atomic_replace(path, lambda tmp: tmp.write_text(json.dumps(payload, indent=2, sort_keys=True, default=str) + "\n"))
 
 
 def atomic_write_jsonl(path: Path, rows: Iterable[dict]) -> None:
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-    try:
-        with tmp.open("w") as f:
-            for row in rows:
-                f.write(json.dumps(row, sort_keys=True, default=str) + "\n")
-            f.flush()
-            os.fsync(f.fileno())
-        os.replace(tmp, path)
-    finally:
-        tmp.unlink(missing_ok=True)
+    atomic_replace(path, lambda tmp: tmp.write_text("".join(json.dumps(row, sort_keys=True, default=str) + "\n" for row in rows)))
+
+
+def atomic_copy(source: Path, destination: Path) -> None:
+    atomic_replace(destination, lambda tmp: shutil.copyfile(source, tmp))
 
 
 def read_jsonl_records(path: Path, repair_trailing: bool = False) -> list[dict]:
-    """Read JSONL and optionally discard/rewrite only a torn final record."""
+    """Read JSONL; with ``repair_trailing`` a torn final record is dropped and the file rewritten."""
     path = Path(path)
     if not path.exists():
         return []
@@ -100,34 +102,17 @@ def read_jsonl_records(path: Path, repair_trailing: bool = False) -> list[dict]:
     return rows
 
 
-def write_wav(path: Path, audio: np.ndarray, sample_rate: int = 16_000, *, atomic: bool = True) -> None:
-    """Write mono float32 audio as PCM16.
-
-    ``atomic`` publishes through a temp file + rename (fsync when ``EOT_DURABLE_WRITES=1``).
-    Parallel mining passes ``atomic=False``: thousands of concurrent tmp+rename operations from
-    many workers saturated NVMe metadata throughput and stalled every writer.
-    """
-    import soundfile as sf
-
+def read_samples(path: Path) -> list[dict]:
+    """Manifest rows with ``path`` resolved relative to the manifest, so callers never depend on cwd."""
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    mono = np.asarray(audio, dtype=np.float32)
-    if not atomic:
-        sf.write(path, mono, sample_rate, subtype="PCM_16")
-        return
-    tmp = path.with_name(f".{path.stem}.{os.getpid()}.partial.wav")
-    try:
-        sf.write(tmp, mono, sample_rate, subtype="PCM_16")
-        if DURABLE_WRITES:
-            with tmp.open("rb") as f:
-                os.fsync(f.fileno())
-        os.replace(tmp, path)
-    finally:
-        tmp.unlink(missing_ok=True)
+    rows = read_jsonl_records(path)
+    for row in rows:
+        row["path"] = str(resolve_record_path(path, row["path"]))
+    return rows
 
 
 def append_jsonl_record(path: Path, row: dict) -> None:
-    """Append one complete record and fsync it before returning."""
+    """Append one complete record (fsync only under ``EOT_DURABLE_WRITES``)."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = (json.dumps(row, sort_keys=True, default=str) + "\n").encode()
@@ -140,3 +125,29 @@ def append_jsonl_record(path: Path, row: dict) -> None:
             os.fsync(fd)
     finally:
         os.close(fd)
+
+
+def _encode_wav(audio: np.ndarray, sample_rate: int) -> bytes:
+    import soundfile as sf
+
+    buffer = io.BytesIO()
+    sf.write(buffer, np.asarray(audio, dtype=np.float32), sample_rate, format="WAV", subtype="PCM_16")
+    return buffer.getvalue()
+
+
+def write_wav(path: Path, audio: np.ndarray, sample_rate: int) -> str:
+    """Plain PCM16 write into an existing directory; returns the file's SHA-256.
+
+    Used by parallel labelers: thousands of concurrent temp+rename operations from many workers
+    saturated NVMe metadata throughput, and those paths have no resume to protect anyway.
+    """
+    data = _encode_wav(audio, sample_rate)
+    Path(path).write_bytes(data)
+    return hashlib.sha256(data).hexdigest()
+
+
+def atomic_write_wav(path: Path, audio: np.ndarray, sample_rate: int) -> str:
+    """PCM16 write published atomically (fsync under ``EOT_DURABLE_WRITES``); returns the SHA-256."""
+    data = _encode_wav(audio, sample_rate)
+    atomic_replace(path, lambda tmp: tmp.write_bytes(data), fsync=DURABLE_WRITES)
+    return hashlib.sha256(data).hexdigest()

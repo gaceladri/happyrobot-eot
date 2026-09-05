@@ -5,7 +5,7 @@ within h seconds?" for h in ``HORIZONS``. Targets are derived from observed time
 censored future masks the corresponding horizons instead of assuming silence.
 """
 from __future__ import annotations
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field, fields
 
 import numpy as np
 
@@ -13,11 +13,6 @@ from eot.audio import SAMPLE_RATE
 
 
 HORIZONS: tuple[float, ...] = (0.24, 0.64, 1.2, 2.0)
-
-
-DEFAULT_SCORE_POINT = 0.2
-
-
 CONFIDENCE_RANK = {"low": 0, "medium": 1, "high": 2}
 
 
@@ -55,16 +50,14 @@ class Sample:
     extra: dict = field(default_factory=dict)  # source-specific fields (accent, speaker_id, ...)
 
     def meta(self) -> dict:
-        d = asdict(self)
-        d.pop("audio")
-        extra = d.pop("extra") or {}
-        for key, value in extra.items():
+        """Manifest row: every field except the waveform, with ``extra`` flattened (never overriding)."""
+        d = {f.name: getattr(self, f.name) for f in fields(self) if f.name not in ("audio", "extra")}
+        for key, value in (self.extra or {}).items():
             d.setdefault(key, value)
         return d
 
 
-def fvad_targets(time_to_onset: float | None, is_eot: bool = False,
-                 observed_until: float = 0.0) -> tuple[list[int], list[int]]:
+def fvad_targets(time_to_onset: float | None, observed_until: float = 0.0) -> tuple[list[int], list[int]]:
     """Future activity is observed independently of the conversational EOT label.
 
     With a known next onset every horizon is known. With right censoring only horizons

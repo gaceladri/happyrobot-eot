@@ -1,9 +1,9 @@
 import pytest
 import torch
 
+from conftest import tiny_model
 from eot.modeling.model import EOTConfig, EOTModel
 from eot.modeling.soup import average_models
-from test_model_context import tiny_model
 
 
 def _params(model):

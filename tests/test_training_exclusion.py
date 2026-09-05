@@ -2,7 +2,7 @@ from argparse import Namespace
 
 import pytest
 
-from eot.modeling.train import _validate_resume_args, exclude_training_ids
+from eot.modeling.train import exclude_training_ids, validate_resume_args
 
 TRAIN = [dict(id="a", label=0), dict(id="b", label=0), dict(id="c", label=1)]
 DEV = [dict(id="d", label=0), dict(id="e", label=1)]
@@ -21,4 +21,4 @@ def test_invalid_exclusions_fail(ids, error):
 
 def test_resume_rejects_changed_exclusion_contents():
     with pytest.raises(ValueError, match="exclude_train_sha256"):
-        _validate_resume_args({"args": {"exclude_train_sha256": "old"}}, Namespace(exclude_train_sha256="new"))
+        validate_resume_args({"args": {"exclude_train_sha256": "old"}}, Namespace(exclude_train_sha256="new"))
