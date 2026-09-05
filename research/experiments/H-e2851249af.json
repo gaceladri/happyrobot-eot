@@ -1,0 +1,19 @@
+{
+  "decision": "historical evidence; see BACKLOG.md",
+  "id": "H-e2851249af",
+  "metrics": {
+    "delay_at_10pct_ms": 833.75,
+    "delay_at_2pct_ms": 2171.5,
+    "delay_at_5pct_ms": 1275.0
+  },
+  "name": "OPT distilled student",
+  "parent": null,
+  "preregistered": false,
+  "result_dir": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/eot_adapter__e2851249af",
+  "score_mode": "score_point",
+  "score_point": 0.2,
+  "status": "historical",
+  "time_unix": 1788590683.7112808,
+  "wandb_id": "hr26b6f7bf34",
+  "wandb_status": "pending"
+}

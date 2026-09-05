@@ -26,6 +26,7 @@ import hashlib
 import json
 import os
 import time
+from contextlib import asynccontextmanager
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -51,7 +52,14 @@ class Engine:
         self.sha = hashlib.sha256(Path(onnx_path).read_bytes()).hexdigest()[:16]
         meta = Path(onnx_path).with_suffix(".json")
         self.meta = json.loads(meta.read_text()) if meta.exists() else {}
+        if self.meta.get("accepted") is False:
+            raise ValueError("model artifact failed export validation")
+        recorded_sha = self.meta.get("sha256")
+        if recorded_sha and recorded_sha != hashlib.sha256(Path(onnx_path).read_bytes()).hexdigest():
+            raise ValueError("model checksum does not match its metadata")
         self.use_context = bool(self.meta.get("use_context", False))
+        self.use_fvad = bool(self.meta.get("use_fvad", True))
+        self.normalize_audio = bool(self.meta.get("normalize_audio", False))
         self.horizons = self.meta.get("horizons", [0.24, 0.64, 1.2, 2.0])
         self.threads = threads
         # Warm up the *whole* path (feature extractor construction + session) so the first real
@@ -61,7 +69,7 @@ class Engine:
 
     def infer(self, x16k: np.ndarray, agent_text: str) -> tuple[float, list[float], float, float]:
         t0 = time.perf_counter()
-        feats = log_mel(x16k)[None]
+        feats = log_mel(x16k, normalize=self.normalize_audio)[None]
         t1 = time.perf_counter()
         ctx = hash_context(agent_text)[None] if (self.use_context and agent_text) else np.zeros((1, CTX_LEN), np.int64)
         feed = {"input_features": feats}
@@ -82,6 +90,8 @@ def _decode_request(body: bytes, raw_sr: int | None) -> np.ndarray:
     if not 8_000 <= in_sr <= 192_000:
         raise ValueError(f"sample rate must be between 8000 and 192000 Hz, got {in_sr}")
     x = to_mono(x)
+    if not np.isfinite(x).all():
+        raise ValueError("audio contains non-finite samples")
     max_input_samples = int(round(WINDOW_SECONDS * in_sr))
     if len(x) > max_input_samples:
         x = x[-max_input_samples:]
@@ -115,7 +125,12 @@ def create_app(
     engine = Engine(onnx_path, threads)
     pool = ThreadPoolExecutor(max_workers=max_inflight)
     sem = asyncio.Semaphore(max_inflight)
-    app = FastAPI(title="eot", version=__version__)
+    @asynccontextmanager
+    async def lifespan(_app):
+        yield
+        pool.shutdown(wait=True, cancel_futures=True)
+
+    app = FastAPI(title="eot", version=__version__, lifespan=lifespan)
 
     @app.get("/healthz")
     async def healthz():
@@ -136,7 +151,7 @@ def create_app(
         deadline_ms: float | None = Query(
             None,
             gt=0,
-            description="drop the request if it cannot start before this budget",
+            description="end-to-end server budget including body read, decoding and inference",
         ),
     ):
         t_start = time.perf_counter()
@@ -152,24 +167,49 @@ def create_app(
                 raise HTTPException(400, "invalid Content-Length header") from error
         if sem.locked():
             raise HTTPException(503, "at capacity; retry or fall back to timeout policy")
-        async with sem:
-            if deadline_ms is not None and (time.perf_counter() - t_start) * 1000 > deadline_ms:
-                raise HTTPException(409, "deadline exceeded before inference; result would be stale")
-            body = await _read_limited_body(request, max_body_bytes)
+        await sem.acquire()
+        future = None
+        def remaining():
+            if deadline_ms is None:
+                return None
+            return max(0.0, deadline_ms / 1000 - (time.perf_counter() - t_start))
+        try:
+            body = await asyncio.wait_for(_read_limited_body(request, max_body_bytes), timeout=remaining())
             if not body:
                 raise HTTPException(400, "empty body")
             loop = asyncio.get_running_loop()
-            try:
-                x = await loop.run_in_executor(pool, _decode_request, body, sr)
-            except Exception as e:  # noqa: BLE001
-                raise HTTPException(400, f"cannot decode audio: {e}") from e
-            t_dec = (time.perf_counter() - t_start) * 1000
-            p, f, feat_ms, inf_ms = await loop.run_in_executor(pool, engine.infer, x, agent_text)
+            def process():
+                td = time.perf_counter()
+                try:
+                    x = _decode_request(body, sr)
+                except Exception as e:
+                    raise HTTPException(400, f"cannot decode audio: {e}") from e
+                decode_ms = (time.perf_counter() - td) * 1000
+                if remaining() is not None and remaining() <= 0:
+                    raise HTTPException(409, "deadline exceeded during decoding")
+                return len(x), decode_ms, engine.infer(x, agent_text)
+            future = loop.run_in_executor(pool, process)
+            n_samples, t_dec, (p, f, feat_ms, inf_ms) = await asyncio.wait_for(asyncio.shield(future), timeout=remaining())
+            if remaining() is not None and remaining() <= 0:
+                raise HTTPException(409, "deadline exceeded during inference")
+        except asyncio.TimeoutError:
+            raise HTTPException(409, "request deadline exceeded; discard this result") from None
+        finally:
+            if future is not None and not future.done():
+                # A cancelled HTTP request cannot cancel a running native forward. Keep its
+                # capacity slot occupied until completion to prevent unbounded executor queues.
+                def finished(done):
+                    if not done.cancelled():
+                        done.exception()
+                    sem.release()
+                future.add_done_callback(finished)
+            else:
+                sem.release()
         total = (time.perf_counter() - t_start) * 1000
         return JSONResponse({
             "p_eot": p, "decision": "eot" if p >= threshold else "hold", "threshold": threshold,
-            "p_fvad": dict(zip([str(h) for h in engine.horizons], f)),
-            "audio_seconds": len(x) / SAMPLE_RATE, "context_used": bool(engine.use_context and agent_text),
+            "p_fvad": dict(zip([str(h) for h in engine.horizons], f)) if getattr(engine, "use_fvad", True) else {},
+            "audio_seconds": n_samples / SAMPLE_RATE, "context_used": bool(engine.use_context and agent_text),
             "timings_ms": {"decode": round(t_dec, 2), "features": round(feat_ms, 2), "inference": round(inf_ms, 2), "total": round(total, 2)},
             "model_sha": engine.sha, "version": __version__,
         })

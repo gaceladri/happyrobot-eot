@@ -1,0 +1,19 @@
+{
+  "decision": "historical evidence; see BACKLOG.md",
+  "id": "H-058f84fc8f",
+  "metrics": {
+    "delay_at_10pct_ms": 742.0,
+    "delay_at_2pct_ms": 1568.4999999999995,
+    "delay_at_5pct_ms": 1041.9999999999998
+  },
+  "name": "OPT mined (public initialization)",
+  "parent": null,
+  "preregistered": false,
+  "result_dir": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/eot_adapter__058f84fc8f",
+  "score_mode": "score_point",
+  "score_point": 0.2,
+  "status": "historical",
+  "time_unix": 1788590683.7140522,
+  "wandb_id": "hr9a4b470d6b",
+  "wandb_status": "pending"
+}

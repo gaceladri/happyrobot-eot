@@ -20,9 +20,19 @@ again within h seconds?" for h in ``HORIZONS``. For an internal pause cut at tim
 resuming at t_on, the target is 1 for horizons >= (t_on - t). For a true EOT it is all zeros.
 This is the label-free duration signal of Next-Turn / DualTurn FVAD, derived from timestamps.
 
+Pause detection (rev. 3)
+------------------------
+By default pauses come from :class:`eot.audio.PauseDetector` in ``ensemble`` mode: a
+noise-floor-adaptive energy detector and Silero VAD v6.2.1 must agree; the cut is placed inside
+their intersection; every sample records ``cut_confidence`` (high/medium/low), ``pause_iou``,
+``snr_est_db`` and ``onset_margin_ms``. Pauses only one detector sees ("low") are counted and
+dropped from training by default. ``--detector legacy`` reproduces the peak-relative energy
+detector of rev. 2 so its cost can be measured (run R2').
+
 CLI
 ---
     uv run eot-mine --manifest clips.jsonl --out mined/  [--grid 0.2 0.4 0.6] [--min-pause 0.2]
+                    [--detector ensemble|legacy|energy] [--min-confidence medium]
 
 ``clips.jsonl`` rows: {"id", "path", "label" (1=EOT complete, 0=incomplete), "source", "agent_text"?}
 Output: ``mined/<id>_<k>.wav`` + ``mined/samples.jsonl`` with per-sample metadata.
@@ -34,16 +44,28 @@ import argparse
 import hashlib
 import json
 import os
+from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable, Iterator
 
 import numpy as np
 
-from .audio import SAMPLE_RATE, WINDOW_SECONDS, Span, silence_spans, to_float32, to_mono
+from .audio import (
+    SAMPLE_RATE,
+    WINDOW_SECONDS,
+    PauseDetector,
+    PauseSpan,
+    Span,
+    digital_silence_fraction,
+    estimate_snr_db,
+    to_float32,
+    to_mono,
+)
 
 HORIZONS: tuple[float, ...] = (0.24, 0.64, 1.2, 2.0)
 DEFAULT_SCORE_POINT = 0.2
+CONFIDENCE_RANK = {"low": 0, "medium": 1, "high": 2}
 
 
 @dataclass
@@ -67,30 +89,53 @@ class Sample:
     pause_start: float
     time_to_onset: float | None  # seconds until next speech onset; None if EOT or censored
     fvad: list[int]
-    fvad_mask: int  # 1 if fvad targets are valid
+    fvad_mask: int | list[int]  # validity per horizon; scalar accepted for old manifests
     source: str
     agent_text: str
+    # Labeling-quality metadata (rev. 3). Defaults keep older manifests loadable.
+    cut_confidence: str = "high"  # high | medium | low (see audio.ensemble_pauses)
+    pause_iou: float = 1.0  # IoU between the energy and VAD pause spans
+    snr_est_db: float | None = None  # crude clip SNR estimate
+    onset_margin_ms: float | None = None  # ms from the cut to the earliest plausible speech onset
+    detector: str = "legacy"
+    noise_fill: int = 0  # 1 -> add room tone at train time (digital-silence sources)
+    extra: dict = field(default_factory=dict)  # source-specific fields (accent, speaker_id, ...)
 
     def meta(self) -> dict:
         d = asdict(self)
         d.pop("audio")
+        extra = d.pop("extra") or {}
+        for key, value in extra.items():
+            d.setdefault(key, value)
         return d
 
 
-def fvad_targets(time_to_onset: float | None, is_eot: bool) -> tuple[list[int], int]:
-    if is_eot:
-        return [0] * len(HORIZONS), 1
-    if time_to_onset is None:
-        return [0] * len(HORIZONS), 0
-    return [int(time_to_onset <= h) for h in HORIZONS], 1
+def fvad_targets(time_to_onset: float | None, is_eot: bool = False,
+                 observed_until: float = 0.0) -> tuple[list[int], list[int]]:
+    """Future activity is observed independently of the conversational EOT label.
+
+    With a known next onset every horizon is known. With right censoring only horizons
+    within the observed silent future are valid. Clip completion alone proves nothing.
+    """
+    if time_to_onset is not None:
+        if time_to_onset < -1e-9:
+            raise ValueError("cut is after the next speech onset")
+        return [int(time_to_onset <= h) for h in HORIZONS], [1] * len(HORIZONS)
+    return [0] * len(HORIZONS), [int(h <= observed_until) for h in HORIZONS]
 
 
-def _speech_bounds(x: np.ndarray, spans: list[Span], sr: int) -> tuple[float, float]:
+def _speech_bounds(x: np.ndarray, spans: list[Span] | list[PauseSpan], sr: int) -> tuple[float, float]:
     """(first_speech, last_speech_end) in seconds using detected silence spans."""
     total = len(x) / sr
     first = spans[0].end if spans and spans[0].start <= 1e-6 else 0.0
     last = spans[-1].start if spans and abs(spans[-1].end - total) < 0.05 else total
     return first, last
+
+
+def _trailing_pause(spans: list[PauseSpan], total: float) -> PauseSpan | None:
+    if spans and abs(spans[-1].end - total) < 0.05:
+        return spans[-1]
+    return None
 
 
 def _matched_noise_pad(x: np.ndarray, samples: int, sr: int, key: str) -> np.ndarray:
@@ -125,44 +170,73 @@ def mine_clip(
     min_pause: float = 0.2,
     min_speech_before: float = 0.3,
     tail_silence: float = DEFAULT_SCORE_POINT,
+    detector: PauseDetector | None = None,
+    min_confidence: str = "medium",
+    stats: Counter | None = None,
 ) -> list[Sample]:
-    """Produce pause-level samples from one clip. See module docstring."""
+    """Produce pause-level samples from one clip. See module docstring.
+
+    ``detector`` defaults to the legacy peak-relative energy detector for backwards compatibility
+    of callers; the CLI defaults to the ensemble. ``stats`` (optional Counter) receives counts of
+    pauses dropped for low confidence so the mining report can show them.
+    """
     x = clip.audio
     sr = clip.sr
     total = len(x) / sr
-    spans = silence_spans(x, sr, min_silence=min_pause)
-    first_speech, last_speech_end = _speech_bounds(x, spans, sr)
+    detector = detector or PauseDetector("legacy", min_silence=min_pause)
+    pauses = detector(x, sr)
+    first_speech, last_speech_end = _speech_bounds(x, pauses, sr)
     grid = sorted(set(float(g) for g in grid) | {float(score_point)})
+    min_rank = CONFIDENCE_RANK[min_confidence]
+    snr = estimate_snr_db(x, sr)
+    snr = None if snr != snr else round(float(snr), 2)  # NaN -> None
+    noise_fill = int(digital_silence_fraction(x, sr) > 0.2)
+    common = dict(
+        source=clip.source, agent_text=clip.agent_text, snr_est_db=snr,
+        detector=detector.detector, noise_fill=noise_fill,
+    )
     out: list[Sample] = []
     k = 0
 
     # Internal pauses: speech before AND after -> HOLD, with known time-to-onset.
-    for sp in spans:
+    for sp in pauses:
         if sp.start <= first_speech + 1e-6 or sp.end >= last_speech_end - 1e-6:
             continue  # leading / trailing silence
         if sp.start - first_speech < min_speech_before:
             continue
+        if CONFIDENCE_RANK[sp.confidence] < min_rank:
+            if stats is not None:
+                stats[f"dropped_internal_{sp.confidence}"] += 1
+            continue
         for g in grid:
             cut = sp.start + g
+            if cut + 1e-9 < sp.agree_from:
+                if stats is not None:
+                    stats["dropped_cut_before_vad_silence"] += 1
+                continue
             boundary_eps = max(1e-9, 0.5 / sr)
-            if cut > sp.end + boundary_eps:
+            if cut > min(sp.end, sp.onset) + boundary_eps:
                 break
             # A pause that survives to the score point is a valid HOLD example even
             # when speech resumes on the immediately following sample/frame.
-            cut = min(cut, sp.end)
-            tto = sp.end - cut
+            cut = min(cut, sp.end, sp.onset)
+            tto = sp.onset - cut
             fv, m = fvad_targets(tto, is_eot=False)
             out.append(
                 Sample(
                     id=f"{clip.id}_{k:02d}", clip_id=clip.id,
                     audio=x[: int(cut * sr)].copy(), label=0, kind="internal",
                     cut_time=cut, pause_start=sp.start, time_to_onset=tto,
-                    fvad=fv, fvad_mask=m, source=clip.source, agent_text=clip.agent_text,
+                    fvad=fv, fvad_mask=m, cut_confidence=sp.confidence, pause_iou=round(sp.iou, 3),
+                    onset_margin_ms=round(tto * 1000.0, 1), **common,
                 )
             )
             k += 1
 
     # Final region.
+    trailing_pause = _trailing_pause(pauses, total)
+    tail_conf = trailing_pause.confidence if trailing_pause is not None else "medium"
+    tail_iou = round(trailing_pause.iou, 3) if trailing_pause is not None else 0.0
     if clip.label == 1:
         # Complete turn: cut into the trailing pause; pad if the clip has < tail_silence of tail.
         trailing = total - last_speech_end
@@ -180,7 +254,7 @@ def mine_clip(
                 Sample(
                     id=f"{clip.id}_{k:02d}", clip_id=clip.id, audio=seg, label=1, kind="final",
                     cut_time=cut, pause_start=last_speech_end, time_to_onset=None,
-                    fvad=fv, fvad_mask=m, source=clip.source, agent_text=clip.agent_text,
+                    fvad=fv, fvad_mask=m, cut_confidence=tail_conf, pause_iou=tail_iou, **common,
                 )
             )
             k += 1
@@ -201,7 +275,7 @@ def mine_clip(
             Sample(
                 id=f"{clip.id}_{k:02d}", clip_id=clip.id, audio=seg, label=0, kind="whole",
                 cut_time=last_speech_end + tail_silence, pause_start=last_speech_end, time_to_onset=None,
-                fvad=fv, fvad_mask=m, source=clip.source, agent_text=clip.agent_text,
+                fvad=fv, fvad_mask=m, cut_confidence=tail_conf, pause_iou=tail_iou, **common,
             )
         )
     return out
@@ -241,8 +315,11 @@ def _atomic_write_wav(path: Path, audio: np.ndarray) -> None:
     tmp = path.with_name(f".{path.stem}.{os.getpid()}.partial.wav")
     try:
         sf.write(tmp, to_mono(to_float32(np.asarray(audio))), SAMPLE_RATE, subtype="PCM_16")
-        with tmp.open("rb") as f:
-            os.fsync(f.fileno())
+        from .data import DURABLE_WRITES
+
+        if DURABLE_WRITES:
+            with tmp.open("rb") as f:
+                os.fsync(f.fileno())
         os.replace(tmp, path)
     finally:
         tmp.unlink(missing_ok=True)
@@ -283,6 +360,7 @@ def write_samples(samples: Iterable[Sample], out_dir: Path, *, resume: bool = Fa
         "label_0": sum(int(row["label"]) == 0 for row in existing.values()),
         "written": 0,
         "skipped": 0,
+        "confidence": dict(Counter(str(row.get("cut_confidence", "high")) for row in existing.values())),
     }
     max_samples = int(WINDOW_SECONDS * SAMPLE_RATE)
     for s in samples:
@@ -316,6 +394,91 @@ def write_samples(samples: Iterable[Sample], out_dir: Path, *, resume: bool = Fa
         stats[s.kind] += 1
         stats[f"label_{s.label}"] += 1
         stats["written"] += 1
+        conf = str(meta.get("cut_confidence", "high"))
+        stats["confidence"][conf] = stats["confidence"].get(conf, 0) + 1
+    return stats
+
+
+def build_detector(name: str, min_pause: float, vad_threads: int = 1) -> PauseDetector:
+    from .audio import SileroVAD
+
+    vad = SileroVAD(threads=vad_threads) if name == "ensemble" else None
+    return PauseDetector(name, vad=vad, min_silence=min_pause)
+
+
+_WORKER: dict = {}
+
+
+def _init_mine_worker(detector: str, min_pause: float, grid: list[float], min_confidence: str, out_dir: str) -> None:
+    _WORKER["detector"] = build_detector(detector, min_pause, 1)
+    _WORKER.update(grid=grid, min_pause=min_pause, min_confidence=min_confidence, out_dir=Path(out_dir))
+
+
+def _mine_one(row: dict) -> tuple[list[dict], dict]:
+    """Worker: mine one clip, write its wavs, return manifest rows + drop counts."""
+    import soundfile as sf
+
+    from .data import resolve_record_path, safe_audio_filename, sha256_file
+
+    audio_path = Path(row["_audio_path"])
+    audio, sr = sf.read(audio_path, dtype="float32", always_2d=False)
+    from .audio import resample
+
+    audio = resample(to_mono(to_float32(np.asarray(audio))), sr)
+    clip = Clip(id=str(row["id"]), audio=audio, label=int(row["label"]), source=str(row.get("source", "unknown")), agent_text=str(row.get("agent_text", "")))
+    dropped: Counter = Counter()
+    samples = mine_clip(
+        clip, grid=_WORKER["grid"], min_pause=_WORKER["min_pause"], detector=_WORKER["detector"],
+        min_confidence=_WORKER["min_confidence"], stats=dropped,
+    )
+    out_dir: Path = _WORKER["out_dir"]
+    max_samples = int(WINDOW_SECONDS * SAMPLE_RATE)
+    metas = []
+    for s in samples:
+        wav = out_dir / "audio" / safe_audio_filename(str(s.id))
+        stored = s.audio[-max_samples:]
+        # Direct write: the parallel path has no resume, and tmp+rename from many workers at once
+        # saturated the NVMe with metadata operations.
+        sf.write(wav, to_mono(to_float32(np.asarray(stored))), SAMPLE_RATE, subtype="PCM_16")
+        meta = s.meta()
+        meta.update({"path": wav.relative_to(out_dir).as_posix(), "stored_duration_s": round(len(stored) / SAMPLE_RATE, 6), "sha256": sha256_file(wav)})
+        metas.append(meta)
+    return metas, dict(dropped)
+
+
+def write_samples_parallel(manifest_in: Path, out_dir: Path, *, detector: str, min_pause: float, grid: list[float], min_confidence: str, workers: int) -> dict:
+    """Multiprocess mining (no resume). Workers write wavs; the parent appends manifest rows."""
+    import multiprocessing as mp
+
+    from .data import read_jsonl_records, resolve_record_path
+
+    out_dir = Path(out_dir)
+    (out_dir / "audio").mkdir(parents=True, exist_ok=True)
+    manifest = out_dir / "samples.jsonl"
+    rows = read_jsonl_records(manifest_in)
+    for row in rows:
+        row["_audio_path"] = str(resolve_record_path(manifest_in, row["path"]))
+    stats: dict = {"internal": 0, "final": 0, "whole": 0, "label_1": 0, "label_0": 0, "written": 0, "skipped": 0, "confidence": {}, "dropped": {}}
+    seen: set[str] = set()
+    with manifest.open("w") as f, mp.get_context("spawn").Pool(
+        workers, initializer=_init_mine_worker, initargs=(detector, min_pause, list(grid), min_confidence, str(out_dir))
+    ) as pool:
+        for i, (metas, dropped) in enumerate(pool.imap_unordered(_mine_one, rows, chunksize=4), 1):
+            for meta in metas:
+                if meta["id"] in seen:
+                    raise ValueError(f"duplicate sample id {meta['id']}")
+                seen.add(meta["id"])
+                f.write(json.dumps(meta, sort_keys=True, default=str) + "\n")
+                stats[meta["kind"]] = stats.get(meta["kind"], 0) + 1
+                stats[f"label_{meta['label']}"] += 1
+                stats["written"] += 1
+                conf = str(meta.get("cut_confidence", "high"))
+                stats["confidence"][conf] = stats["confidence"].get(conf, 0) + 1
+            for key, value in dropped.items():
+                stats["dropped"][key] = stats["dropped"].get(key, 0) + value
+            if i % 500 == 0 or i == len(rows):
+                f.flush()
+                print(f"mined {i}/{len(rows)} clips -> {stats['written']} samples", flush=True)
     return stats
 
 
@@ -325,8 +488,13 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--grid", type=float, nargs="+", default=[0.2, 0.4, 0.6])
     ap.add_argument("--min-pause", type=float, default=0.2)
+    ap.add_argument("--detector", choices=("ensemble", "legacy", "energy"), default="ensemble")
+    ap.add_argument("--min-confidence", choices=("low", "medium", "high"), default="medium")
+    ap.add_argument("--vad-threads", type=int, default=1)
+    ap.add_argument("--workers", type=int, default=1, help=">1 enables multiprocess mining (no --resume)")
     ap.add_argument("--resume", action="store_true", help="continue an interrupted compatible run")
     args = ap.parse_args(argv)
+    from .audio import SILERO_VAD_SHA256, SILERO_VAD_VERSION
     from .data import atomic_write_json, sha256_file
 
     metadata_path = args.out / "metadata.json"
@@ -336,6 +504,9 @@ def main(argv: list[str] | None = None) -> None:
         "grid": sorted(set(float(value) for value in args.grid) | {DEFAULT_SCORE_POINT}),
         "min_pause": float(args.min_pause),
         "window_seconds": WINDOW_SECONDS,
+        "detector": args.detector,
+        "min_confidence": args.min_confidence,
+        "silero_vad": {"version": SILERO_VAD_VERSION, "sha256": SILERO_VAD_SHA256} if args.detector == "ensemble" else None,
     }
     if args.resume and metadata_path.exists():
         previous = json.loads(metadata_path.read_text())
@@ -343,11 +514,25 @@ def main(argv: list[str] | None = None) -> None:
         if mismatches:
             raise ValueError(f"cannot resume mining with changed inputs: {mismatches}")
     atomic_write_json(metadata_path, {**config, "stats": None, "completed": False})
-    stats = write_samples(
-        mine(_read_manifest(args.manifest), grid=args.grid, min_pause=args.min_pause),
-        args.out,
-        resume=args.resume,
-    )
+    if args.workers > 1:
+        if args.resume:
+            raise ValueError("--resume is only supported with --workers 1")
+        stats = write_samples_parallel(
+            args.manifest, args.out, detector=args.detector, min_pause=args.min_pause, grid=args.grid,
+            min_confidence=args.min_confidence, workers=args.workers,
+        )
+    else:
+        detector = build_detector(args.detector, args.min_pause, args.vad_threads)
+        dropped: Counter = Counter()
+        stats = write_samples(
+            mine(
+                _read_manifest(args.manifest), grid=args.grid, min_pause=args.min_pause,
+                detector=detector, min_confidence=args.min_confidence, stats=dropped,
+            ),
+            args.out,
+            resume=args.resume,
+        )
+        stats["dropped"] = dict(dropped)
     atomic_write_json(metadata_path, {**config, "stats": stats, "completed": True})
     print(json.dumps(stats, indent=2))
 

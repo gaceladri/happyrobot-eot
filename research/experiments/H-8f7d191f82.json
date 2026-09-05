@@ -1,0 +1,19 @@
+{
+  "decision": "historical evidence; see BACKLOG.md",
+  "id": "H-8f7d191f82",
+  "metrics": {
+    "delay_at_10pct_ms": 734.5,
+    "delay_at_2pct_ms": 1604.4999999999998,
+    "delay_at_5pct_ms": 1058.0000000000002
+  },
+  "name": "OPT mined with corrected FVAD",
+  "parent": null,
+  "preregistered": false,
+  "result_dir": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/eot_adapter__8f7d191f82",
+  "score_mode": "score_point",
+  "score_point": 0.2,
+  "status": "historical",
+  "time_unix": 1788590683.7211733,
+  "wandb_id": "hradda9fab9c",
+  "wandb_status": "pending"
+}

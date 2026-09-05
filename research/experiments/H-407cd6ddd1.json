@@ -1,0 +1,19 @@
+{
+  "decision": "historical evidence; see BACKLOG.md",
+  "id": "H-407cd6ddd1",
+  "metrics": {
+    "delay_at_10pct_ms": 824.9999999999999,
+    "delay_at_2pct_ms": 1861.5000000000005,
+    "delay_at_5pct_ms": 1190.0
+  },
+  "name": "R2 ours: Smart Turn mined, ensemble detector",
+  "parent": null,
+  "preregistered": false,
+  "result_dir": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/eot_adapter__407cd6ddd1",
+  "score_mode": "score_point",
+  "score_point": 0.2,
+  "status": "historical",
+  "time_unix": 1788590683.7257354,
+  "wandb_id": "hr992b59c6e1",
+  "wandb_status": "pending"
+}

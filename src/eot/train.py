@@ -39,6 +39,15 @@ from .data import (
 from .model import EOTConfig, EOTModel
 
 
+def _source_digest() -> str:
+    import hashlib
+    h = hashlib.sha256()
+    for p in sorted(Path(__file__).parent.glob("*.py")):
+        h.update(p.name.encode())
+        h.update(p.read_bytes())
+    return h.hexdigest()
+
+
 def pick_device(name: str | None = None, *, require_cuda: bool = False) -> torch.device:
     if name:
         device = torch.device(name)
@@ -196,7 +205,9 @@ def _checkpoint_payload(
     samples_sha256: str,
 ) -> dict:
     return {
-        "format_version": 2,
+        "format_version": 3,
+        "data_filter_version": 1,
+        "teacher_checkpoint_sha256": sha256_file(args.teacher_checkpoint) if getattr(args, "teacher_checkpoint", None) else None,
         "cfg": asdict(model.cfg),
         "state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
@@ -234,7 +245,8 @@ def _validate_resume_args(checkpoint: dict, args: argparse.Namespace) -> None:
         "base_model", "base_revision", "epochs", "batch_size", "lr", "weight_decay",
         "warmup_ratio", "dev_frac", "telephony_prob", "fvad_weight", "use_context",
         "min_context_coverage", "no_fvad", "freeze_encoder", "workers", "seed", "max_steps",
-        "fused_adamw", "compile_model", "compile_mode",
+        "fused_adamw", "compile_model", "compile_mode", "init_checkpoint", "encoder_layers",
+        "teacher_checkpoint", "distill_weight", "prune_strategy",
     )
     mismatches = {
         key: (saved[key], getattr(args, key))
@@ -247,6 +259,9 @@ def _validate_resume_args(checkpoint: dict, args: argparse.Namespace) -> None:
             for key, (old, new) in sorted(mismatches.items())
         )
         raise ValueError(f"resume arguments changed training semantics: {details}")
+    if checkpoint.get("teacher_checkpoint_sha256"):
+        if sha256_file(args.teacher_checkpoint) != checkpoint["teacher_checkpoint_sha256"]:
+            raise ValueError("teacher checkpoint changed since the training checkpoint")
 
 
 def _resolve_resume(value: str | None, out_dir: Path) -> Path | None:
@@ -285,6 +300,13 @@ def train(args: argparse.Namespace) -> Path:
     if restored is not None and restored.get("samples_sha256") not in (None, samples_sha256):
         raise ValueError("samples manifest changed since the resume checkpoint was written")
     rows = read_samples(args.samples)
+    # Older energy/VAD manifests occasionally place a cut just beyond the earlier
+    # VAD speech onset. Those are not valid pause decisions; preserve the original
+    # manifest but exclude them and record the exact count in run provenance.
+    invalid_cuts = sum(r.get("time_to_onset") is not None and r["time_to_onset"] < 0 for r in rows)
+    rows = [r for r in rows if r.get("time_to_onset") is None or r["time_to_onset"] >= 0]
+    if restored is not None and invalid_cuts and restored.get("data_filter_version") != 1:
+        raise ValueError("resume would change the training sample filter; use --init-checkpoint in a new run instead")
     if not rows:
         raise ValueError("samples manifest is empty")
     if {int(row["label"]) for row in rows} != {0, 1}:
@@ -313,6 +335,23 @@ def train(args: argparse.Namespace) -> Path:
             raise ValueError("resume flags --use-context/--no-fvad must match the checkpoint")
         model = EOTModel(cfg, pretrained=False)
         model.load_state_dict(restored["state_dict"])
+    elif args.init_checkpoint:
+        from .model import load_checkpoint
+        model = load_checkpoint(str(args.init_checkpoint))
+        cfg = model.cfg
+        if cfg.use_fvad != (not args.no_fvad) or cfg.use_context != args.use_context:
+            raise ValueError("initial checkpoint heads must match requested context/FVAD flags")
+        if args.encoder_layers:
+            if not 1 <= args.encoder_layers <= len(model.encoder.layers):
+                raise ValueError("requested depth exceeds initial checkpoint")
+            indices = (np.linspace(0, len(model.encoder.layers)-1, args.encoder_layers, dtype=int).tolist()
+                       if args.prune_strategy == "uniform" else list(range(args.encoder_layers)))
+            model.encoder.layers = torch.nn.ModuleList([model.encoder.layers[i] for i in indices])
+            cfg.encoder_layers = args.encoder_layers
+        cfg.freeze_encoder = args.freeze_encoder
+        for p in model.encoder.parameters():
+            p.requires_grad_(not cfg.freeze_encoder)
+        model.encoder.embed_positions.weight.requires_grad_(False)
     else:
         cfg = EOTConfig(
             base_model=args.base_model,
@@ -321,11 +360,21 @@ def train(args: argparse.Namespace) -> Path:
             use_fvad=not args.no_fvad,
             freeze_encoder=args.freeze_encoder,
             fvad_weight=args.fvad_weight,
+            encoder_layers=args.encoder_layers,
             pos_weight=sum(int(row["label"]) == 0 for row in tr_rows)
             / max(1, sum(int(row["label"]) == 1 for row in tr_rows)),
         )
         model = EOTModel(cfg)
     model = model.to(device)
+    teacher = None
+    if args.teacher_checkpoint:
+        from .model import load_checkpoint
+        teacher = load_checkpoint(str(args.teacher_checkpoint)).to(device).eval()
+        teacher.requires_grad_(False)
+        if teacher.cfg.normalize_audio != cfg.normalize_audio:
+            raise ValueError("teacher/student preprocessing must match")
+        if not 0 <= args.distill_weight <= 1:
+            raise ValueError("distill_weight must be between zero and one")
     print(f"params total={model.num_params():,} trainable={model.num_params(True):,}")
     train_model = (
         torch.compile(model, mode=args.compile_mode)
@@ -358,7 +407,7 @@ def train(args: argparse.Namespace) -> Path:
     if args.workers > 0 and args.wandb_project:
         common_loader["multiprocessing_context"] = "spawn"
     tr = DataLoader(
-        MinedDataset(tr_rows, telephony_prob=args.telephony_prob, seed=args.seed),
+        MinedDataset(tr_rows, telephony_prob=args.telephony_prob, seed=args.seed, normalize_audio=cfg.normalize_audio),
         batch_size=args.batch_size,
         shuffle=True,
         drop_last=False,
@@ -366,7 +415,7 @@ def train(args: argparse.Namespace) -> Path:
         **common_loader,
     )
     dv = DataLoader(
-        MinedDataset(dv_rows, seed=args.seed + 1),
+        MinedDataset(dv_rows, seed=args.seed + 1, normalize_audio=cfg.normalize_audio),
         batch_size=args.batch_size * 2,
         shuffle=False,
         **common_loader,
@@ -426,7 +475,9 @@ def train(args: argparse.Namespace) -> Path:
         "device": str(device),
         "gpu": torch.cuda.get_device_name(device) if device.type == "cuda" else None,
         "image_ref": os.environ.get("EOT_IMAGE_REF"),
-        "source_sha256": source_identity_path.read_text().strip() if source_identity_path.is_file() else None,
+        "source_sha256": source_identity_path.read_text().strip() if source_identity_path.is_file() else _source_digest(),
+        "init_checkpoint_sha256": sha256_file(args.init_checkpoint) if args.init_checkpoint else None,
+        "teacher_checkpoint_sha256": sha256_file(args.teacher_checkpoint) if args.teacher_checkpoint else None,
         "dependencies": {
             package: importlib.metadata.version(package)
             for package in ("eot", "numpy", "torch", "transformers")
@@ -435,6 +486,7 @@ def train(args: argparse.Namespace) -> Path:
         "split": diagnostics,
         "context_coverage": {"train": train_context_coverage, "dev": dev_context_coverage},
         "samples_sha256": samples_sha256,
+        "excluded_cuts_after_speech_onset": invalid_cuts,
         "performance": {
             "compile_model": args.compile_model,
             "compile_mode": args.compile_mode,
@@ -503,6 +555,11 @@ def train(args: argparse.Namespace) -> Path:
                 output = train_model(
                     b["input_features"], b["context_ids"], b["labels"], b["fvad"], b["fvad_mask"]
                 )
+                if teacher is not None:
+                    with torch.no_grad():
+                        target = teacher(b["input_features"], b["context_ids"])["p_eot"]
+                    distill = torch.nn.functional.binary_cross_entropy_with_logits(output["logit"], target)
+                    output["loss"] = (1 - args.distill_weight) * output["loss"] + args.distill_weight * distill
             scaler.scale(output["loss"]).backward()
             scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(params, 1.0)
@@ -620,6 +677,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--samples", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--init-checkpoint", type=Path, default=None, help="fine-tune existing EOT weights, with a fresh optimizer")
+    parser.add_argument("--encoder-layers", type=int, default=None, help="retain the first N encoder layers as a smaller student")
+    parser.add_argument("--prune-strategy", choices=("first", "uniform"), default="first")
+    parser.add_argument("--teacher-checkpoint", type=Path, default=None)
+    parser.add_argument("--distill-weight", type=float, default=0.7)
     parser.add_argument("--base-model", default="openai/whisper-tiny")
     parser.add_argument(
         "--base-revision",

@@ -1,0 +1,19 @@
+{
+  "decision": "historical evidence; see BACKLOG.md",
+  "id": "H-d1d22ff208",
+  "metrics": {
+    "delay_at_10pct_ms": 840.0,
+    "delay_at_2pct_ms": 1756.2500000000002,
+    "delay_at_5pct_ms": 1175.0
+  },
+  "name": "R2' ours: Smart Turn mined, legacy detector",
+  "parent": null,
+  "preregistered": false,
+  "result_dir": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/eot_adapter__d1d22ff208",
+  "score_mode": "score_point",
+  "score_point": 0.2,
+  "status": "historical",
+  "time_unix": 1788590683.7381463,
+  "wandb_id": "hr6d6737be6a",
+  "wandb_status": "pending"
+}

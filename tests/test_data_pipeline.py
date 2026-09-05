@@ -83,7 +83,7 @@ def test_mine_clip_uses_matched_noise_instead_of_label_correlated_zeros() -> Non
     assert not np.all(fabricated_tail == 0.0)
     assert float(np.sqrt(np.mean(fabricated_tail**2))) > 1e-5
     assert samples[0].fvad == [0, 0, 0, 0]
-    assert samples[0].fvad_mask == 1
+    assert samples[0].fvad_mask == [0, 0, 0, 0]
 
 
 def test_exactly_200ms_internal_pause_is_mined_at_score_point() -> None:

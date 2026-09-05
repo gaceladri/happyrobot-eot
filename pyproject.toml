@@ -38,6 +38,10 @@ eot-loadtest = "eot.load_test:main"
 eot-sweep = "eot.policy:main"
 eot-challenge = "eot.challenge:main"
 eot-benchmark-mfu = "eot.benchmark_mfu:main"
+eot-apptek = "eot.apptek:main"
+eot-krisp = "eot.krisp:main"
+eot-qa = "eot.labeling_qa:main"
+eot-report = "eot.report:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -48,3 +52,6 @@ packages = ["src/eot"]
 
 [tool.uv]
 package = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

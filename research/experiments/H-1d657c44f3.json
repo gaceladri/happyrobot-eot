@@ -1,0 +1,19 @@
+{
+  "decision": "incumbent",
+  "id": "H-1d657c44f3",
+  "metrics": {
+    "delay_at_10pct_ms": 731.5,
+    "delay_at_2pct_ms": 1637.5,
+    "delay_at_5pct_ms": 1031.4999999999998
+  },
+  "name": "OPT clean mixed (CPU-matched FP32)",
+  "parent": null,
+  "preregistered": false,
+  "result_dir": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/eot_adapter__1d657c44f3",
+  "score_mode": "score_point",
+  "score_point": 0.2,
+  "status": "historical",
+  "time_unix": 1788590683.730508,
+  "wandb_id": "hra6983dfacd",
+  "wandb_status": "pending"
+}

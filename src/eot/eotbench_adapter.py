@@ -80,16 +80,21 @@ class EOTAdapter:
         checkpoint = checkpoint or os.environ.get("EOT_CHECKPOINT")
         onnx = onnx or os.environ.get("EOT_ONNX")
         self.use_context = False
+        self.normalize_audio = False
         if onnx:
             import onnxruntime as ort
 
-            self.sess = ort.InferenceSession(onnx, providers=["CPUExecutionProvider"])
+            options = ort.SessionOptions()
+            options.intra_op_num_threads = int(os.environ.get("EOT_THREADS", "2"))
+            options.inter_op_num_threads = 1
+            self.sess = ort.InferenceSession(onnx, options, providers=["CPUExecutionProvider"])
             self.input_names = {item.name for item in self.sess.get_inputs()}
             self.backend = "onnx"
             self.model_sha = hashlib.sha256(Path(onnx).read_bytes()).hexdigest()
             meta = Path(onnx).with_suffix(".json")
             if meta.exists():
                 self.use_context = bool(json.loads(meta.read_text()).get("use_context", False))
+                self.normalize_audio = bool(json.loads(meta.read_text()).get("normalize_audio", False))
         elif checkpoint:
             import torch
 
@@ -97,8 +102,13 @@ class EOTAdapter:
             from .train import pick_device
 
             self.device = pick_device(device)
+            # Match the CPU FP32 deployment graph. CUDA's default TF32 convolutions
+            # otherwise introduce ~1e-3 probability drift into benchmark traces.
+            torch.backends.cuda.matmul.allow_tf32 = False
+            torch.backends.cudnn.allow_tf32 = False
             self.model = load_checkpoint(checkpoint).to(self.device)
             self.use_context = self.model.cfg.use_context
+            self.normalize_audio = self.model.cfg.normalize_audio
             self.backend = "torch"
             self._torch = torch
             self.model_sha = hashlib.sha256(Path(checkpoint).read_bytes()).hexdigest()
@@ -107,9 +117,13 @@ class EOTAdapter:
         self.adapter_id = (
             f"{self.adapter_id}-{'ctx' if self.use_context else 'audio'}-{self.model_sha[:12]}"
         )
+        if self.backend == "torch":
+            self.adapter_id += "-ieee-fp32"
+        # Shown by `eot-harness compare-models`; lets R2/R2'/R3/R4 be told apart in the report.
+        self.display_name = os.environ.get("EOT_DISPLAY_NAME") or self.adapter_id
 
     def predict_batch(self, batch) -> list[float]:
-        feats = np.stack([log_mel(_audio_to_16k(item["audio"])) for item in batch])
+        feats = np.stack([log_mel(_audio_to_16k(item["audio"]), normalize=self.normalize_audio) for item in batch])
         ctx = np.stack([hash_context(last_assistant_text(item.get("messages"))) if self.use_context else np.zeros(CTX_LEN, np.int64) for item in batch])
         if self.backend == "onnx":
             feed = {"input_features": feats.astype(np.float32)}
@@ -142,14 +156,17 @@ def score_rows(adapter: EOTAdapter, rows, min_silence: float = 0.1, grid_step: f
 
     for row in rows:
         x = _audio_to_16k(row["audio"])
-        spans = [s for s in row["silence_spans"] if float(s["end"]) - float(s["start"]) >= min_silence]
+        spans = row["silence_spans"]
         for k, s in enumerate(spans):
+            if float(s["end"]) - float(s["start"]) < min_silence - 1e-9:
+                continue
             label = "eot" if k == len(spans) - 1 else "hold"
             start, end = float(s["start"]), float(s["end"])
             t = start + adapter.score_point
             while t <= end + 1e-9:
-                pending.append({"audio": x[: int(t * SAMPLE_RATE)], "messages": row.get("messages") or []})
-                meta.append({"id": str(row["id"]), "span_index": k, "timestamp": round(t, 3), "silence_dur": round(t - start, 3), "label": label})
+                timestamp = round(t, 6)
+                pending.append({"audio": x[: int(np.floor(timestamp * SAMPLE_RATE + 1e-6))], "messages": row.get("messages") or []})
+                meta.append({"id": str(row["id"]), "span_index": k, "timestamp": timestamp, "silence_dur": round(t - start, 6), "label": label})
                 if len(pending) >= batch_size:
                     yield from flush()
                 t += grid_step

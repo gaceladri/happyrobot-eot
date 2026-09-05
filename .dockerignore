@@ -20,4 +20,10 @@ output
 # Source/research artifacts are not runtime inputs.
 *.pdf
 .DS_Store
-
+third_party
+eval
+exports
+logs
+models
+wandb
+**/__pycache__

@@ -28,9 +28,13 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-from .audio import SAMPLE_RATE, log_mel, resample, telephony_augment, to_float32, to_mono
+from .audio import SAMPLE_RATE, add_room_tone, log_mel, resample, telephony_augment, to_float32, to_mono
 from .context import CTX_LEN, hash_context
 from .prefix_mining import HORIZONS, Clip
+
+# fsync every record/wav only when asked: on a shared local disk two fsyncs per sample throttle
+# mining to ~5 rows/s. Torn tails are repaired on read either way (``repair_trailing``).
+DURABLE_WRITES = os.environ.get("EOT_DURABLE_WRITES", "0") == "1"
 
 SMART_TURN_TRAIN = "pipecat-ai/smart-turn-data-v3.2-train"
 SMART_TURN_TEST = "pipecat-ai/smart-turn-data-v3.2-test"
@@ -125,7 +129,8 @@ def append_jsonl_record(path: Path, row: dict) -> None:
         written = os.write(fd, payload)
         if written != len(payload):
             raise OSError(f"short JSONL append: wrote {written} of {len(payload)} bytes")
-        os.fsync(fd)
+        if DURABLE_WRITES:
+            os.fsync(fd)
     finally:
         os.close(fd)
 
@@ -341,11 +346,15 @@ def read_samples(path: Path) -> list[dict]:
 class MinedDataset(Dataset):
     """Samples from ``eot-mine``; computes log-mel on the fly (cheap relative to the encoder)."""
 
-    def __init__(self, rows: list[dict], telephony_prob: float = 0.0, seed: int = 0):
+    def __init__(self, rows: list[dict], telephony_prob: float = 0.0, seed: int = 0, noise_fill: bool = True, normalize_audio: bool = False):
         self.rows = rows
+        self.normalize_audio = normalize_audio
         self.telephony_prob = telephony_prob
         self.seed = int(seed)
         self.epoch = 0
+        # Rows flagged ``noise_fill`` (digital-silence sources such as AppTek) get continuous room
+        # tone so 'exact zero = pause' can never be learned. Disable only for the raw diagnostic slice.
+        self.noise_fill = bool(noise_fill)
 
     def set_epoch(self, epoch: int) -> None:
         self.epoch = int(epoch)
@@ -367,14 +376,23 @@ class MinedDataset(Dataset):
         x, sr = sf.read(r["path"], dtype="float32", always_2d=False)
         x = resample(to_mono(to_float32(np.asarray(x))), sr)
         rng = self._sample_rng(i)
+        if self.noise_fill and int(r.get("noise_fill", 0)):
+            x = add_room_tone(x, rng)
         if self.telephony_prob > 0 and rng.random() < self.telephony_prob:
             x = telephony_augment(x, SAMPLE_RATE, rng)
+        mask = r.get("fvad_mask", 0)
+        if isinstance(mask, (int, float)):
+            mask = [int(mask)] * len(HORIZONS)
+        # Old manifests inferred unobserved future silence from an EOT clip label.
+        # Ignore those auxiliary targets until explicitly relabeled from observed audio.
+        if int(r["label"]) == 1 and "future_observed_until" not in r:
+            mask = [0] * len(HORIZONS)
         return {
-            "input_features": torch.from_numpy(log_mel(x)),
+            "input_features": torch.from_numpy(log_mel(x, normalize=self.normalize_audio)),
             "context_ids": torch.from_numpy(hash_context(r.get("agent_text", ""))),
             "labels": torch.tensor(int(r["label"])),
             "fvad": torch.tensor(r.get("fvad", [0] * len(HORIZONS)), dtype=torch.float32),
-            "fvad_mask": torch.tensor(int(r.get("fvad_mask", 0))),
+            "fvad_mask": torch.tensor(mask, dtype=torch.float32),
         }
 
 

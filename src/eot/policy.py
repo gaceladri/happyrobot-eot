@@ -165,32 +165,82 @@ class Endpointer:
     pass is in flight, the result for the old generation is discarded.
     """
 
-    def __init__(self, policy: Policy):
+    def __init__(self, policy: Policy, score_point: float = 0.2, score_mode: str = "score_point"):
+        if score_mode not in ("score_point", "max"):
+            raise ValueError("score_mode must be score_point or max")
         self.policy = policy
+        self.score_point = score_point
+        self.score_mode = score_mode
         self.generation = 0
         self.silence_start: float | None = None
         self.committed = False
+        self.has_speech = False
+        self.scored = False
+        self.positive = False
+        self.inflight = False
+        self.last_request = float("-inf")
+
+    def reset(self) -> None:
+        """Start a new user turn and invalidate every in-flight score."""
+        self.generation += 1
+        self.silence_start = None
+        self.committed = False
+        self.has_speech = False
+        self.scored = self.positive = self.inflight = False
+        self.last_request = float("-inf")
 
     def on_vad(self, t: float, is_speech: bool) -> None:
         if is_speech:
+            self.has_speech = True
             if self.silence_start is not None:
                 self.generation += 1
+                self.scored = self.positive = self.inflight = False
+                self.last_request = float("-inf")
             self.silence_start = None
             self.committed = False
-        elif self.silence_start is None:
+        elif self.has_speech and self.silence_start is None:
             self.silence_start = t
 
     def should_score(self, t: float) -> bool:
-        return self.silence_start is not None and not self.committed and (t - self.silence_start) >= self.policy.action_delay
+        return (self.silence_start is not None and not self.committed and not self.inflight
+                and (t - self.silence_start) >= self.score_point
+                and (not self.scored or self.score_mode == "max")
+                and t - self.last_request >= GRID_STEP - 1e-9)
+
+    def request_score(self, t: float) -> int | None:
+        """Reserve one inference; callers pass its generation back with the result."""
+        if not self.should_score(t):
+            return None
+        self.inflight = True
+        self.last_request = t
+        return self.generation
+
+    def on_error(self, generation: int) -> None:
+        if generation == self.generation:
+            self.inflight = False
+            if self.score_mode == "score_point":
+                # A retry with later audio would change the calibrated scoring protocol.
+                self.scored = True
+
+    def on_tick(self, t: float) -> bool:
+        """A timeout must work even if inference failed or no score arrived."""
+        if (self.silence_start is not None and not self.committed
+                and (t - self.silence_start >= self.policy.timeout or
+                     (self.positive and t - self.silence_start >= self.policy.action_delay))):
+            self.committed = True
+            return True
+        return False
 
     def on_score(self, t: float, p_eot: float, generation: int) -> bool:
         if generation != self.generation or self.silence_start is None or self.committed:
             return False
-        sil = t - self.silence_start
-        if sil >= self.policy.timeout or (sil >= self.policy.action_delay and p_eot >= self.policy.threshold):
-            self.committed = True
-            return True
-        return False
+        self.inflight = False
+        if self.scored and self.score_mode == "score_point":
+            return self.on_tick(t)
+        self.scored = True
+        # Match the pinned harness's strict threshold and first-positive-score semantics.
+        self.positive = self.positive or p_eot > self.policy.threshold
+        return self.on_tick(t)
 
 
 # ---------------------------------------------------------------------------

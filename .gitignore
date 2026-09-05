@@ -34,3 +34,5 @@ models/
 build/
 dist/
 *.egg-info/
+third_party/
+logs/

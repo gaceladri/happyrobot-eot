@@ -50,6 +50,8 @@ class EOTConfig:
     horizons: tuple[float, ...] = field(default_factory=lambda: HORIZONS)
     # Stored in checkpoints so restoring a trained model never needs the Hub.
     whisper_config: dict | None = None
+    normalize_audio: bool = False
+    encoder_layers: int | None = None
 
 
 class AttentionPool(nn.Module):
@@ -87,6 +89,10 @@ class EOTModel(nn.Module):
         self.encoder.embed_positions.weight.data.copy_(pos)
         self.encoder.embed_positions.weight.requires_grad_(False)
         self.encoder.config.max_source_positions = cfg.max_source_positions
+        if cfg.encoder_layers is not None:
+            if not 1 <= cfg.encoder_layers <= len(self.encoder.layers):
+                raise ValueError("encoder_layers must be between 1 and the backbone depth")
+            self.encoder.layers = nn.ModuleList(list(self.encoder.layers)[:cfg.encoder_layers])
         if cfg.freeze_encoder:
             for p in self.encoder.parameters():
                 p.requires_grad_(False)
@@ -148,9 +154,11 @@ class EOTModel(nn.Module):
             loss = F.binary_cross_entropy_with_logits(logit, labels, pos_weight=pos_w)
             out["loss_eot"] = loss
             if self.cfg.use_fvad and fvad is not None:
-                m = (fvad_mask if fvad_mask is not None else torch.ones_like(labels)).float().unsqueeze(-1)
+                m = (fvad_mask if fvad_mask is not None else torch.ones_like(labels)).float()
+                if m.ndim == 1:
+                    m = m.unsqueeze(-1).expand_as(out["fvad_logit"])
                 l_f = F.binary_cross_entropy_with_logits(out["fvad_logit"], fvad.float(), reduction="none")
-                l_f = (l_f * m).sum() / m.sum().clamp(min=1) / len(self.cfg.horizons)
+                l_f = (l_f * m).sum() / m.sum().clamp(min=1)
                 out["loss_fvad"] = l_f
                 loss = loss + self.cfg.fvad_weight * l_f
             out["loss"] = loss

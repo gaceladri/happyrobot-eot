@@ -16,6 +16,7 @@ import asyncio
 import json
 import statistics
 import time
+from collections import Counter
 
 import httpx
 import numpy as np
@@ -43,6 +44,8 @@ def pct(xs, q):
 
 async def run_level(url: str, body: bytes, concurrency: int, n_requests: int) -> dict:
     lat, inf, feat, errors = [], [], [], 0
+    statuses = Counter()
+    all_latencies = []
     sem = asyncio.Semaphore(concurrency)
     async with httpx.AsyncClient(timeout=30.0) as client:
         async def one():
@@ -52,6 +55,8 @@ async def run_level(url: str, body: bytes, concurrency: int, n_requests: int) ->
                 try:
                     r = await client.post(f"{url}/v1/eot", params={"sr": SAMPLE_RATE}, content=body)
                     dt = (time.perf_counter() - t0) * 1000
+                    statuses[str(r.status_code)] += 1
+                    all_latencies.append(dt)
                     if r.status_code != 200:
                         errors += 1
                         return
@@ -61,12 +66,17 @@ async def run_level(url: str, body: bytes, concurrency: int, n_requests: int) ->
                     feat.append(j["timings_ms"]["features"])
                 except Exception:  # noqa: BLE001
                     errors += 1
+                    statuses["transport_error"] += 1
+                    all_latencies.append((time.perf_counter() - t0) * 1000)
 
         t_all = time.perf_counter()
         await asyncio.gather(*(one() for _ in range(n_requests)))
         wall = time.perf_counter() - t_all
     return {
         "concurrency": concurrency, "requests": n_requests, "errors": errors, "throughput_rps": len(lat) / wall if wall else 0,
+        "status_counts": dict(statuses),
+        "all_attempts_ms": {"p95": pct(all_latencies, 95), "p99": pct(all_latencies, 99)},
+        "meets_100ms_p95_no_errors": errors == 0 and bool(lat) and pct(lat, 95) < 100,
         "client_total_ms": {"p50": pct(lat, 50), "p95": pct(lat, 95), "p99": pct(lat, 99), "mean": statistics.fmean(lat) if lat else float("nan")},
         "server_inference_ms": {"p50": pct(inf, 50), "p95": pct(inf, 95), "p99": pct(inf, 99)},
         "server_features_ms": {"p50": pct(feat, 50), "p95": pct(feat, 95)},

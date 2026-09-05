@@ -1,0 +1,19 @@
+{
+  "decision": "historical evidence; see BACKLOG.md",
+  "id": "H-f8fde8cf27",
+  "metrics": {
+    "delay_at_10pct_ms": 745.5000000000001,
+    "delay_at_2pct_ms": 1740.0,
+    "delay_at_5pct_ms": 1122.4999999999995
+  },
+  "name": "R4 ours: AppTek oracle only",
+  "parent": null,
+  "preregistered": false,
+  "result_dir": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/eot_adapter__f8fde8cf27",
+  "score_mode": "score_point",
+  "score_point": 0.2,
+  "status": "historical",
+  "time_unix": 1788590683.7334318,
+  "wandb_id": "hr2a1334cc27",
+  "wandb_status": "pending"
+}
