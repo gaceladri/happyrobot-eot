@@ -16,7 +16,7 @@ from pathlib import Path
 import numpy as np
 
 from eot.audio.frontend import SAMPLE_RATE, to_16k
-from eot.io import sha256_file
+from eot.io import atomic_replace, sha256_file
 from eot.onnx import cpu_session
 
 
@@ -96,15 +96,14 @@ def ensure_silero_vad(path: str | os.PathLike | None = None) -> Path:
         return target
     import urllib.request
 
-    target.parent.mkdir(parents=True, exist_ok=True)
-    tmp = target.with_suffix(".partial")
-    with urllib.request.urlopen(SILERO_VAD_URL, timeout=60) as response, tmp.open("wb") as f:
-        f.write(response.read())
-    digest = sha256_file(tmp)
-    if digest != SILERO_VAD_SHA256:
-        tmp.unlink(missing_ok=True)
-        raise RuntimeError(f"Silero VAD checksum mismatch: {digest} != {SILERO_VAD_SHA256}")
-    os.replace(tmp, target)
+    def download(tmp: Path) -> None:
+        with urllib.request.urlopen(SILERO_VAD_URL, timeout=60) as response, tmp.open("wb") as f:
+            f.write(response.read())
+        digest = sha256_file(tmp)
+        if digest != SILERO_VAD_SHA256:
+            raise RuntimeError(f"Silero VAD checksum mismatch: {digest} != {SILERO_VAD_SHA256}")
+
+    atomic_replace(target, download, fsync=False)  # the temp file is removed on any failure
     return target
 
 

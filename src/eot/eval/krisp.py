@@ -119,6 +119,8 @@ def score(clips_manifest: Path, adapter, out: Path, batch_size: int = 32) -> dic
 
 
 def _load_spans(predictions: Path) -> list[dict]:
+    if not predictions.is_file():
+        raise FileNotFoundError(f"predictions file not found: {predictions}")
     spans: dict[str, dict] = {}
     for r in read_jsonl_records(predictions):
         s = spans.setdefault(r["id"], {"id": r["id"], "label": r["label"], "speaker_id": r.get("speaker_id", "?"), "span_len": float(r["span_len"]), "points": []})

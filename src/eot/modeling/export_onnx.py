@@ -37,7 +37,11 @@ def _parity_inputs(model: EOTModel, validation_samples: Path | None, rng: np.ran
         checks.append((features, context))
     audio = [np.zeros(SAMPLE_RATE, np.float32)]
     if validation_samples:
+        if not Path(validation_samples).is_file():
+            raise FileNotFoundError(f"--validation-samples not found: {validation_samples}")
         rows = read_jsonl_records(validation_samples)
+        if not rows:
+            raise ValueError(f"--validation-samples is empty: {validation_samples}")
         for index in np.linspace(0, len(rows) - 1, min(48, len(rows)), dtype=int):
             x = load_wav(resolve_record_path(validation_samples, rows[index]["path"]))
             audio.extend([x, telephony_augment(x, SAMPLE_RATE, rng)])
@@ -116,6 +120,7 @@ def _quantize_int8(fp32_path: Path, wrapper: ExportWrapper, checks: list[Check],
             result["sha256"] = sha256_file(q)
         else:
             q.unlink(missing_ok=True)
+            q.with_suffix(".json").unlink(missing_ok=True)  # never leave a stale accepted sidecar behind
         return result
     except (RuntimeError, ValueError) as error:
         q.unlink(missing_ok=True)

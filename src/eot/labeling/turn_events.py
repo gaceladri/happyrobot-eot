@@ -123,6 +123,8 @@ def label_pause(
         first = floor[0]
         if prior.kind in HOLDS:
             return Target(None, "hold_transfer_conflict")
+        if prior.end > first.start + boundary_tolerance:
+            return Target(None, "own_annotation_spans_transfer")  # both channels annotated as holding the floor
         if observed_until < first.start + 1.0:
             return Target(None, "censored_transfer_confirmation")
         if next_own_onset is not None and next_own_onset < first.start + 1.0:

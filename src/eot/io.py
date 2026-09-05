@@ -71,7 +71,12 @@ def atomic_write_json(path: Path, payload: Any) -> None:
 
 
 def atomic_write_jsonl(path: Path, rows: Iterable[dict]) -> None:
-    atomic_replace(path, lambda tmp: tmp.write_text("".join(json.dumps(row, sort_keys=True, default=str) + "\n" for row in rows)))
+    def write(tmp: Path) -> None:  # stream: manifests reach 100k rows, never hold them as one string
+        with tmp.open("w") as f:
+            for row in rows:
+                f.write(json.dumps(row, sort_keys=True, default=str) + "\n")
+
+    atomic_replace(path, write)
 
 
 def atomic_copy(source: Path, destination: Path) -> None:
@@ -103,11 +108,17 @@ def read_jsonl_records(path: Path, repair_trailing: bool = False) -> list[dict]:
 
 
 def read_samples(path: Path) -> list[dict]:
-    """Manifest rows with ``path`` resolved relative to the manifest, so callers never depend on cwd."""
+    """Manifest rows with ``path`` made absolute relative to the manifest, so callers never depend on cwd.
+
+    The manifest directory is resolved once; rows are joined without per-row syscalls. Rows are for
+    reading: write manifests back with the relative paths from ``read_jsonl_records``.
+    """
     path = Path(path)
     rows = read_jsonl_records(path)
+    base = str(path.parent.resolve())
     for row in rows:
-        row["path"] = str(resolve_record_path(path, row["path"]))
+        value = str(row["path"])
+        row["path"] = os.path.normpath(value if os.path.isabs(value) else os.path.join(base, value))
     return rows
 
 
@@ -128,10 +139,15 @@ def append_jsonl_record(path: Path, row: dict) -> None:
 
 
 def _encode_wav(audio: np.ndarray, sample_rate: int) -> bytes:
+    """PCM16 bytes for mono float32 audio; other shapes/dtypes are rejected instead of silently
+    clipped or written multi-channel (normalise with ``eot.audio.to_16k`` first)."""
     import soundfile as sf
 
+    audio = np.asarray(audio)
+    if audio.ndim != 1 or not np.issubdtype(audio.dtype, np.floating):
+        raise ValueError(f"write_wav expects a 1-D float waveform, got shape {audio.shape} dtype {audio.dtype}")
     buffer = io.BytesIO()
-    sf.write(buffer, np.asarray(audio, dtype=np.float32), sample_rate, format="WAV", subtype="PCM_16")
+    sf.write(buffer, audio.astype(np.float32, copy=False), sample_rate, format="WAV", subtype="PCM_16")
     return buffer.getvalue()
 
 
@@ -146,8 +162,12 @@ def write_wav(path: Path, audio: np.ndarray, sample_rate: int) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def atomic_write_wav(path: Path, audio: np.ndarray, sample_rate: int) -> str:
-    """PCM16 write published atomically (fsync under ``EOT_DURABLE_WRITES``); returns the SHA-256."""
+def atomic_write_wav(path: Path, audio: np.ndarray, sample_rate: int, *, fsync: bool = DURABLE_WRITES) -> str:
+    """PCM16 write published atomically; returns the SHA-256.
+
+    Mining keeps the ``EOT_DURABLE_WRITES`` default; acquisition passes ``fsync=True`` so a clip is
+    on disk before its manifest record (a torn clip with a live record cannot be resumed).
+    """
     data = _encode_wav(audio, sample_rate)
-    atomic_replace(path, lambda tmp: tmp.write_bytes(data), fsync=DURABLE_WRITES)
+    atomic_replace(path, lambda tmp: tmp.write_bytes(data), fsync=fsync)
     return hashlib.sha256(data).hexdigest()

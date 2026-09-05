@@ -31,7 +31,7 @@ the tests also enforce.
 | `labeling.turn_events` | D015/D016 | conservative targets from dual-channel conversational event annotations |
 | `modeling.train --exclude-train-ids/--split-seed` | E013/E017 | train-only exclusions after the frozen split; seed replication with a fixed split |
 | `modeling.model` internal context crop | P010 | shorter encoder context behind the same 8 s interface (whisper-base feasibility) |
-| `modeling.soup` | E008/E020 | fixed-alpha weight soups scored on the frozen dev split |
+| `modeling.soup` | E008/E020 | fixed-alpha weight soups scored on the parents' own dev split (taken from their provenance) |
 | `io.write_wav`/`atomic_write_wav`, `audio.load_wav`/`decode_payload`/`to_16k`, `metrics`, `onnx` | unification | one loader, one writer (returning the sha256), one AUC, one Pareto front, one onnxruntime session helper instead of many copies |
 
 Dropped: two-layer pruning and soft-label distillation (`OPT student/distilled`, worse frontier),

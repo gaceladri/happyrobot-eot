@@ -194,7 +194,7 @@ def acquire_clips(
                 )
             prior_path = resolve_record_path(manifest, prior["path"])
             if not prior_path.exists():
-                prior["sha256"] = atomic_write_wav(prior_path, clip.audio, clip.sr)
+                prior["sha256"] = atomic_write_wav(prior_path, clip.audio, clip.sr, fsync=True)
                 atomic_write_jsonl(manifest, existing.values())
             elif prior.get("sha256") and sha256_file(prior_path) != prior["sha256"]:
                 raise ValueError(f"acquired audio failed checksum validation: {prior_path}")
@@ -211,7 +211,7 @@ def acquire_clips(
             "agent_text": str(clip.agent_text or ""),
             **provenance,
             "duration_s": round(len(clip.audio) / float(clip.sr), 6),
-            "sha256": atomic_write_wav(wav, clip.audio, clip.sr),
+            "sha256": atomic_write_wav(wav, clip.audio, clip.sr, fsync=True),
         }
         append_jsonl_record(manifest, row)
         existing[clip_id] = row

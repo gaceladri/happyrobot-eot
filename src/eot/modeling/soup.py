@@ -1,8 +1,9 @@
 """Fixed-weight model soups: average two fine-tunes that share an initialisation.
 
 Averaging nearby solutions (Wortsman et al., 2022) can reduce seed variance without any extra
-serving computation. The mix is fixed up front (``--alpha``) and scored once on the frozen
-development split; alpha is never searched against a benchmark.
+serving computation. The mix is fixed up front (``--alpha``) and scored once on the development split the parents
+were trained against (read from their ``provenance.json``); alpha is never searched against a
+benchmark.
 
     uv run eot-soup --left runs/a/model.pt --right runs/b/model.pt --alpha 0.5 \\
         --samples data/optimization/mixed.jsonl --out runs/soup_ab
@@ -48,9 +49,49 @@ def average_models(left: EOTModel, right: EOTModel, alpha: float) -> EOTModel:
     return left
 
 
-def soup(left: Path, right: Path, samples: Path, out: Path, alpha: float, *, split_seed: int = 17, dev_frac: float = 0.15, workers: int = 0) -> dict:
+def parent_split(checkpoint: Path) -> dict | None:
+    """Effective split seed, dev fraction and samples hash recorded by ``eot-train`` next to a checkpoint."""
+    provenance = checkpoint.parent / "provenance.json"
+    if not provenance.exists():
+        return None
+    info = json.loads(provenance.read_text())
+    args = info.get("args") or {}
+    seed = args.get("split_seed")
+    return {
+        "split_seed": args.get("seed") if seed is None else seed,
+        "dev_frac": args.get("dev_frac"),
+        "samples_sha256": info.get("samples_sha256"),
+    }
+
+
+def resolve_split(parents: list[dict | None], split_seed: int | None, dev_frac: float | None, samples_sha256: str) -> tuple[int, float]:
+    """Choose the development split the parents were trained against, refusing silent mismatches.
+
+    A soup scored on a different split than its parents would report an inflated "frozen dev"
+    number, because rows the parents trained on would land in its dev set.
+    """
+    known = [p for p in parents if p is not None]
+    for key, requested in (("split_seed", split_seed), ("dev_frac", dev_frac)):
+        recorded = {p[key] for p in known if p.get(key) is not None}
+        if len(recorded) > 1:
+            raise ValueError(f"parents were trained with different {key} values: {sorted(recorded)}")
+        if requested is not None and recorded and requested not in recorded:
+            raise ValueError(f"requested {key}={requested} but parents used {recorded.pop()}")
+    for p in known:
+        if p.get("samples_sha256") and p["samples_sha256"] != samples_sha256:
+            raise ValueError("samples manifest differs from the one the parents were trained on")
+    seed = split_seed if split_seed is not None else next((p["split_seed"] for p in known if p.get("split_seed") is not None), None)
+    frac = dev_frac if dev_frac is not None else next((p["dev_frac"] for p in known if p.get("dev_frac") is not None), 0.15)
+    if seed is None:
+        raise ValueError("no provenance.json next to the parents; pass --split-seed explicitly")
+    return int(seed), float(frac)
+
+
+def soup(left: Path, right: Path, samples: Path, out: Path, alpha: float, *, split_seed: int | None = None, dev_frac: float | None = None, workers: int = 0) -> dict:
     if (out / "model.pt").exists():
         raise FileExistsError(f"{out} already holds a completed candidate")
+    samples_sha256 = sha256_file(samples)
+    split_seed, dev_frac = resolve_split([parent_split(left), parent_split(right)], split_seed, dev_frac, samples_sha256)
     torch.manual_seed(split_seed)
     torch.backends.cuda.matmul.allow_tf32 = False
     torch.backends.cudnn.allow_tf32 = False
@@ -71,7 +112,8 @@ def soup(left: Path, right: Path, samples: Path, out: Path, alpha: float, *, spl
     atomic_write_jsonl(out / "history.jsonl", [metrics])
     atomic_write_json(out / "provenance.json", {
         "method": "fixed_weight_soup", "alpha": alpha, "left_sha256": sha256_file(left),
-        "right_sha256": sha256_file(right), "samples_sha256": sha256_file(samples), "split": diagnostics,
+        "right_sha256": sha256_file(right), "samples_sha256": samples_sha256, "split": diagnostics,
+        "split_seed": split_seed, "dev_frac": dev_frac,
     })
     os.replace(out / "candidate.pt", out / "model.pt")  # publish only after scoring completed
     return metrics
@@ -84,10 +126,13 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--samples", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--alpha", type=float, required=True, help="weight of --right; 0.5 is an equal soup")
-    ap.add_argument("--split-seed", type=int, default=17)
+    ap.add_argument("--split-seed", type=int, default=None, help="default: the split seed recorded in the parents' provenance.json")
+    ap.add_argument("--dev-frac", type=float, default=None, help="default: the parents' dev fraction")
     ap.add_argument("--workers", type=int, default=0, help="DataLoader workers for the development pass")
     args = ap.parse_args(argv)
-    print(json.dumps(soup(args.left, args.right, args.samples, args.out, args.alpha, split_seed=args.split_seed, workers=args.workers)))
+    metrics = soup(args.left, args.right, args.samples, args.out, args.alpha,
+                   split_seed=args.split_seed, dev_frac=args.dev_frac, workers=args.workers)
+    print(json.dumps(metrics))
 
 
 if __name__ == "__main__":
