@@ -1,3 +1,28 @@
+# Legacy: flat `eot` package and research tooling
+
+This directory freezes the code that produced the shipped model and the 25 registered research
+trials, exactly as it stood on 5 Sep 2026 (git branch `legacy`, tag `legacy-flat-20260905`).
+The unified package in the repository root (`src/eot/`) replaces it on `main`; nothing here is
+imported by the unified package or collected by its tests.
+
+Keep iterating on the research line from here:
+
+```bash
+cd legacy
+uv sync --extra data --extra dev          # its own pyproject.toml / uv.lock
+PYTHONPATH=src uv run pytest -q           # 60 passed, 1 skipped on 5 Sep 2026
+PYTHONPATH=src uv run python scripts/research.py --help
+```
+
+`scripts/research*.py` drive the registry under `../research/` (ledger, experiments, protocol);
+`scripts/optimize_*.sh` and `Dockerfile.train` + `RUNPOD.md` are the training/optimization
+pipeline that produced `exports/opt_clean/eot.onnx`. The `research/*` worktree branches all
+descend from the baseline snapshot `c71ea45`, which sits on `main` below the `legacy` tag.
+
+The original README follows.
+
+---
+
 # HappyRobot end-of-turn detector
 
 A compact end-of-turn (EoT) system for voice agents: Smart Turn data acquisition,

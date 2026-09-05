@@ -1,4 +1,4 @@
-# eot — end-of-turn detection for voice agents
+# HappyRobot end-of-turn detector
 
 Unified, stage-oriented source for the HappyRobot EoT exercise. It merges the baseline package
 that produced the shipped model with the reusable pieces of the research worktrees and drops
@@ -59,3 +59,15 @@ unchanged here so that artifact remains valid. Verified on 5 Sep 2026: the image
 with p95 22.8 / 47.2 / 88.7 ms at concurrency 1 / 4 / 8 (400 requests each, 0 errors, 2.8 s startup)
 on an unquoted 20-thread host; under `--cpus=8` the c=8 level reaches 118 ms, so size
 `--max-inflight` to about cores / threads on smaller nodes.
+
+## Repository map
+
+| Path | What it is |
+|---|---|
+| `src/eot/`, `tests/` | the unified package (98 tests) |
+| `output/` | reports on the shipped model: `OPTIMIZATION_RESULTS.md`, `RESULTS_SUMMARY.md`, `DEFENSE_NOTES.md`, `LABELING_PIPELINE_PLAN.md`, figures |
+| `research/` | research registry: `RESULTS.md`, `STRATEGY_REVIEW.md`, `DATA_STRATEGY.md`, `ledger.jsonl`, `experiments/*.json`, `protocol.json`, plots |
+| `legacy/` | the flat package, research scripts and RunPod training image that produced the shipped model and the 25 registered trials, frozen (see `legacy/README.md`); also branch `legacy` / tag `legacy-flat-20260905` |
+
+Data, checkpoints, exports and evaluation outputs are not versioned (`data/`, `runs/`, `exports/`,
+`eval/`); the shipped artifact is identified by its sha256 in `output/OPTIMIZATION_RESULTS.md`.

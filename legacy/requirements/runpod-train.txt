@@ -1,0 +1,18 @@
+# Runtime/data/evaluation dependencies for the pinned RunPod PyTorch base.
+# Do not add torch/torchvision/torchaudio here: the base image owns that CUDA tuple.
+numpy==1.26.4
+transformers==5.16.1
+soundfile==0.14.0
+onnxruntime==1.29.0
+onnx==1.22.0
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+httpx==0.28.1
+pydantic==2.13.5
+datasets==5.0.1
+pyarrow==25.0.1
+pytest==9.1.1
+
+# Official EoT Bench, pinned so reported metrics do not move between rebuilds.
+eot-bench @ git+https://github.com/livekit/eot-bench.git@6594d8b3b8af385b15f116dde310ce45af92d646
+
