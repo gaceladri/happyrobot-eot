@@ -32,7 +32,7 @@ def test_serve_import_does_not_import_torch() -> None:
     root = Path(__file__).resolve().parents[1]
     env = os.environ.copy()
     env["PYTHONPATH"] = str(root / "src")
-    code = "import sys; import eot.serve; assert 'torch' not in sys.modules"
+    code = "import sys; import eot.serving.service; assert 'torch' not in sys.modules"
     subprocess.run([sys.executable, "-c", code], env=env, check=True, capture_output=True, text=True)
 
 
@@ -40,7 +40,7 @@ def test_audio_only_serve_feed_omits_pruned_context_input(tmp_path: Path) -> Non
     """The audio-only ONNX graph has no context input and must still be runnable."""
     from unittest.mock import patch
 
-    from eot import serve
+    from eot.serving import service as serve
 
     class _Input:
         name = "input_features"
@@ -62,6 +62,6 @@ def test_audio_only_serve_feed_omits_pruned_context_input(tmp_path: Path) -> Non
         # Avoid invoking feature extraction in __init__; exercise infer explicitly below.
         warmup.return_value = (0.5, [0.0] * 4, 0.0, 0.0)
         engine = serve.Engine(str(model_path))
-    with patch("eot.serve.log_mel", return_value=np.zeros((80, 800), dtype=np.float32)):
+    with patch("eot.serving.service.log_mel", return_value=np.zeros((80, 800), dtype=np.float32)):
         serve.Engine.infer(engine, np.zeros(16000, dtype=np.float32), "")
     assert set(engine.sess.last_feed) == {"input_features"}

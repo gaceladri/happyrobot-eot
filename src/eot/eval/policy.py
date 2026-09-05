@@ -21,9 +21,7 @@ p_eot, label`` (label in {"hold", "eot"}). The CLI accepts jsonl or parquet.
 
     uv run eot-sweep --predictions runs/base/eotbench_predictions.jsonl
 """
-
 from __future__ import annotations
-
 import argparse
 import json
 from collections import defaultdict
@@ -32,6 +30,9 @@ from pathlib import Path
 from typing import Iterable
 
 import numpy as np
+
+from eot.eval.metrics import pareto_front
+
 
 GRID_STEP = 0.1  # eot-bench scores every 100 ms inside a silence span
 
@@ -139,23 +140,12 @@ def operating_points(results: list[dict]) -> dict:
 
 
 def pareto(results: list[dict]) -> list[dict]:
-    pts = sorted(results, key=lambda r: (r["mean_latency_s"], r["false_cutoff_rate"]))
-    front, best = [], float("inf")
-    for r in pts:
-        if r["false_cutoff_rate"] < best:
-            front.append(r)
-            best = r["false_cutoff_rate"]
-    return front
+    return pareto_front(results, latency_key="mean_latency_s", cutoff_key="false_cutoff_rate")
 
 
 def vad_baseline_rows(turns: list[list[dict]]) -> list[list[dict]]:
     """Silence-only baseline: p_eot = 1 everywhere, so only action_delay/timeout matter."""
     return [[{**sp, "points": [(s, 1.0) for s, _ in sp["points"]]} for sp in t] for t in turns]
-
-
-# ---------------------------------------------------------------------------
-# Streaming endpointer for serving / production integration
-# ---------------------------------------------------------------------------
 
 
 class Endpointer:
@@ -241,11 +231,6 @@ class Endpointer:
         # Match the pinned harness's strict threshold and first-positive-score semantics.
         self.positive = self.positive or p_eot > self.policy.threshold
         return self.on_tick(t)
-
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 
 def _read_predictions(path: Path) -> list[dict]:

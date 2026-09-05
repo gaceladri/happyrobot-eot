@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
-from eot.audio import log_mel, last_window, _feature_extractor
+from eot.audio import last_window, log_mel
+from eot.audio.frontend import _feature_extractor
 
 @pytest.mark.parametrize('normalize',[False,True])
 @pytest.mark.parametrize('length',[0,1600,16000,128000,256000])

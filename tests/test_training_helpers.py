@@ -8,7 +8,7 @@ import torch
 
 from argparse import Namespace
 
-from eot.train import _validate_resume_args, atomic_torch_save, pick_device, should_save_best
+from eot.modeling.train import _validate_resume_args, atomic_torch_save, pick_device, should_save_best
 
 
 def test_best_selection_is_nan_safe_and_always_selects_first() -> None:

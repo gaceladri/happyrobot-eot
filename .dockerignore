@@ -7,12 +7,12 @@ __pycache__
 .mypy_cache
 
 # Generated or downloaded state belongs on /workspace, never in an image.
-artifacts
-data
-mined
-runs
-tmp
-output
+/artifacts
+/data
+/mined
+/runs
+/tmp
+/output
 *.onnx
 *.pt
 *.wav
@@ -20,10 +20,10 @@ output
 # Source/research artifacts are not runtime inputs.
 *.pdf
 .DS_Store
-third_party
-eval
-exports
-logs
-models
-wandb
+/third_party
+/eval
+/exports
+/logs
+/models
+/wandb
 **/__pycache__

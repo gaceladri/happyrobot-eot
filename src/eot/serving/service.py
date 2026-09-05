@@ -17,26 +17,24 @@ Design notes
 - This wrapper is the demo surface. In production VAD + ring buffer + this model share a
   process; the network hop only exists here so it can be stress-tested in isolation.
 """
-
 from __future__ import annotations
-
 import argparse
 import asyncio
 import hashlib
 import json
 import os
 import time
-from contextlib import asynccontextmanager
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import numpy as np
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 
-from . import __version__
-from .audio import SAMPLE_RATE, WINDOW_SECONDS, load_audio_bytes, log_mel, resample, to_mono
-from .context import CTX_LEN, hash_context
+from eot import __version__
+from eot.audio import SAMPLE_RATE, WINDOW_SECONDS, load_audio_bytes, log_mel, resample, to_mono
+from eot.context import CTX_LEN, hash_context
 
 
 class Engine:

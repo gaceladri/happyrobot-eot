@@ -8,9 +8,7 @@ and the server-reported inference/feature timings so network/queue overhead is v
 difference. The first measured request is already warmed because the server warms the model at
 startup; measure container startup-to-ready separately if cold-start latency is required.
 """
-
 from __future__ import annotations
-
 import argparse
 import asyncio
 import json
@@ -21,15 +19,12 @@ from collections import Counter
 import httpx
 import numpy as np
 
-from .audio import SAMPLE_RATE, resample, to_float32, to_mono
+from eot.audio import SAMPLE_RATE, load_wav
 
 
 def _payload(wav: str | None, seconds: float) -> bytes:
     if wav:
-        import soundfile as sf
-
-        x, sr = sf.read(wav, dtype="float32", always_2d=False)
-        x = resample(to_mono(to_float32(np.asarray(x))), sr)
+        x = load_wav(wav)
     else:
         rng = np.random.default_rng(0)
         t = np.arange(int(seconds * SAMPLE_RATE)) / SAMPLE_RATE

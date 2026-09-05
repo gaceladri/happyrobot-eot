@@ -1,6 +1,6 @@
 [project]
 name = "eot"
-version = "0.1.0"
+version = "0.2.0"
 description = "End-of-turn detector for voice agents: pause-level training, causal policy, EoT Bench adapter, ONNX serving."
 requires-python = ">=3.11,<3.14"
 dependencies = [
@@ -20,6 +20,7 @@ dependencies = [
 data = [
     "datasets>=3.0",
     "pyarrow>=16",
+    "scipy>=1.11",
 ]
 dev = [
     "pytest>=8",
@@ -29,19 +30,19 @@ tracking = [
 ]
 
 [project.scripts]
-eot-acquire = "eot.acquire:main"
-eot-mine = "eot.prefix_mining:main"
-eot-train = "eot.train:main"
-eot-export = "eot.export_onnx:main"
-eot-serve = "eot.serve:main"
-eot-loadtest = "eot.load_test:main"
-eot-sweep = "eot.policy:main"
-eot-challenge = "eot.challenge:main"
-eot-benchmark-mfu = "eot.benchmark_mfu:main"
-eot-apptek = "eot.apptek:main"
-eot-krisp = "eot.krisp:main"
-eot-qa = "eot.labeling_qa:main"
-eot-report = "eot.report:main"
+eot-acquire = "eot.data.smart_turn:main"
+eot-mine = "eot.labeling.prefix_mining:main"
+eot-apptek = "eot.labeling.apptek:main"
+eot-qa = "eot.labeling.qa:main"
+eot-krisp = "eot.data.krisp:main"
+eot-train = "eot.modeling.train:main"
+eot-soup = "eot.modeling.soup:main"
+eot-export = "eot.modeling.export_onnx:main"
+eot-sweep = "eot.eval.policy:main"
+eot-report = "eot.eval.report:main"
+eot-challenge = "eot.eval.challenge:main"
+eot-serve = "eot.serving.service:main"
+eot-loadtest = "eot.serving.load_test:main"
 
 [build-system]
 requires = ["hatchling"]

@@ -10,9 +10,7 @@ Adapter contract (from ``livekit/eot-bench`` README):
 Run through the official harness (apples-to-apples with the public leaderboard):
 
     pip install -e /path/to/eot-bench
-    EOT_CHECKPOINT=runs/base/model.pt eot-harness predict \
-        --path livekit/eot-bench-data --name en --split validation \
-        --adapter eot.eotbench_adapter:EOTAdapter
+    EOT_CHECKPOINT=runs/base/model.pt eot-harness predict         --path livekit/eot-bench-data --name en --split validation         --adapter eot.eotbench_adapter:EOTAdapter
 
 Or, without installing the harness, score any dataset in the public schema locally and feed the
 rows to ``eot-sweep`` for quick diagnostics only. Those local aggregate metrics are not an
@@ -24,9 +22,7 @@ official EoT Bench result:
 assistant message is hashed exactly like at training time. LiveKit's own v1 adapter sends audio
 only, so a context-aware model is a legitimate, unexploited lever on this benchmark.
 """
-
 from __future__ import annotations
-
 import argparse
 import hashlib
 import json
@@ -35,31 +31,9 @@ from pathlib import Path
 
 import numpy as np
 
-from .audio import SAMPLE_RATE, log_mel, resample, to_float32, to_mono
-from .context import CTX_LEN, hash_context
-from .policy import GRID_STEP
-
-
-def _audio_to_16k(a) -> np.ndarray:
-    if isinstance(a, dict):
-        if a.get("array") is not None:
-            return resample(to_mono(to_float32(np.asarray(a["array"]))), int(a["sampling_rate"]))
-        if a.get("bytes") is not None:
-            import io
-
-            import soundfile as sf
-
-            x, sr = sf.read(io.BytesIO(a["bytes"]), dtype="float32", always_2d=False)
-            return resample(to_mono(np.asarray(x)), int(sr))
-        if a.get("path"):
-            import soundfile as sf
-
-            x, sr = sf.read(a["path"], dtype="float32", always_2d=False)
-            return resample(to_mono(np.asarray(x)), int(sr))
-    if isinstance(a, tuple) and len(a) == 2:
-        x, sr = a
-        return resample(to_mono(to_float32(np.asarray(x))), int(sr))
-    return to_mono(to_float32(np.asarray(a)))
+from eot.audio import SAMPLE_RATE, decode_payload, log_mel
+from eot.context import CTX_LEN, hash_context
+from eot.eval.policy import GRID_STEP
 
 
 def last_assistant_text(messages) -> str:
@@ -98,8 +72,8 @@ class EOTAdapter:
         elif checkpoint:
             import torch
 
-            from .model import load_checkpoint
-            from .train import pick_device
+            from eot.modeling.model import load_checkpoint
+            from eot.modeling.train import pick_device
 
             self.device = pick_device(device)
             # Match the CPU FP32 deployment graph. CUDA's default TF32 convolutions
@@ -123,7 +97,7 @@ class EOTAdapter:
         self.display_name = os.environ.get("EOT_DISPLAY_NAME") or self.adapter_id
 
     def predict_batch(self, batch) -> list[float]:
-        feats = np.stack([log_mel(_audio_to_16k(item["audio"]), normalize=self.normalize_audio) for item in batch])
+        feats = np.stack([log_mel(decode_payload(item["audio"]), normalize=self.normalize_audio) for item in batch])
         ctx = np.stack([hash_context(last_assistant_text(item.get("messages"))) if self.use_context else np.zeros(CTX_LEN, np.int64) for item in batch])
         if self.backend == "onnx":
             feed = {"input_features": feats.astype(np.float32)}
@@ -135,11 +109,6 @@ class EOTAdapter:
         with t.no_grad():
             out = self.model(t.from_numpy(feats).to(self.device), t.from_numpy(ctx).to(self.device))
         return [float(v) for v in out["p_eot"].cpu().numpy()]
-
-
-# ---------------------------------------------------------------------------
-# Local scorer over the public schema (id, audio, silence_spans, messages)
-# ---------------------------------------------------------------------------
 
 
 def score_rows(adapter: EOTAdapter, rows, min_silence: float = 0.1, grid_step: float = GRID_STEP, batch_size: int = 16):
@@ -155,7 +124,7 @@ def score_rows(adapter: EOTAdapter, rows, min_silence: float = 0.1, grid_step: f
         meta.clear()
 
     for row in rows:
-        x = _audio_to_16k(row["audio"])
+        x = decode_payload(row["audio"])
         spans = row["silence_spans"]
         for k, s in enumerate(spans):
             if float(s["end"]) - float(s["start"]) < min_silence - 1e-9:

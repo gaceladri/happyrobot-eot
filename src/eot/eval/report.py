@@ -11,9 +11,7 @@ rewrites paths relative to the new manifest so training never depends on the wor
 raw (digital silence between utterances). A model that is much better on raw audio is using the
 'exact zero = pause' shortcut the plan warned about (fissure 2).
 """
-
 from __future__ import annotations
-
 import argparse
 import json
 import os
@@ -23,12 +21,9 @@ from pathlib import Path
 
 import numpy as np
 
-from .data import atomic_write_json, atomic_write_jsonl, read_jsonl_records, resolve_record_path
-
-
-# ---------------------------------------------------------------------------
-# combine
-# ---------------------------------------------------------------------------
+from eot.audio import SAMPLE_RATE, add_room_tone, load_wav
+from eot.eval.metrics import roc_auc
+from eot.io import atomic_write_json, atomic_write_jsonl, read_jsonl_records, resolve_record_path
 
 
 def combine(inputs: list[Path], caps: list[int], out: Path, seed: int = 0) -> dict:
@@ -66,23 +61,12 @@ def combine(inputs: list[Path], caps: list[int], out: Path, seed: int = 0) -> di
     return report
 
 
-# ---------------------------------------------------------------------------
-# heldout
-# ---------------------------------------------------------------------------
-
-
 def _auc(y, p) -> float:
-    from .train import roc_auc
-
     y, p = np.asarray(y), np.asarray(p)
     return float(roc_auc(y, p)) if len(set(y.tolist())) == 2 else float("nan")
 
 
 def score_heldout(samples: Path, adapter, batch_size: int = 32, noise_fill: bool = True, seed: int = 0, score_point_only: bool = True) -> list[dict]:
-    import soundfile as sf
-
-    from .audio import SAMPLE_RATE, add_room_tone, resample, to_float32, to_mono
-
     rows = read_jsonl_records(samples)
     if score_point_only:
         rows = [r for r in rows if abs(float(r["cut_time"]) - float(r["pause_start"]) - 0.2) < 1e-3]
@@ -95,8 +79,7 @@ def score_heldout(samples: Path, adapter, batch_size: int = 32, noise_fill: bool
         meta.clear()
 
     for i, r in enumerate(rows):
-        x, sr = sf.read(resolve_record_path(samples, r["path"]), dtype="float32", always_2d=False)
-        x = resample(to_mono(to_float32(np.asarray(x))), sr)
+        x = load_wav(resolve_record_path(samples, r["path"]))
         if noise_fill and int(r.get("noise_fill", 0)):
             x = add_room_tone(x, np.random.default_rng(seed * 1_000_003 + i))
         pending.append({"audio": {"array": x, "sampling_rate": SAMPLE_RATE}, "messages": []})
@@ -144,11 +127,6 @@ def heldout(samples: Path, adapter, out: Path, seed: int = 0) -> dict:
     atomic_write_json(out, report)
     atomic_write_jsonl(out.with_suffix(".scores.jsonl"), filled)
     return report
-
-
-# ---------------------------------------------------------------------------
-# summarize
-# ---------------------------------------------------------------------------
 
 
 def _fmt(v, pct=False, ms=False):
@@ -258,7 +236,7 @@ def main(argv: list[str] | None = None) -> None:
             raise SystemExit("--caps must have one entry per input")
         print(json.dumps(combine(args.inputs, args.caps, args.out, args.seed), indent=2))
     elif args.cmd == "heldout":
-        from .eotbench_adapter import EOTAdapter
+        from eot.eval.eotbench import EOTAdapter
 
         adapter = EOTAdapter(checkpoint=args.checkpoint, onnx=args.onnx)
         rep = heldout(args.samples, adapter, args.out)

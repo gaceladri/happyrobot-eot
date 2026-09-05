@@ -16,14 +16,9 @@ e. distribution  label ratio, kinds, source share, confidence tiers, pause lengt
 f. krisp_tail    our detectors' trailing-silence estimate vs Krisp's human ``last_silence_duration``
                  (independent check of boundary accuracy on real conversational audio).
 
-    uv run eot-qa run --smart-turn-clips data/raw/smart-turn-v3.2-eng/clips.jsonl \
-        --mined data/mined/smart-turn-ensemble/samples.jsonl data/mined/smart-turn-legacy/samples.jsonl \
-        --apptek data/mined/apptek-oracle --apptek-root data/raw/apptek/hf \
-        --krisp-clips data/raw/krisp/clips/clips.jsonl --out eval/labeling_qa
+    uv run eot-qa run --smart-turn-clips data/raw/smart-turn-v3.2-eng/clips.jsonl         --mined data/mined/smart-turn-ensemble/samples.jsonl data/mined/smart-turn-legacy/samples.jsonl         --apptek data/mined/apptek-oracle --apptek-root data/raw/apptek/hf         --krisp-clips data/raw/krisp/clips/clips.jsonl --out eval/labeling_qa
 """
-
 from __future__ import annotations
-
 import argparse
 import json
 import random
@@ -34,15 +29,9 @@ from pathlib import Path
 
 import numpy as np
 
-from .audio import SAMPLE_RATE, PauseDetector, SileroVAD, resample, telephony_augment, to_float32, to_mono
-from .data import read_jsonl_records, resolve_record_path
-
-
-def _read(path: Path) -> np.ndarray:
-    import soundfile as sf
-
-    x, sr = sf.read(path, dtype="float32", always_2d=False)
-    return resample(to_mono(to_float32(np.asarray(x))), sr)
+from eot.audio import SAMPLE_RATE, PauseDetector, SileroVAD, load_wav, telephony_augment
+from eot.io import read_jsonl_records, resolve_record_path
+from eot.labeling.apptek import load_conversations
 
 
 def _pct(values, qs=(10, 50, 90)) -> dict:
@@ -52,14 +41,7 @@ def _pct(values, qs=(10, 50, 90)) -> dict:
     return {"n": int(len(values)), **{f"p{q}": round(float(np.percentile(values, q)), 4) for q in qs}}
 
 
-# ---------------------------------------------------------------------------
-# a. boundaries vs manual AppTek segments
-# ---------------------------------------------------------------------------
-
-
 def check_boundaries(apptek_dir: Path, apptek_root: Path, tolerances=(0.1, 0.2)) -> dict:
-    from .apptek import load_conversations
-
     convs = {c.id: c for c in load_conversations(apptek_root)}
     summaries = read_jsonl_records(apptek_dir / "conversations.jsonl")
     errors, matched, total, eot_boundary_total, eot_boundary_matched = [], Counter(), 0, 0, Counter()
@@ -114,11 +96,6 @@ def check_boundaries(apptek_dir: Path, apptek_root: Path, tolerances=(0.1, 0.2))
     }
 
 
-# ---------------------------------------------------------------------------
-# b. PSTN robustness (Jaccard of pause spans clean vs augmented)
-# ---------------------------------------------------------------------------
-
-
 def _jaccard(a, b, total: float, hop: float = 0.01) -> float:
     g = np.arange(0, total, hop)
     ma = np.zeros(len(g), bool)
@@ -141,7 +118,7 @@ def check_pstn(clips_manifest: Path, detectors: dict[str, PauseDetector], n_clip
     n_clean = Counter()
     n_noisy = Counter()
     for row in rows:
-        x = _read(resolve_record_path(clips_manifest, row["path"]))
+        x = load_wav(resolve_record_path(clips_manifest, row["path"]))
         total = len(x) / SAMPLE_RATE
         clean = {name: [p for p in det(x) if p.confidence != "low"] for name, det in detectors.items()}
         for name in detectors:
@@ -168,11 +145,6 @@ def check_pstn(clips_manifest: Path, detectors: dict[str, PauseDetector], n_clip
     return out
 
 
-# ---------------------------------------------------------------------------
-# c. single-channel rule vs dual-channel oracle (AppTek)
-# ---------------------------------------------------------------------------
-
-
 def check_single_vs_dual(apptek_dir: Path, horizons=(1.0, 2.0, 3.0, 5.0, float("inf"))) -> dict:
     summaries = read_jsonl_records(apptek_dir / "conversations.jsonl")
     decided = [d for s in summaries for d in s["decisions"] if d["label"] is not None]
@@ -197,11 +169,6 @@ def check_single_vs_dual(apptek_dir: Path, horizons=(1.0, 2.0, 3.0, 5.0, float("
             "oracle_eot_recovered": round(sum(d["label"] == 1 for d in single_eot) / max(1, n_eot), 4),
         }
     return out
-
-
-# ---------------------------------------------------------------------------
-# d. blind listening audit (preparation + automatic proxy)
-# ---------------------------------------------------------------------------
 
 
 def prepare_listening(samples_manifests: list[Path], out_dir: Path, plan: dict[str, int], vad: SileroVAD, seed: int = 0) -> dict:
@@ -231,7 +198,7 @@ def prepare_listening(samples_manifests: list[Path], out_dir: Path, plan: dict[s
     for i, (bucket, r) in enumerate(chosen):
         name = f"{i:03d}.wav"
         shutil.copyfile(r["_path"], audio_dir / name)
-        x = _read(r["_path"])
+        x = load_wav(r["_path"])
         probs = vad.probabilities(x)
         tail = probs[-5:] if len(probs) >= 5 else probs  # 160 ms before the cut
         p_tail = float(np.max(tail)) if len(tail) else float("nan")
@@ -273,11 +240,6 @@ def listen_score(audit_dir: Path) -> dict:
     return out
 
 
-# ---------------------------------------------------------------------------
-# e. distribution
-# ---------------------------------------------------------------------------
-
-
 def check_distribution(samples_manifest: Path, clips_manifest: Path | None = None) -> dict:
     rows = read_jsonl_records(samples_manifest)
     labels = Counter(int(r["label"]) for r in rows)
@@ -312,18 +274,13 @@ def check_distribution(samples_manifest: Path, clips_manifest: Path | None = Non
     return out
 
 
-# ---------------------------------------------------------------------------
-# f. Krisp trailing silence vs human annotation
-# ---------------------------------------------------------------------------
-
-
 def check_krisp_tail(krisp_clips: Path, detectors: dict[str, PauseDetector], n_clips: int = 400, seed: int = 0) -> dict:
     rows = read_jsonl_records(krisp_clips)
     rows = random.Random(seed).sample(rows, min(n_clips, len(rows)))
     errs = {name: [] for name in detectors}
     missing = Counter()
     for r in rows:
-        x = _read(resolve_record_path(krisp_clips, r["path"]))
+        x = load_wav(resolve_record_path(krisp_clips, r["path"]))
         total = len(x) / SAMPLE_RATE
         ref = float(r["last_silence_duration"])
         for name, det in detectors.items():
@@ -340,11 +297,6 @@ def check_krisp_tail(krisp_clips: Path, detectors: dict[str, PauseDetector], n_c
         "no_trailing_pause_found": dict(missing),
         "within_100ms": {name: round(float(np.mean(np.abs(v) <= 0.1)), 3) if v else None for name, v in errs.items()},
     }
-
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 
 def main(argv: list[str] | None = None) -> None:

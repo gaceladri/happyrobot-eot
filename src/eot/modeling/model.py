@@ -22,24 +22,22 @@ Training recipe defaults mirror the public Smart Turn ``train.py``: full fine-tu
 frozen), lr 5e-5, cosine, warmup 20 %, weight decay 0.01. Freezing the encoder is exposed as a
 flag purely as an ablation; it is *not* the recommended path.
 """
-
 from __future__ import annotations
-
 from dataclasses import dataclass, field
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .context import CTX_LEN, CTX_VOCAB, hash_context
-from .prefix_mining import HORIZONS
+from eot.context import CTX_LEN, CTX_VOCAB, hash_context
+from eot.labeling.samples import HORIZONS
 
 
 @dataclass
 class EOTConfig:
     base_model: str = "openai/whisper-tiny"  # multilingual: one model for EN + ES bonus
     base_revision: str | None = "169d4a4341b33bc18d8881c4b69c2e104e1cc0af"
-    max_source_positions: int = 400  # 8 s -> 800 mel frames -> 400 encoder positions
+    max_source_positions: int = 400  # 8 s -> 800 mel frames -> 400 encoder positions; smaller = shorter internal context
     use_context: bool = False
     ctx_dim: int = 128
     context_dropout: float = 0.3  # train-time: drop context so the model stays usable without it
@@ -51,7 +49,7 @@ class EOTConfig:
     # Stored in checkpoints so restoring a trained model never needs the Hub.
     whisper_config: dict | None = None
     normalize_audio: bool = False
-    encoder_layers: int | None = None
+    encoder_layers: int | None = None  # kept for older pruned checkpoints; pruning is not a training option
 
 
 class AttentionPool(nn.Module):
@@ -118,6 +116,10 @@ class EOTModel(nn.Module):
 
     # -- forward -----------------------------------------------------------------------------
     def encode(self, input_features: torch.Tensor, context_ids: torch.Tensor | None = None) -> torch.Tensor:
+        # The model's internal context may be shorter than the shared 8 s frontend contract
+        # (``max_source_positions`` < 400); only the trailing frames are encoded, so evaluation
+        # and serving keep feeding exactly the same audio window.
+        input_features = input_features[:, :, -2 * self.cfg.max_source_positions:]
         h = self.encoder(input_features=input_features).last_hidden_state
         z = self.pool(h)
         if self.cfg.use_context:

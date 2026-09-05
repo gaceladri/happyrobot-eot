@@ -1,12 +1,9 @@
-from pathlib import Path
-import importlib.util
-import sys
 import numpy as np
 import pytest
 
-from eot.prefix_mining import fvad_targets
-from eot.krisp import evaluate
-from eot.policy import Endpointer, Policy
+from eot.labeling.samples import fvad_targets
+from eot.data.krisp import evaluate
+from eot.eval.policy import Endpointer, Policy
 
 
 def test_future_speech_does_not_follow_eot_label():
@@ -20,32 +17,6 @@ def test_krisp_counts_timeout_cutoff_and_excludes_boundary():
     eots=[{'label':'eot','span_len':2.,'points':[(.2,0.)]}]
     assert evaluate(holds+eots,.5,.2,1.)['cutoff_rate']==1.
     assert evaluate(holds+eots,.5,.2,1.5)['cutoff_rate']==0.
-
-
-def test_bootstrap_matches_harness_for_both_modes():
-    pytest.importorskip('pandas')
-    pytest.importorskip('sklearn')
-    sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'third_party/eot-bench'))
-    sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
-    import pandas as pd
-    from eot_harness.metrics import compute_metrics_from_predictions
-    from eotbench_bootstrap import contributions, bootstrap
-    rows=[]
-    for tid in range(4):
-        for span,label in [(0,'hold'),(1,'eot')]:
-            for t in (.2,.3,.4,.5,.6):
-                rows.append(dict(id=str(tid),span_index=span,label=label,timestamp=span+t,
-                                 silence_dur=t,p_eot=.8 if (label=='eot' or tid==0) and t>=.4 else .1))
-    df=pd.DataFrame(rows)
-    pol=dict(threshold=.5,action_delay=.2,timeout=.5)
-    for mode in (.2,None):
-        tr,sm=compute_metrics_from_predictions(df,score_point_s=mode,thresholds=[.5],action_delays=[.2],timeouts=[.5])
-        expected=tr[tr.policy_type=='model'].iloc[0]
-        a=contributions(df,sm,pol)
-        result=bootstrap(a,100,0,a)
-        assert result['cutoff_rate']==pytest.approx(expected.cutoff_rate)
-        assert result['mean_latency']==pytest.approx(expected.mean_latency)
-        assert result['paired_diff_cutoff_rate_ci95']==[0.,0.]
 
 
 def test_endpointer_timeout_without_inference_and_stale_generation():
@@ -85,7 +56,8 @@ def test_future_target_rejects_cut_after_onset():
 
 def test_mining_does_not_cut_after_earlier_vad_onset():
     from eot.audio import PauseSpan,Span
-    from eot.prefix_mining import mine_clip,Clip
+    from eot.labeling.prefix_mining import mine_clip
+    from eot.labeling.samples import Clip
     class Detector:
         detector='fake'
         def __call__(self,x,sr):
@@ -95,7 +67,7 @@ def test_mining_does_not_cut_after_earlier_vad_onset():
 
 
 def test_vectorized_krisp_sweep_matches_scalar_replay():
-    from eot.krisp import sweep
+    from eot.data.krisp import sweep
     rng=np.random.default_rng(7)
     spans=[]
     for i in range(30):

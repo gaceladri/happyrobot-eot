@@ -12,16 +12,16 @@ wandb/
 !.env.example
 
 # Council/research scratch space (final reports live under output/)
-tmp/
+/tmp/
 
 # Training data, caches, checkpoints, exports, and benchmark outputs
-data/
-cache/
-runs/
-exports/
-eval/
-artifacts/
-models/
+/data/
+/cache/
+/runs/
+/exports/
+/eval/
+/artifacts/
+/models/
 *.pt
 *.pth
 *.onnx
@@ -31,11 +31,11 @@ models/
 *.log
 
 # Packaging/build output
-build/
-dist/
+/build/
+/dist/
 *.egg-info/
-third_party/
-logs/
+/third_party/
+/logs/
 
 # Research registry lock (runtime)
 research/.registry.lock

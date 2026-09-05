@@ -1,48 +1,62 @@
-"""Resumable Smart Turn acquisition into a relocation-safe local manifest.
+"""Smart Turn v3.2 corpus: streaming loader and resumable, relocation-safe acquisition.
 
-The command streams a pinned dataset revision, strictly filters one language, writes each WAV
-atomically, then fsyncs one manifest record. Re-running with ``--resume`` skips completed ids and
-continues until both class quotas are satisfied.
+Columns used: ``audio``, ``endpoint_bool``, ``language`` and ``dataset`` (the contributing source,
+used for grouped splits because the corpus has no speaker ids). ``acquire_clips`` streams a pinned
+revision, writes each WAV atomically, fsyncs one manifest record per clip and can resume until
+both class quotas are met.
 """
-
 from __future__ import annotations
-
 import argparse
 import json
-import os
 from collections import Counter
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Iterator
 
 import numpy as np
 
-from .audio import SAMPLE_RATE, to_float32, to_mono
-from .data import (
-    SMART_TURN_TRAIN,
-    append_jsonl_record,
-    atomic_write_json,
-    atomic_write_jsonl,
-    load_smart_turn_clips,
-    read_jsonl_records,
-    resolve_record_path,
-    safe_audio_filename,
-    sha256_file,
-)
-from .prefix_mining import Clip
+from eot.audio import decode_payload
+from eot.io import append_jsonl_record, atomic_write_json, atomic_write_jsonl, read_jsonl_records, resolve_record_path, safe_audio_filename, sha256_file, write_wav
+from eot.labeling.samples import Clip
 
 
-def _atomic_write_wav(path: Path, audio: np.ndarray, sample_rate: int = SAMPLE_RATE) -> None:
-    import soundfile as sf
+SMART_TURN_TRAIN = "pipecat-ai/smart-turn-data-v3.2-train"
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f".{path.stem}.{os.getpid()}.partial.wav")
-    try:
-        sf.write(tmp, to_mono(to_float32(np.asarray(audio))), sample_rate, subtype="PCM_16")
-        with tmp.open("rb") as f:
-            os.fsync(f.fileno())
-        os.replace(tmp, path)
-    finally:
-        tmp.unlink(missing_ok=True)
+
+SMART_TURN_TEST = "pipecat-ai/smart-turn-data-v3.2-test"
+
+
+def load_smart_turn_clips(
+    name: str = SMART_TURN_TRAIN,
+    language: str = "eng",
+    per_label: int = 8_000,
+    seed: int = 0,
+    streaming: bool = True,
+    revision: str | None = None,
+    max_rows: int | None = None,
+) -> Iterator[Clip]:
+    """Yield up to ``per_label`` clips of each label for ``language`` from the Smart Turn corpus."""
+    from datasets import Audio, load_dataset
+
+    ds = load_dataset(name, split="train", streaming=streaming, revision=revision)
+    ds = ds.cast_column("audio", Audio(decode=False))
+    ds = ds.shuffle(seed=seed, buffer_size=2_000) if streaming else ds.shuffle(seed=seed)
+    taken = {0: 0, 1: 0}
+    for i, row in enumerate(ds):
+        if max_rows is not None and i >= max_rows:
+            break
+        if str(row.get("language", "")) != language:
+            continue
+        label = int(bool(row["endpoint_bool"]))
+        if taken[label] >= per_label:
+            if all(v >= per_label for v in taken.values()):
+                break
+            continue
+        x = decode_payload(row["audio"])
+        taken[label] += 1
+        yield Clip(
+            id=str(row.get("id", i)), audio=x, label=label,
+            source=str(row.get("dataset", "unknown")), agent_text=str(row.get("agent_text", "") or ""),
+        )
 
 
 def _validate_resume_metadata(path: Path, expected: dict) -> None:
@@ -181,7 +195,7 @@ def acquire_clips(
                 )
             prior_path = resolve_record_path(manifest, prior["path"])
             if not prior_path.exists():
-                _atomic_write_wav(prior_path, clip.audio, clip.sr)
+                write_wav(prior_path, clip.audio, clip.sr)
                 prior["sha256"] = sha256_file(prior_path)
                 atomic_write_jsonl(manifest, existing.values())
             elif prior.get("sha256") and sha256_file(prior_path) != prior["sha256"]:
@@ -191,7 +205,7 @@ def acquire_clips(
             continue
 
         wav = audio_dir / safe_audio_filename(clip_id)
-        _atomic_write_wav(wav, clip.audio, clip.sr)
+        write_wav(wav, clip.audio, clip.sr)
         row = {
             "id": clip_id,
             "path": wav.relative_to(out_dir).as_posix(),

@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 from fastapi.testclient import TestClient
 
-import eot.serve as serve
+import eot.serving.service as serve
 
 
 class _FakeEngine:

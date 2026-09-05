@@ -33,37 +33,26 @@ CLI
 ---
     uv run eot-apptek --root data/raw/apptek/hf --out data/mined/apptek --workers 8
 """
-
 from __future__ import annotations
-
 import argparse
 import json
 import re
 import time
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Iterable
 
 import numpy as np
 
-from .audio import (
-    SAMPLE_RATE,
-    WINDOW_SECONDS,
-    PauseDetector,
-    PauseSpan,
-    SileroVAD,
-    Span,
-    digital_silence_fraction,
-    estimate_snr_db,
-    resample,
-    silence_spans_adaptive,
-    to_float32,
-    to_mono,
-)
-from .prefix_mining import CONFIDENCE_RANK, DEFAULT_SCORE_POINT, Sample, fvad_targets
+from eot.audio import SAMPLE_RATE, WINDOW_SECONDS, PauseDetector, PauseSpan, SileroVAD, Span, digital_silence_fraction, estimate_snr_db, load_wav, silence_spans_adaptive
+from eot.io import atomic_write_json, sha256_file, write_wav
+from eot.labeling.samples import CONFIDENCE_RANK, DEFAULT_SCORE_POINT, Sample, fvad_targets
+
 
 HELDOUT_ACCENTS: tuple[str, ...] = ("en-IN", "en-SG", "en-GB_SCT")
+
+
 # Role-play technical chatter ("is your audio on?", "it keeps calibrating"). Deliberately narrow:
 # business vocabulary such as "connection" or "line" must not trigger it in telecom domains.
 TECH_RE = re.compile(
@@ -71,19 +60,42 @@ TECH_RE = re.compile(
     r"breaking up|echo)\b",
     re.I,
 )
+
+
 MIN_AGENT_UTT_S = 0.15  # shorter agent-channel activity is a click or breath, not speech
+
+
 FILLER_RE = re.compile(r"\((uh|um|hmm|mm|er|ah|eh)\)|#\w+|\w+~", re.I)
+
+
 WORD_RE = re.compile(r"[A-Za-z0-9']+")
+
 
 # Oracle thresholds (pre-registered; do not tune after seeing test results).
 BACKCHANNEL_MAX_S = 0.6
+
+
 BACKCHANNEL_MAX_WORDS = 2
+
+
 EOT_CUSTOMER_SILENT_S = 1.0
+
+
 MAX_HOLD_S = 5.0
+
+
 MIN_PAUSE_S = 0.2
+
+
 MIN_SPEECH_BEFORE_S = 0.3
+
+
 AGENT_MERGE_GAP_S = 0.3
+
+
 TECH_WINDOW_S = 10.0
+
+
 GREETING_MIN_WORDS = 3
 
 
@@ -154,13 +166,6 @@ def load_conversations(root: Path, accents: Iterable[str] | None = None) -> list
             ]
             out.append(Conversation(stem, accent, str(row.get("domain", "")), float(row["duration"]), segments, agent, customer))
     return out
-
-
-def _read(path: Path) -> np.ndarray:
-    import soundfile as sf
-
-    x, sr = sf.read(path, dtype="float32", always_2d=False)
-    return resample(to_mono(to_float32(np.asarray(x))), sr)
 
 
 def speech_intervals(pauses: list[PauseSpan], total: float, min_confidence: str = "medium") -> list[Span]:
@@ -282,10 +287,13 @@ def label_conversation(
     detector: PauseDetector,
     grid: Iterable[float] = (0.2, 0.4, 0.6),
     min_confidence: str = "medium",
+    rule_version: str = "v1",
 ) -> tuple[list[Sample], list[Decision], dict]:
+    if rule_version not in ("v1", "v2"):
+        raise ValueError("unknown labeling rule version")
     grid = sorted(set(float(g) for g in grid) | {DEFAULT_SCORE_POINT})
-    customer = _read(conv.customer_path)
-    agent = _read(conv.agent_path)
+    customer = load_wav(conv.customer_path)
+    agent = load_wav(conv.agent_path)
     n = min(len(customer), len(agent))
     customer, agent = customer[:n], agent[:n]
     total = n / SAMPLE_RATE
@@ -314,13 +322,15 @@ def label_conversation(
             decisions.append(Decision(p.start, p.end, None, None, None, None, None, f"low_confidence", p.confidence, p.iou))
             continue
         d = decide(p, cust_speech, agent_speech, conv.segments, greeting_t, total)
+        if rule_version == "v2":
+            d = conservative_decision(d, agent_speech, conv.segments)
         decisions.append(d)
         if d.label is None:
             continue
         prev_text = last_text_before(conv.segments, "customer", p.start)
         agent_text_seg = last_text_before(conv.segments, "agent", p.start, within=60.0)
         disfluent = int(bool(prev_text and FILLER_RE.search(prev_text.text)))
-        limit = d.onset if d.label == 0 else total
+        limit = d.onset if d.onset is not None else total  # never crop past the speaker's own resumption
         for g in grid:
             cut = p.start + g
             if cut + 1e-9 < p.agree_from:
@@ -350,6 +360,8 @@ def label_conversation(
                         "backchannel": int(d.reason == "hold_backchannel"),
                         "eot_gap": round(d.agent_onset - p.start, 3) if d.label == 1 else None,
                         "label_method": "dual_channel_heuristic",
+                        "label_rule_version": rule_version,
+                        "label_confidence": "heuristic_unreviewed",
                         "future_observed_until": total - cut,
                         "agent_words": d.agent_words, "disfluent_before_pause": disfluent,
                         "digital_silence_fraction": digital,
@@ -373,6 +385,24 @@ def label_conversation(
     return samples, decisions, summary
 
 
+def conservative_decision(d: Decision, agent_utts: list[Span], segments: list[Segment]) -> Decision:
+    """Rule v2: abstain where v1 inferred backchannel intent from duration/word count alone.
+
+    A brief "yes" can complete an answer, and a brief acknowledgment can precede a longer agent
+    turn before the customer returns. Neither warrants a confident HOLD without event annotation
+    or independent review. This trades coverage for label caution; it is not a claim of accuracy.
+    """
+    if d.reason != "hold_backchannel":
+        return d
+    follows = [a for a in agent_utts if a.start > d.agent_onset and (d.onset is None or a.start < d.onset)]
+    has_turn = any(
+        a.end - a.start >= BACKCHANNEL_MAX_S or words_in(segments, "agent", a) > BACKCHANNEL_MAX_WORDS
+        for a in follows
+    )
+    reason = "ambiguous_listener_event_chain" if has_turn else "ambiguous_short_listener_event"
+    return replace(d, label=None, reason=reason)
+
+
 # ---------------------------------------------------------------------------
 # CLI with multiprocessing
 # ---------------------------------------------------------------------------
@@ -380,27 +410,24 @@ def label_conversation(
 _WORKER: dict = {}
 
 
-def _init_worker(detector_name: str, threads: int, dirs: dict[str, str], heldout: list[str]) -> None:
+def _init_worker(detector_name: str, threads: int, dirs: dict[str, str], heldout: list[str], rule_version: str = "v1") -> None:
     vad = SileroVAD(threads=threads) if detector_name == "ensemble" else None
     _WORKER["detector"] = PauseDetector(detector_name, vad=vad, min_silence=MIN_PAUSE_S)
     _WORKER["dirs"] = {k: Path(v) for k, v in dirs.items()}
     _WORKER["heldout"] = set(heldout)
+    _WORKER["rule_version"] = rule_version
 
 
 def _work(payload: tuple[Conversation, list[float], str]):
     """Worker: label one conversation and write its wavs; return manifest rows only."""
-    import soundfile as sf
-
-    from .data import sha256_file
-
     conv, grid, min_conf = payload
-    samples, _, summary = label_conversation(conv, _WORKER["detector"], grid, min_conf)
+    samples, _, summary = label_conversation(conv, _WORKER["detector"], grid, min_conf, _WORKER["rule_version"])
     split = "heldout" if conv.accent in _WORKER["heldout"] else "train"
     out_dir: Path = _WORKER["dirs"][split]
     metas = []
     for s in samples:
         path = out_dir / "audio" / f"{s.id}.wav"
-        sf.write(path, s.audio, SAMPLE_RATE, subtype="PCM_16")
+        write_wav(path, s.audio, atomic=False)
         meta = s.meta()
         meta["path"] = path.relative_to(out_dir).as_posix()
         meta["sha256"] = sha256_file(path)
@@ -417,12 +444,11 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--grid", type=float, nargs="+", default=[0.2, 0.4, 0.6])
     ap.add_argument("--detector", choices=("ensemble", "legacy", "energy"), default="ensemble")
     ap.add_argument("--min-confidence", choices=("low", "medium", "high"), default="medium")
+    ap.add_argument("--rule-version", choices=("v1", "v2"), default="v1", help="v2 abstains on unreviewed short listener events")
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--limit", type=int, default=None, help="conversations per accent (debug)")
     args = ap.parse_args(argv)
     import multiprocessing as mp
-
-    from .data import atomic_write_json
 
     convs = load_conversations(args.root, args.accents)
     if args.limit:
@@ -435,6 +461,8 @@ def main(argv: list[str] | None = None) -> None:
         convs = kept
     heldout = set(args.heldout)
     dirs = {"train": args.out / "train", "heldout": args.out / "heldout"}
+    if (args.out / "conversations.jsonl").exists() or any((d / "samples.jsonl").exists() for d in dirs.values()):
+        raise FileExistsError("labeling output already exists; choose a fresh run directory to preserve prior data")
     for d in dirs.values():
         (d / "audio").mkdir(parents=True, exist_ok=True)
     manifests = {k: (d / "samples.jsonl").open("w") for k, d in dirs.items()}
@@ -444,7 +472,7 @@ def main(argv: list[str] | None = None) -> None:
     n_written = Counter()
     t0 = time.time()
     payloads = [(c, args.grid, args.min_confidence) for c in convs]
-    init = (args.detector, 1, {k: str(v) for k, v in dirs.items()}, sorted(heldout))
+    init = (args.detector, 1, {k: str(v) for k, v in dirs.items()}, sorted(heldout), args.rule_version)
     with mp.get_context("spawn").Pool(args.workers, initializer=_init_worker, initargs=init) as pool:
         for i, (conv, split, metas, summary) in enumerate(pool.imap_unordered(_work, payloads), 1):
             for meta in metas:
@@ -464,6 +492,7 @@ def main(argv: list[str] | None = None) -> None:
     report = {
         "root": str(args.root), "revision_note": "apptek-com/apptek_callcenter_dialogues b98967d9",
         "detector": args.detector, "min_confidence": args.min_confidence, "grid": args.grid,
+        "rule_version": args.rule_version,
         "heldout_accents": sorted(heldout), "n_conversations": len(convs),
         "samples_written": dict(n_written), "decision_reasons": dict(reasons),
         "per_accent": {k: dict(v) for k, v in sorted(per_accent.items())},

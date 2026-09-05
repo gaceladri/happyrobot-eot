@@ -13,14 +13,14 @@ def test_eotbench_adapter_import_is_torch_free() -> None:
     root = Path(__file__).resolve().parents[1]
     env = os.environ.copy()
     env["PYTHONPATH"] = str(root / "src")
-    code = "import sys; import eot.eotbench_adapter; assert 'torch' not in sys.modules"
+    code = "import sys; import eot.eval.eotbench; assert 'torch' not in sys.modules"
     subprocess.run([sys.executable, "-c", code], env=env, check=True, capture_output=True, text=True)
 
 
 def test_audio_only_onnx_adapter_omits_pruned_context(monkeypatch, tmp_path: Path) -> None:
     import onnxruntime as ort
 
-    from eot import eotbench_adapter as module
+    from eot.eval import eotbench as module
 
     sessions = []
 
@@ -53,17 +53,17 @@ def test_audio_only_onnx_adapter_omits_pruned_context(monkeypatch, tmp_path: Pat
 
 
 def test_audio_decoder_accepts_path_only_huggingface_payload(tmp_path: Path) -> None:
-    from eot.eotbench_adapter import _audio_to_16k
+    from eot.audio import decode_payload
 
     path = tmp_path / "audio.wav"
     sf.write(path, np.linspace(-0.1, 0.1, 800, dtype=np.float32), 8000)
-    decoded = _audio_to_16k({"bytes": None, "path": str(path)})
+    decoded = decode_payload({"bytes": None, "path": str(path)})
     assert decoded.dtype == np.float32
     assert len(decoded) == 1600
 
 
 def test_local_score_points_keep_original_span_indices():
-    from eot.eotbench_adapter import score_rows
+    from eot.eval.eotbench import score_rows
     class Adapter:
         score_point=.2
         def predict_batch(self,batch):return [.5]*len(batch)

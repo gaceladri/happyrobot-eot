@@ -6,10 +6,13 @@ import numpy as np
 import pytest
 import soundfile as sf
 
-from eot.acquire import acquire_clips
+from eot.data.smart_turn import acquire_clips
 from eot.audio import SAMPLE_RATE, WINDOW_SECONDS, silence_spans
-from eot.data import MinedDataset, grouped_split, read_jsonl_records, read_samples
-from eot.prefix_mining import Clip, Sample, _read_manifest, mine_clip, write_samples
+from eot.data.dataset import MinedDataset, read_samples
+from eot.data.splits import grouped_split
+from eot.io import read_jsonl_records
+from eot.labeling.prefix_mining import _read_manifest, mine_clip, write_samples
+from eot.labeling.samples import Clip, Sample
 
 
 def _rows(source: str, label: int, count: int) -> list[dict]:

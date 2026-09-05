@@ -37,91 +37,20 @@ CLI
 ``clips.jsonl`` rows: {"id", "path", "label" (1=EOT complete, 0=incomplete), "source", "agent_text"?}
 Output: ``mined/<id>_<k>.wav`` + ``mined/samples.jsonl`` with per-sample metadata.
 """
-
 from __future__ import annotations
-
 import argparse
 import hashlib
 import json
 import os
 from collections import Counter
-from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable, Iterator
 
 import numpy as np
 
-from .audio import (
-    SAMPLE_RATE,
-    WINDOW_SECONDS,
-    PauseDetector,
-    PauseSpan,
-    Span,
-    digital_silence_fraction,
-    estimate_snr_db,
-    to_float32,
-    to_mono,
-)
-
-HORIZONS: tuple[float, ...] = (0.24, 0.64, 1.2, 2.0)
-DEFAULT_SCORE_POINT = 0.2
-CONFIDENCE_RANK = {"low": 0, "medium": 1, "high": 2}
-
-
-@dataclass
-class Clip:
-    id: str
-    audio: np.ndarray  # float32 16 kHz mono
-    label: int  # 1 = complete / EOT, 0 = incomplete / HOLD
-    source: str = "unknown"
-    agent_text: str = ""  # previous agent utterance if known (free context at runtime)
-    sr: int = SAMPLE_RATE
-
-
-@dataclass
-class Sample:
-    id: str
-    clip_id: str
-    audio: np.ndarray = field(repr=False)
-    label: int
-    kind: str  # "internal" | "final" | "whole"
-    cut_time: float
-    pause_start: float
-    time_to_onset: float | None  # seconds until next speech onset; None if EOT or censored
-    fvad: list[int]
-    fvad_mask: int | list[int]  # validity per horizon; scalar accepted for old manifests
-    source: str
-    agent_text: str
-    # Labeling-quality metadata (rev. 3). Defaults keep older manifests loadable.
-    cut_confidence: str = "high"  # high | medium | low (see audio.ensemble_pauses)
-    pause_iou: float = 1.0  # IoU between the energy and VAD pause spans
-    snr_est_db: float | None = None  # crude clip SNR estimate
-    onset_margin_ms: float | None = None  # ms from the cut to the earliest plausible speech onset
-    detector: str = "legacy"
-    noise_fill: int = 0  # 1 -> add room tone at train time (digital-silence sources)
-    extra: dict = field(default_factory=dict)  # source-specific fields (accent, speaker_id, ...)
-
-    def meta(self) -> dict:
-        d = asdict(self)
-        d.pop("audio")
-        extra = d.pop("extra") or {}
-        for key, value in extra.items():
-            d.setdefault(key, value)
-        return d
-
-
-def fvad_targets(time_to_onset: float | None, is_eot: bool = False,
-                 observed_until: float = 0.0) -> tuple[list[int], list[int]]:
-    """Future activity is observed independently of the conversational EOT label.
-
-    With a known next onset every horizon is known. With right censoring only horizons
-    within the observed silent future are valid. Clip completion alone proves nothing.
-    """
-    if time_to_onset is not None:
-        if time_to_onset < -1e-9:
-            raise ValueError("cut is after the next speech onset")
-        return [int(time_to_onset <= h) for h in HORIZONS], [1] * len(HORIZONS)
-    return [0] * len(HORIZONS), [int(h <= observed_until) for h in HORIZONS]
+from eot.audio import SAMPLE_RATE, WINDOW_SECONDS, PauseDetector, PauseSpan, SileroVAD, Span, digital_silence_fraction, estimate_snr_db, load_wav
+from eot.io import append_jsonl_record, atomic_write_json, atomic_write_jsonl, read_jsonl_records, resolve_record_path, safe_audio_filename, sha256_file, write_wav
+from eot.labeling.samples import CONFIDENCE_RANK, DEFAULT_SCORE_POINT, Clip, Sample, fvad_targets
 
 
 def _speech_bounds(x: np.ndarray, spans: list[Span] | list[PauseSpan], sr: int) -> tuple[float, float]:
@@ -286,56 +215,18 @@ def mine(clips: Iterable[Clip], **kw) -> Iterator[Sample]:
         yield from mine_clip(c, **kw)
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
-
-
 def _read_manifest(path: Path) -> Iterator[Clip]:
-    import soundfile as sf
-
-    from .audio import resample, to_float32, to_mono
-    from .data import read_jsonl_records, resolve_record_path
-
     path = Path(path)
     for row in read_jsonl_records(path, repair_trailing=False):
-        audio_path = resolve_record_path(path, row["path"])
-        audio, sr = sf.read(audio_path, dtype="float32", always_2d=False)
-        audio = resample(to_mono(to_float32(np.asarray(audio))), sr)
+        audio = load_wav(resolve_record_path(path, row["path"]))
         yield Clip(
             id=str(row["id"]), audio=audio, label=int(row["label"]),
             source=str(row.get("source", "unknown")), agent_text=str(row.get("agent_text", "")),
         )
 
 
-def _atomic_write_wav(path: Path, audio: np.ndarray) -> None:
-    import soundfile as sf
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(f".{path.stem}.{os.getpid()}.partial.wav")
-    try:
-        sf.write(tmp, to_mono(to_float32(np.asarray(audio))), SAMPLE_RATE, subtype="PCM_16")
-        from .data import DURABLE_WRITES
-
-        if DURABLE_WRITES:
-            with tmp.open("rb") as f:
-                os.fsync(f.fileno())
-        os.replace(tmp, path)
-    finally:
-        tmp.unlink(missing_ok=True)
-
-
 def write_samples(samples: Iterable[Sample], out_dir: Path, *, resume: bool = False) -> dict:
     """Persist mined samples safely; ``resume`` skips complete records and repairs torn tails."""
-    from .data import (
-        append_jsonl_record,
-        atomic_write_jsonl,
-        read_jsonl_records,
-        resolve_record_path,
-        safe_audio_filename,
-        sha256_file,
-    )
-
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     audio_dir = out_dir / "audio"
@@ -369,7 +260,7 @@ def write_samples(samples: Iterable[Sample], out_dir: Path, *, resume: bool = Fa
         if prior is not None:
             prior_path = resolve_record_path(manifest, prior["path"])
             if not prior_path.exists():
-                _atomic_write_wav(prior_path, s.audio[-max_samples:])
+                write_wav(prior_path, s.audio[-max_samples:])
                 prior["sha256"] = sha256_file(prior_path)
                 prior["stored_duration_s"] = round(min(len(s.audio), max_samples) / SAMPLE_RATE, 6)
                 atomic_write_jsonl(manifest, existing.values())
@@ -382,7 +273,7 @@ def write_samples(samples: Iterable[Sample], out_dir: Path, *, resume: bool = Fa
             continue
         wav = audio_dir / safe_audio_filename(sample_id)
         stored_audio = s.audio[-max_samples:]
-        _atomic_write_wav(wav, stored_audio)
+        write_wav(wav, stored_audio)
         meta = s.meta()
         meta.update({
             "path": wav.relative_to(out_dir).as_posix(),
@@ -400,8 +291,6 @@ def write_samples(samples: Iterable[Sample], out_dir: Path, *, resume: bool = Fa
 
 
 def build_detector(name: str, min_pause: float, vad_threads: int = 1) -> PauseDetector:
-    from .audio import SileroVAD
-
     vad = SileroVAD(threads=vad_threads) if name == "ensemble" else None
     return PauseDetector(name, vad=vad, min_silence=min_pause)
 
@@ -416,15 +305,7 @@ def _init_mine_worker(detector: str, min_pause: float, grid: list[float], min_co
 
 def _mine_one(row: dict) -> tuple[list[dict], dict]:
     """Worker: mine one clip, write its wavs, return manifest rows + drop counts."""
-    import soundfile as sf
-
-    from .data import resolve_record_path, safe_audio_filename, sha256_file
-
-    audio_path = Path(row["_audio_path"])
-    audio, sr = sf.read(audio_path, dtype="float32", always_2d=False)
-    from .audio import resample
-
-    audio = resample(to_mono(to_float32(np.asarray(audio))), sr)
+    audio = load_wav(row["_audio_path"])
     clip = Clip(id=str(row["id"]), audio=audio, label=int(row["label"]), source=str(row.get("source", "unknown")), agent_text=str(row.get("agent_text", "")))
     dropped: Counter = Counter()
     samples = mine_clip(
@@ -437,9 +318,7 @@ def _mine_one(row: dict) -> tuple[list[dict], dict]:
     for s in samples:
         wav = out_dir / "audio" / safe_audio_filename(str(s.id))
         stored = s.audio[-max_samples:]
-        # Direct write: the parallel path has no resume, and tmp+rename from many workers at once
-        # saturated the NVMe with metadata operations.
-        sf.write(wav, to_mono(to_float32(np.asarray(stored))), SAMPLE_RATE, subtype="PCM_16")
+        write_wav(wav, stored, atomic=False)  # the parallel path has no resume; see io.write_wav
         meta = s.meta()
         meta.update({"path": wav.relative_to(out_dir).as_posix(), "stored_duration_s": round(len(stored) / SAMPLE_RATE, 6), "sha256": sha256_file(wav)})
         metas.append(meta)
@@ -449,8 +328,6 @@ def _mine_one(row: dict) -> tuple[list[dict], dict]:
 def write_samples_parallel(manifest_in: Path, out_dir: Path, *, detector: str, min_pause: float, grid: list[float], min_confidence: str, workers: int) -> dict:
     """Multiprocess mining (no resume). Workers write wavs; the parent appends manifest rows."""
     import multiprocessing as mp
-
-    from .data import read_jsonl_records, resolve_record_path
 
     out_dir = Path(out_dir)
     (out_dir / "audio").mkdir(parents=True, exist_ok=True)
@@ -494,8 +371,7 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--workers", type=int, default=1, help=">1 enables multiprocess mining (no --resume)")
     ap.add_argument("--resume", action="store_true", help="continue an interrupted compatible run")
     args = ap.parse_args(argv)
-    from .audio import SILERO_VAD_SHA256, SILERO_VAD_VERSION
-    from .data import atomic_write_json, sha256_file
+    from eot.audio import SILERO_VAD_SHA256, SILERO_VAD_VERSION
 
     metadata_path = args.out / "metadata.json"
     config = {

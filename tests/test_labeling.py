@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from eot.apptek import Conversation, Segment, decide, merge_intervals, speech_intervals, words_in
+from eot.labeling.apptek import Conversation, Segment, decide, merge_intervals, speech_intervals, words_in
 from eot.audio import (
     SAMPLE_RATE,
     PauseDetector,
@@ -21,7 +21,8 @@ from eot.audio import (
     silence_spans_adaptive,
     vad_quiet_mask,
 )
-from eot.prefix_mining import Clip, mine_clip
+from eot.labeling.prefix_mining import mine_clip
+from eot.labeling.samples import Clip
 
 SR = SAMPLE_RATE
 
@@ -223,7 +224,7 @@ def test_helpers():
 def test_krisp_score_rows_and_metrics(tmp_path: Path):
     import soundfile as sf
 
-    from eot.krisp import metrics, score
+    from eot.data.krisp import metrics, score
 
     rng = np.random.default_rng(0)
     clips = tmp_path / "clips"

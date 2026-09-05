@@ -3,9 +3,7 @@
 The audio-only + FVAD path remains the default. Context is opt-in and guarded by measured
 coverage so an all-padding context branch can never be shipped accidentally.
 """
-
 from __future__ import annotations
-
 import argparse
 import importlib.metadata
 import json
@@ -25,18 +23,11 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-from .data import (
-    MinedDataset,
-    append_jsonl_record,
-    atomic_write_json,
-    atomic_write_jsonl,
-    collate,
-    grouped_split,
-    read_jsonl_records,
-    read_samples,
-    sha256_file,
-)
-from .model import EOTConfig, EOTModel
+from eot.data.dataset import MinedDataset, collate, read_samples
+from eot.data.splits import grouped_split
+from eot.eval.metrics import roc_auc
+from eot.io import append_jsonl_record, atomic_write_json, atomic_write_jsonl, read_jsonl_records, sha256_file
+from eot.modeling.model import EOTConfig, EOTModel, load_checkpoint
 
 
 def _source_digest() -> str:
@@ -136,21 +127,6 @@ def should_save_best(current: float, best: float | None, *, has_best: bool) -> b
     return best is None or not math.isfinite(best) or current > best
 
 
-def roc_auc(y: np.ndarray, s: np.ndarray) -> float:
-    """Rank-based AUC without sklearn."""
-    order = np.argsort(s)
-    ranks = np.empty(len(s), dtype=np.float64)
-    ranks[order] = np.arange(1, len(s) + 1)
-    _, inv, counts = np.unique(s, return_inverse=True, return_counts=True)
-    sums = np.bincount(inv, weights=ranks)
-    ranks = (sums / counts)[inv]
-    n_pos = int(y.sum())
-    n_neg = len(y) - n_pos
-    if n_pos == 0 or n_neg == 0:
-        return float("nan")
-    return float((ranks[y == 1].sum() - n_pos * (n_pos + 1) / 2) / (n_pos * n_neg))
-
-
 @torch.no_grad()
 def evaluate(
     model: EOTModel, loader: DataLoader, device: torch.device, *, non_blocking: bool = False
@@ -187,6 +163,24 @@ def _context_coverage(rows: list[dict]) -> float:
     return sum(bool(str(row.get("agent_text", "")).strip()) for row in rows) / max(1, len(rows))
 
 
+def exclude_training_ids(train: list[dict], dev: list[dict], ids: list[str]) -> list[dict]:
+    """Drop listed sample ids from the training rows only, after the frozen split.
+
+    Data ablations (e.g. removing ambiguous labels) must never touch the development set, and a
+    matched random-exclusion control needs the same interface.
+    """
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate training exclusion IDs")
+    excluded = set(ids)
+    if excluded & {r["id"] for r in dev}:
+        raise ValueError("cannot exclude development examples")
+    if not excluded <= {r["id"] for r in train}:
+        raise ValueError("unknown training exclusion IDs")
+    kept = [r for r in train if r["id"] not in excluded]
+    _validate_binary_rows(kept, "filtered train")
+    return kept
+
+
 def _checkpoint_payload(
     *,
     model: EOTModel,
@@ -207,7 +201,6 @@ def _checkpoint_payload(
     return {
         "format_version": 3,
         "data_filter_version": 1,
-        "teacher_checkpoint_sha256": sha256_file(args.teacher_checkpoint) if getattr(args, "teacher_checkpoint", None) else None,
         "cfg": asdict(model.cfg),
         "state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
@@ -245,8 +238,8 @@ def _validate_resume_args(checkpoint: dict, args: argparse.Namespace) -> None:
         "base_model", "base_revision", "epochs", "batch_size", "lr", "weight_decay",
         "warmup_ratio", "dev_frac", "telephony_prob", "fvad_weight", "use_context",
         "min_context_coverage", "no_fvad", "freeze_encoder", "workers", "seed", "max_steps",
-        "fused_adamw", "compile_model", "compile_mode", "init_checkpoint", "encoder_layers",
-        "teacher_checkpoint", "distill_weight", "prune_strategy",
+        "fused_adamw", "compile_model", "compile_mode", "init_checkpoint",
+        "exclude_train_ids", "exclude_train_sha256", "split_seed",
     )
     mismatches = {
         key: (saved[key], getattr(args, key))
@@ -259,9 +252,6 @@ def _validate_resume_args(checkpoint: dict, args: argparse.Namespace) -> None:
             for key, (old, new) in sorted(mismatches.items())
         )
         raise ValueError(f"resume arguments changed training semantics: {details}")
-    if checkpoint.get("teacher_checkpoint_sha256"):
-        if sha256_file(args.teacher_checkpoint) != checkpoint["teacher_checkpoint_sha256"]:
-            raise ValueError("teacher checkpoint changed since the training checkpoint")
 
 
 def _resolve_resume(value: str | None, out_dir: Path) -> Path | None:
@@ -281,6 +271,7 @@ def train(args: argparse.Namespace) -> Path:
     if args.checkpoint_every <= 0:
         raise ValueError("checkpoint-every must be positive")
 
+    args.exclude_train_sha256 = sha256_file(args.exclude_train_ids) if args.exclude_train_ids else None
     seed_everything(args.seed)
     device = pick_device(args.device, require_cuda=args.require_cuda)
     out_dir = Path(args.out)
@@ -311,9 +302,16 @@ def train(args: argparse.Namespace) -> Path:
         raise ValueError("samples manifest is empty")
     if {int(row["label"]) for row in rows} != {0, 1}:
         raise ValueError("samples manifest must contain both labels 0 and 1")
+    split_seed = args.seed if args.split_seed is None else args.split_seed
     tr_rows, dv_rows, diagnostics = grouped_split(
-        rows, dev_frac=args.dev_frac, seed=args.seed, return_diagnostics=True
+        rows, dev_frac=args.dev_frac, seed=split_seed, return_diagnostics=True
     )
+    if args.exclude_train_ids:
+        before = len(tr_rows)
+        tr_rows = exclude_training_ids(tr_rows, dv_rows, json.loads(args.exclude_train_ids.read_text()))
+        diagnostics["training_exclusion"] = {
+            "before": before, "after": len(tr_rows), "sha256": args.exclude_train_sha256, "dev_unchanged": True,
+        }
     _validate_binary_rows(tr_rows, "train")
     _validate_binary_rows(dv_rows, "dev")
     print(json.dumps({"split": diagnostics, "device": str(device)}, sort_keys=True))
@@ -336,18 +334,10 @@ def train(args: argparse.Namespace) -> Path:
         model = EOTModel(cfg, pretrained=False)
         model.load_state_dict(restored["state_dict"])
     elif args.init_checkpoint:
-        from .model import load_checkpoint
         model = load_checkpoint(str(args.init_checkpoint))
         cfg = model.cfg
         if cfg.use_fvad != (not args.no_fvad) or cfg.use_context != args.use_context:
             raise ValueError("initial checkpoint heads must match requested context/FVAD flags")
-        if args.encoder_layers:
-            if not 1 <= args.encoder_layers <= len(model.encoder.layers):
-                raise ValueError("requested depth exceeds initial checkpoint")
-            indices = (np.linspace(0, len(model.encoder.layers)-1, args.encoder_layers, dtype=int).tolist()
-                       if args.prune_strategy == "uniform" else list(range(args.encoder_layers)))
-            model.encoder.layers = torch.nn.ModuleList([model.encoder.layers[i] for i in indices])
-            cfg.encoder_layers = args.encoder_layers
         cfg.freeze_encoder = args.freeze_encoder
         for p in model.encoder.parameters():
             p.requires_grad_(not cfg.freeze_encoder)
@@ -360,21 +350,11 @@ def train(args: argparse.Namespace) -> Path:
             use_fvad=not args.no_fvad,
             freeze_encoder=args.freeze_encoder,
             fvad_weight=args.fvad_weight,
-            encoder_layers=args.encoder_layers,
             pos_weight=sum(int(row["label"]) == 0 for row in tr_rows)
             / max(1, sum(int(row["label"]) == 1 for row in tr_rows)),
         )
         model = EOTModel(cfg)
     model = model.to(device)
-    teacher = None
-    if args.teacher_checkpoint:
-        from .model import load_checkpoint
-        teacher = load_checkpoint(str(args.teacher_checkpoint)).to(device).eval()
-        teacher.requires_grad_(False)
-        if teacher.cfg.normalize_audio != cfg.normalize_audio:
-            raise ValueError("teacher/student preprocessing must match")
-        if not 0 <= args.distill_weight <= 1:
-            raise ValueError("distill_weight must be between zero and one")
     print(f"params total={model.num_params():,} trainable={model.num_params(True):,}")
     train_model = (
         torch.compile(model, mode=args.compile_mode)
@@ -477,7 +457,7 @@ def train(args: argparse.Namespace) -> Path:
         "image_ref": os.environ.get("EOT_IMAGE_REF"),
         "source_sha256": source_identity_path.read_text().strip() if source_identity_path.is_file() else _source_digest(),
         "init_checkpoint_sha256": sha256_file(args.init_checkpoint) if args.init_checkpoint else None,
-        "teacher_checkpoint_sha256": sha256_file(args.teacher_checkpoint) if args.teacher_checkpoint else None,
+        "exclude_train_sha256": args.exclude_train_sha256,
         "dependencies": {
             package: importlib.metadata.version(package)
             for package in ("eot", "numpy", "torch", "transformers")
@@ -555,11 +535,6 @@ def train(args: argparse.Namespace) -> Path:
                 output = train_model(
                     b["input_features"], b["context_ids"], b["labels"], b["fvad"], b["fvad_mask"]
                 )
-                if teacher is not None:
-                    with torch.no_grad():
-                        target = teacher(b["input_features"], b["context_ids"])["p_eot"]
-                    distill = torch.nn.functional.binary_cross_entropy_with_logits(output["logit"], target)
-                    output["loss"] = (1 - args.distill_weight) * output["loss"] + args.distill_weight * distill
             scaler.scale(output["loss"]).backward()
             scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(params, 1.0)
@@ -678,10 +653,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--samples", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--init-checkpoint", type=Path, default=None, help="fine-tune existing EOT weights, with a fresh optimizer")
-    parser.add_argument("--encoder-layers", type=int, default=None, help="retain the first N encoder layers as a smaller student")
-    parser.add_argument("--prune-strategy", choices=("first", "uniform"), default="first")
-    parser.add_argument("--teacher-checkpoint", type=Path, default=None)
-    parser.add_argument("--distill-weight", type=float, default=0.7)
+    parser.add_argument("--exclude-train-ids", type=Path, default=None, help="JSON id list removed from train only, after the frozen split")
+    parser.add_argument("--split-seed", type=int, default=None, help="keep the data split fixed while replicating training seeds (default: --seed)")
     parser.add_argument("--base-model", default="openai/whisper-tiny")
     parser.add_argument(
         "--base-revision",

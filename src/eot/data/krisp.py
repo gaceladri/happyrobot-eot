@@ -18,31 +18,34 @@ Exclusions (reported, pre-registered): hold clips whose tail is < 0.2 s cannot b
 score point and are dropped, mirroring the harness ``--min-hold-span-duration 0.2``; tails
 > 5 s are clipped to 5 s like ``--max-hold-span-duration``.
 """
-
 from __future__ import annotations
-
 import argparse
-import io
 import json
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
 
-from .audio import SAMPLE_RATE, resample, to_float32, to_mono
-from .policy import GRID_STEP
+from eot.audio import SAMPLE_RATE, decode_payload, load_wav
+from eot.eval.metrics import pareto_front, roc_auc
+from eot.eval.policy import GRID_STEP
+from eot.io import atomic_write_json, atomic_write_jsonl, read_jsonl_records, sha256_file, write_wav
+
 
 SCORE_POINT = 0.2
+
+
 MIN_TAIL = 0.2
+
+
 MAX_TAIL = 5.0
+
+
 KRISP_REVISION = "ea19b2743a49b2c2452bf3ced948712020b962bc"
 
 
 def ingest(parquet: Path, out: Path) -> Path:
     import pyarrow.parquet as pq
-    import soundfile as sf
-
-    from .data import atomic_write_json, atomic_write_jsonl, sha256_file
 
     out.mkdir(parents=True, exist_ok=True)
     (out / "audio").mkdir(exist_ok=True)
@@ -50,11 +53,10 @@ def ingest(parquet: Path, out: Path) -> Path:
     table = pq.ParquetFile(parquet)
     for batch in table.iter_batches(batch_size=64):
         for r in batch.to_pylist():
-            x, sr = sf.read(io.BytesIO(r["audio"]["bytes"]), dtype="float32", always_2d=False)
-            x = resample(to_mono(to_float32(np.asarray(x))), int(sr))
+            x = decode_payload({"bytes": r["audio"]["bytes"]})
             cid = Path(r["filename"]).stem
             path = out / "audio" / f"{cid}.wav"
-            sf.write(path, x, SAMPLE_RATE, subtype="PCM_16")
+            write_wav(path, x, atomic=False)
             rows.append({
                 "id": cid, "path": path.relative_to(out).as_posix(), "label": r["label"],
                 "duration": float(r["duration"]), "measured_duration": round(len(x) / SAMPLE_RATE, 3),
@@ -74,10 +76,6 @@ def ingest(parquet: Path, out: Path) -> Path:
 
 def score(clips_manifest: Path, adapter, out: Path, batch_size: int = 32) -> dict:
     """Write harness-style prediction rows: one span per clip, scored every 100 ms from 0.2 s."""
-    import soundfile as sf
-
-    from .data import read_jsonl_records
-
     rows = read_jsonl_records(clips_manifest)
     root = clips_manifest.parent
     n_excluded_short = 0
@@ -101,8 +99,7 @@ def score(clips_manifest: Path, adapter, out: Path, batch_size: int = 32) -> dic
             if tail + 1e-9 < MIN_TAIL:
                 n_excluded_short += 1
                 continue
-            x, sr = sf.read(root / r["path"], dtype="float32", always_2d=False)
-            x = resample(to_mono(to_float32(np.asarray(x))), sr)
+            x = load_wav(root / r["path"])
             total = len(x) / SAMPLE_RATE
             speech_end = total - tail
             span_len = min(tail, MAX_TAIL)
@@ -120,17 +117,11 @@ def score(clips_manifest: Path, adapter, out: Path, batch_size: int = 32) -> dic
                 t += GRID_STEP
         flush()
     partial.replace(out)
-    from .data import sha256_file
     report = {"rows_written": written, "clips": len(rows), "excluded_tail_lt_0.2": n_excluded_short,
               "adapter_id": adapter.adapter_id, "clips_sha256": sha256_file(clips_manifest),
               "model_sha256": getattr(adapter, "model_sha", None)}
     out.with_suffix(".manifest.json").write_text(json.dumps(report, indent=2) + "\n")
     return report
-
-
-# ---------------------------------------------------------------------------
-# Metrics: one decision per clip, policy sweep, speaker-grouped bootstrap
-# ---------------------------------------------------------------------------
 
 
 def _load_spans(predictions: Path) -> list[dict]:
@@ -236,8 +227,6 @@ def operating_points(results: list[dict]) -> dict:
 
 
 def auc_at_score_point(spans: list[dict], score_point: float = SCORE_POINT) -> float:
-    from .train import roc_auc
-
     ys, ps = [], []
     for s in spans:
         for sil, p in s["points"]:
@@ -284,18 +273,8 @@ def metrics(predictions: Path, bootstrap_reps: int = 1000) -> dict:
         "vad_baseline": vad_ops,
         "pareto": sorted(
             ({"cutoff_rate": r["cutoff_rate"], "mean_latency": r["mean_latency"], "threshold": r["threshold"], "action_delay": r["action_delay"], "timeout": r["timeout"]}
-             for r in _pareto(results)), key=lambda r: r["mean_latency"]),
+             for r in pareto_front(results)), key=lambda r: r["mean_latency"]),
     }
-
-
-def _pareto(results: list[dict]) -> list[dict]:
-    pts = sorted(results, key=lambda r: (r["mean_latency"], r["cutoff_rate"]))
-    front, best = [], float("inf")
-    for r in pts:
-        if r["cutoff_rate"] < best:
-            front.append(r)
-            best = r["cutoff_rate"]
-    return front
 
 
 class SmartTurnPublicAdapter:
@@ -311,7 +290,6 @@ class SmartTurnPublicAdapter:
 
         path = hf_hub_download("pipecat-ai/smart-turn-v3", filename,
                                revision="f766f81d3cfdf7737ac64aad813d91bbfd56bf93")
-        from .data import sha256_file
         self.model_sha = sha256_file(Path(path))
         options = ort.SessionOptions()
         options.intra_op_num_threads = 2
@@ -363,7 +341,7 @@ def main(argv: list[str] | None = None) -> None:
         elif args.smart_turn_public:
             adapter = SmartTurnPublicAdapter()
         else:
-            from .eotbench_adapter import EOTAdapter
+            from eot.eval.eotbench import EOTAdapter
 
             adapter = EOTAdapter(checkpoint=args.checkpoint, onnx=args.onnx)
         args.out.parent.mkdir(parents=True, exist_ok=True)

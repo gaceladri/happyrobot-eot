@@ -14,9 +14,7 @@ category}. Each internal pause is a HOLD decision; the end is EOT. If a TTS back
 real silences and written as wavs + ``clips.jsonl`` compatible with ``eot-mine``. Any TTS voice
 used here must be excluded from training; this set is for evaluation only.
 """
-
 from __future__ import annotations
-
 import argparse
 import json
 import random
@@ -24,10 +22,15 @@ from pathlib import Path
 
 import numpy as np
 
-from .audio import SAMPLE_RATE
+from eot.audio import SAMPLE_RATE
+
 
 DIGITS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+
+
 CITIES = ["Dallas", "Atlanta", "Chicago", "Memphis", "Laredo", "Phoenix", "Columbus", "Kansas City", "Newark", "Savannah"]
+
+
 FILLERS = ["uh", "um", "let me see", "hold on", "one second", "hmm"]
 
 
