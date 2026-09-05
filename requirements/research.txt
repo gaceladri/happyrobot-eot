@@ -1,0 +1,5 @@
+# Small plotting/tracking additions to the existing local training environment.
+# No checkpoint/model artifacts are uploaded by the research scripts.
+matplotlib==3.11.1
+wandb==0.29.0
+scipy==1.18.1

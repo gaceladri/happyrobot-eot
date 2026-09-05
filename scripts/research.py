@@ -80,6 +80,18 @@ def snapshot():
   attribution='Snapshot includes pre-existing user and assistant work; no claim of new authorship.',status_before=before))
  print(commit)
 
+def reconcile():
+ for p in (STATE/'experiments').glob('E*.json'):
+  d=json.loads(p.read_text())
+  if d['status']!='training':continue
+  pid=d.get('training_pid');runner=d.get('runner_pid')
+  if pid is None:
+   print(d['id'],'has no PID record; inspect the recorded worktree/log before marking interrupted')
+   continue
+  alive=any(Path(f'/proc/{v}').exists() for v in [pid,runner] if v)
+  if not alive:event(d['id'],'interrupted',decision='Recorded training and runner processes exited without a terminal record; checkpoint retained')
+  else:print(d['id'],'still has a live recorded process; no duplicate launched')
+
 def import_history():
  comparisons=ROOT/'eval/eotbench_comparison/en'
  for f in comparisons.glob('*/manifest.json'):
@@ -106,10 +118,14 @@ def sync(id):
    tags=['autoresearch','no-model-artifacts',d['status']],config={k:d[k] for k in ('id','parent','hypothesis','config','code_commit') if k in d},
    settings=wandb.Settings(init_timeout=30,disable_code=True),dir=str(ROOT/'wandb'))
   for k,v in d.get('metrics',{}).items():run.summary[k]=v
+  history=Path(d.get('training_history',''))
+  if d['status']=='historical' and history.is_file() and not d.get('historical_curves_synced'):
+   for h in (json.loads(l) for l in history.read_text().splitlines()):
+    run.log({'historical/dev_auc':h['auc'],'historical/optimizer_update':h['step']})
   run.summary['decision']=d.get('decision',d['status'])
   run.summary['local_record']=str(p)
   url=run.url;run.finish()
-  event(id,d['status'],wandb_id=runid,wandb_status='synced',wandb_url=url)
+  event(id,d['status'],wandb_id=runid,wandb_status='synced',wandb_url=url,historical_curves_synced=d['status']=='historical')
   print(url)
  except Exception as e:
   event(id,d['status'],wandb_id=runid,wandb_status='pending',wandb_error=type(e).__name__)
@@ -117,7 +133,7 @@ def sync(id):
 
 if __name__=='__main__':
  ap=argparse.ArgumentParser();sp=ap.add_subparsers(dest='command',required=True)
- for name in ['freeze','verify','snapshot','import-history']:sp.add_parser(name)
+ for name in ['freeze','verify','snapshot','import-history','reconcile']:sp.add_parser(name)
  p=sp.add_parser('sync');p.add_argument('id')
  p=sp.add_parser('record');p.add_argument('id');p.add_argument('status');p.add_argument('--json',type=Path,required=True)
  a=ap.parse_args()

@@ -1,0 +1,68 @@
+{
+  "checkpoint": "/home/ad/Desktop/happyrobot-eot-experiments/e021/runs/e021/model.pt",
+  "code_commit": "e27b75abade3cb1c9be93a550229285a208fbc66",
+  "command": [
+    "/home/ad/Desktop/happyrobot-eot/.venv/bin/python",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e021/scripts/weight_soup.py",
+    "--left",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e014/runs/e014/model.pt",
+    "--right",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e018/runs/e018/model.pt",
+    "--samples",
+    "/home/ad/Desktop/happyrobot-eot/data/optimization/mixed.jsonl",
+    "--out",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e021/runs/e021",
+    "--alpha",
+    ".5"
+  ],
+  "completed_unix": 1788594765.073425,
+  "compute_allowance": "One dev evaluation per fixed average; <=5minutes total, no optimizer updates",
+  "config": {
+    "alpha": 0.5,
+    "parent_hashes": [
+      "f5fb06515687fb4c92ddd2db8c9e64b2d9190393ad3b0bc65cf3e682e7898295",
+      "8a12f750a9ec33327525c07904cf8150eb809593d85b775e3d3a418cbdc32863"
+    ],
+    "parents": [
+      "E014",
+      "E018"
+    ]
+  },
+  "decision": "Completed preregistered matched-control development comparison; no official benchmark required for this control",
+  "dev_gate_passed": true,
+  "early_stop": "Exact architecture/config mismatch aborts; do not tune alpha or rerun final benchmark on failures",
+  "environment": {
+    "HF_HUB_OFFLINE": "1",
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONPATH": "/home/ad/Desktop/happyrobot-eot-experiments/e021/src"
+  },
+  "historical_curves_synced": false,
+  "hypothesis": "The data-filter effect is partly obscured by optimization variance; fixed equal-weight averaging over the already-trained matched seed pairs can test it without extra serving computation.",
+  "id": "E021",
+  "log": "/home/ad/Desktop/happyrobot-eot/logs/research_E021.log",
+  "metrics": {
+    "dev_auc": 0.8775172501212468,
+    "optimizer_updates": 0,
+    "training_elapsed_s": 7.239854574203491
+  },
+  "modifications": "One alpha0.5 weight average per data condition; no new training, architecture change or alpha search",
+  "name": "E021 fixed two-seed matched-control average",
+  "other_parents": [
+    "E014",
+    "E018"
+  ],
+  "parent": "H-1d657c44f3",
+  "prior_failure_distinction": "E008 mixed two sampler recipes; this averages independent seeds within each fixed data condition after E017/E018 revealed seed sensitivity. E013 remains unpromoted.",
+  "resume": "Only interrupted fixed-average creation may restart; never overwrite complete artifacts",
+  "runner_pid": 1376267,
+  "started_unix": 1788594751.8676126,
+  "status": "control-complete",
+  "success_criteria": "E020 devAUC >=0.8773890591 AND exceeds E021 by>=0.002 before benchmark access; original promotion gates still apply",
+  "time_unix": 1788595051.7817724,
+  "training_pid": 1376295,
+  "wandb_id": "areeac1a227a",
+  "wandb_status": "synced",
+  "wandb_url": "https://wandb.ai/adrianbrunetto1-reshape/happyrobot-eot/runs/areeac1a227a",
+  "worktree": "/home/ad/Desktop/happyrobot-eot-experiments/e021"
+}

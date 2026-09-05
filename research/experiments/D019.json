@@ -1,0 +1,45 @@
+{
+  "code_commit": "707a3200eced8e913b55fffda4b4d5e054d313f2",
+  "compute_allowance": "Synthetic passband/stopband/future-independence tests plus same12conversation pilot; no model training or official benchmark",
+  "config": {
+    "filter": "resample_poly Kaiser5.0",
+    "grid": [
+      0.2,
+      0.4,
+      0.6
+    ],
+    "scipy": "1.18.1"
+  },
+  "decision": "Pilot prepared and causal waveforms validated; semantic label accuracy awaits independent review. No otoSpeech model trained.",
+  "early_stop": "Any future-audio dependence or waveform mismatch fails; never overwrite D016",
+  "historical_curves_synced": false,
+  "hypothesis": "Linear48to16 resampling aliases out-of-band recording energy into speech frequencies, potentially changing pause detection and training waveforms.",
+  "id": "D019",
+  "limitations": "Annotation-derived silver labels, not reviewed gold. Development and confirmation annotations remain uninspected; original LiveKit protocol unchanged.",
+  "metrics": {
+    "causal_waveforms_validated": 2956,
+    "conversations": 12,
+    "eot_samples": 329,
+    "hold_samples": 2627,
+    "hours": 2.9456905555555557,
+    "human_reviews_completed": 0,
+    "review_cases": 200,
+    "samples": 2956,
+    "tests_passed": 23
+  },
+  "modifications": "Data-preparation-only polyphase FIR resampling. Compute each model waveform from raw prefix ending at its cut, preventing zero-phase filtering from reading future audio. Same12conversations, splits and label policy.",
+  "name": "D019 anti-aliased causal data preparation",
+  "parent": "D016",
+  "result_path": "/home/ad/Desktop/happyrobot-eot/data/research/D019/mined/status.json",
+  "resume": "Read research/DATA_STRATEGY.md and /home/ad/Desktop/happyrobot-eot/data/research/D019/review/index.html; completed conversations are resumable by hash, never overwrite prior data revisions",
+  "review_ui": "/home/ad/Desktop/happyrobot-eot/data/research/D019/review/index.html",
+  "samples_sha256": "ba395c1ab4877bc36b739fd62fe323d59eeab9e57ab34f0c46e3facf50699d21",
+  "status": "pilot-complete",
+  "success_criteria": "12kHz stopband attenuation >40dB,1kHz passband gain within1%, invariant cropped waveform when future changes; report real-data coverage changes without assuming improved semantic precision",
+  "time_unix": 1788595016.3018363,
+  "validation": "/home/ad/Desktop/happyrobot-eot/data/research/D019/validation.json",
+  "wandb_id": "arbd404db9f3",
+  "wandb_status": "synced",
+  "wandb_url": "https://wandb.ai/adrianbrunetto1-reshape/happyrobot-eot/runs/arbd404db9f3",
+  "worktree": "/home/ad/Desktop/happyrobot-eot-experiments/d019"
+}

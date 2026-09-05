@@ -1,0 +1,65 @@
+{
+  "checkpoint": "/home/ad/Desktop/happyrobot-eot-experiments/e008/runs/e008/model.pt",
+  "code_commit": "e27b75abade3cb1c9be93a550229285a208fbc66",
+  "command": [
+    "/home/ad/Desktop/happyrobot-eot/.venv/bin/python",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e008/scripts/weight_soup.py",
+    "--left",
+    "/home/ad/Desktop/happyrobot-eot/runs/opt_clean/model.pt",
+    "--right",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e005/runs/e005/model.pt",
+    "--samples",
+    "/home/ad/Desktop/happyrobot-eot/data/optimization/mixed.jsonl",
+    "--out",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e008/runs/e008",
+    "--alpha",
+    ".5"
+  ],
+  "completed_unix": 1788592091.5243318,
+  "compute_allowance": "One fixed-alpha candidate, no alpha search; source-held-out dev only, <=5 minutes",
+  "config": {
+    "alpha": 0.5,
+    "parents": [
+      "H-1d657c44f3",
+      "E005"
+    ],
+    "seed": 17
+  },
+  "decision": "rejected at development gate; no benchmark accessed",
+  "dev_gate": "best source-held-out AUC >=0.8773890591; unchanged original screen",
+  "dev_gate_passed": false,
+  "environment": {
+    "HF_HUB_OFFLINE": "1",
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONPATH": "/home/ad/Desktop/happyrobot-eot-experiments/e008/src"
+  },
+  "external_gate": "Official benchmark only if dev gate passes; promotion per research/README.md",
+  "historical_curves_synced": false,
+  "hypothesis": "Average two nearby full-model solutions sharing public initialization to reduce source-specific variance without adding serving computation.",
+  "id": "E008",
+  "log": "/home/ad/Desktop/happyrobot-eot/logs/research_E008.log",
+  "metrics": {
+    "dev_auc": 0.8754698315770909,
+    "optimizer_updates": 0,
+    "training_elapsed_s": 7.519947528839111
+  },
+  "modifications": "Parameter averaging only, identical architecture/config and causal input. Not an inference ensemble.",
+  "name": "E008 equal-weight incumbent/source-balanced soup",
+  "other_parent": "E005",
+  "parent": "H-1d657c44f3",
+  "references": [
+    "https://proceedings.mlr.press/v162/wortsman22a.html"
+  ],
+  "resume": "Re-run the registered command only if interrupted; parent hashes and fixed alpha must match",
+  "runner_pid": 1280266,
+  "started_unix": 1788592078.4193518,
+  "status": "rejected",
+  "tests": "Strict config/key equality guards; interpolation is fixed before evaluation; final model publishes atomically only after completed scoring",
+  "time_unix": 1788592095.0829837,
+  "training_pid": 1280374,
+  "wandb_id": "ar79485cfd15",
+  "wandb_status": "synced",
+  "wandb_url": "https://wandb.ai/adrianbrunetto1-reshape/happyrobot-eot/runs/ar79485cfd15",
+  "worktree": "/home/ad/Desktop/happyrobot-eot-experiments/e008"
+}

@@ -1,0 +1,46 @@
+{
+  "base_revision": "e37978b90ca9030d5170a5c07aadb050351a65bb",
+  "code_commit": "3b62dec1f491f99e1e34bd4117e59a6891fdc812",
+  "compute_allowance": "Two random-weight export/parity and CPU HTTP measurements; no quality benchmark or training",
+  "config": {
+    "concurrency": [
+      1,
+      4,
+      8
+    ],
+    "models": [
+      "base_2s",
+      "base_4s"
+    ],
+    "random_weights": true,
+    "requests_each": 400,
+    "threads": 4
+  },
+  "decision": "Both 2s and 4s base architectures meet workload; use 4s for more context. Random weights: no quality conclusion.",
+  "historical_curves_synced": false,
+  "hypothesis": "Whisper-base encoder width/depth may fit the HTTP budget if internal attention context is 2 or 4 seconds. Measure architecture cost before downloading weights or training.",
+  "id": "P010",
+  "metrics": {
+    "base_2s_errors": 0,
+    "base_2s_http_p95_c1_ms": 18.174834252567948,
+    "base_2s_http_p95_c4_ms": 31.848190649179735,
+    "base_2s_http_p95_c8_ms": 50.06312540062936,
+    "base_4s_errors": 0,
+    "base_4s_http_p95_c1_ms": 27.02164240290585,
+    "base_4s_http_p95_c4_ms": 52.79143789812224,
+    "base_4s_http_p95_c8_ms": 85.74101580161367
+  },
+  "modifications": "Model-internal feature cropping by configured encoder positions only. Export fusion already derives heads/width from config; no exporter modification required.",
+  "name": "P010 CPU feasibility: larger encoders with shorter model context",
+  "parent": "H-1d657c44f3",
+  "result_path": "/home/ad/Desktop/happyrobot-eot-experiments/p010/eval/cpu_feasibility.json",
+  "resume": "Read P010 outputs before repeating any completed timing level; incumbent remains untouched",
+  "status": "complete",
+  "success_criteria": "Full HTTP p95 <100ms, zero errors at all declared concurrency levels; this is only architecture feasibility, never a model quality claim.",
+  "tests": "Short-context input locality and shape regression passed; no quality evaluation is performed",
+  "time_unix": 1788592798.2738678,
+  "wandb_id": "ar229921285c",
+  "wandb_status": "synced",
+  "wandb_url": "https://wandb.ai/adrianbrunetto1-reshape/happyrobot-eot/runs/ar229921285c",
+  "worktree": "/home/ad/Desktop/happyrobot-eot-experiments/p010"
+}

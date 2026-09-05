@@ -1,0 +1,57 @@
+{
+  "compute_allowance": "2 initial calls then inspect; up to48 calls,120seconds each,45minute total hard deadline, stop after3 consecutive errors; no student training or benchmark.",
+  "config": {
+    "cases": 24,
+    "context": 4096,
+    "decoding": "JSON schema constrained",
+    "gpu_layers": 0,
+    "max_tokens": 256,
+    "seed": 17,
+    "temperature": 0,
+    "threads": 6,
+    "views": [
+      "prefix",
+      "hindsight"
+    ]
+  },
+  "decision": "Stopped at user request for strategic reassessment. Partial diagnostic only; no relabeling, training or promotion.",
+  "early_stop": "3 consecutive failed calls, timeout per call or total45min stops, immutable input mismatch fails before calls",
+  "emerging_failure": "Case002: teacher EOT in both views despite observed own continuation20ms later inside the annotated Normal Turn. Post-hoc diagnostic added, labels unchanged.",
+  "frozen_integrity_passed": true,
+  "hypothesis": "A pinned local audio-language teacher can identify disagreement patterns on the frozen24 training cases through a CPU console runtime now that GPU/sockets are unavailable.",
+  "id": "D024",
+  "incumbent_unchanged": true,
+  "interim_random_control": {
+    "cases": 8,
+    "hindsight_eot": 7,
+    "hindsight_silver_disagreements": 6,
+    "human_reviews": 0,
+    "prefix_eot": 6,
+    "prefix_silver_disagreements": 5,
+    "silver_eot": 1
+  },
+  "metrics": {
+    "attempts": 34,
+    "human_reviews_completed": 0,
+    "valid_outputs": 34
+  },
+  "modifications": "Same D022 cases, hidden labels, instructions and separate prefix/hindsight clips; P023 CPU backend verified with speech and silence. Explicit JSON-constrained decoding, fresh process per call to avoid conversation/grammar state contamination.",
+  "name": "D024 CPU audio teacher pilot",
+  "next_hypothesis": "Require explicit temporal evidence about target future speech and floor transfer; test revised instruction on newly frozen training audit cases, not this discovered failure alone.",
+  "parent": "D022",
+  "provisional_decision": "Do not scale direct relabeling: random controls show EOT-heavy teacher behavior and temporal contradictions. Finish frozen pilot to characterize, not to select favorable slices.",
+  "result_path": "/home/ad/Desktop/happyrobot-eot/data/research/D024/teacher",
+  "resume": "Do not resume automatically. Read research/STRATEGY_REVIEW.md before authorizing a new experiment.",
+  "runner_pid": 4,
+  "runtime_sha256": "ee04b97680271e420c8acd87a90bf3d965a388079297812962e4e8ea149d4f8e",
+  "source_bundle": "/home/ad/Desktop/happyrobot-eot/artifacts/research/d024/source",
+  "source_sha256": "59a95ee1523b8394704aee7063683bbd362b852a22ab55c14a4fc76647011950",
+  "status": "interrupted",
+  "strategy_review": "/home/ad/Desktop/happyrobot-eot/research/STRATEGY_REVIEW.md",
+  "success_criteria": "At least90% complete valid judgments; audio encoding visible for all supplied clips; record EOT/HOLD/abstention, context sensitivity, silver disagreement by stratum. Structured-output validity alone is not evidence of semantic accuracy. Independent review remains required.",
+  "temporal_audit": "data/research/D024/report/temporal_consistency.json",
+  "time_unix": 1788597608.821243,
+  "wandb_error": "Network restricted; durable local ledger is current",
+  "wandb_id": "ar9fa58b009b",
+  "wandb_status": "pending"
+}

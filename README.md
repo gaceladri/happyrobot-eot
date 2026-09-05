@@ -39,6 +39,12 @@ Training and external evaluation remain separate. New runs have source/sample/ch
 Krisp is test-only. The human listening audit remains pending and AppTek labels are heuristic.
 Neither multilingual quality nor a production-safe cutoff rate is implied by CPU timing.
 
+## Active research
+
+The interruptible optimization program is documented in [research/RESULTS.md](research/RESULTS.md),
+with the experiment ledger, bitácora, W&B links and recovery instructions in [research/README.md](research/README.md).
+The accepted serving model stays separate from isolated experimental worktrees.
+
 ## Project map
 
 - `src/eot/acquire.py`: resumable Smart Turn acquisition.

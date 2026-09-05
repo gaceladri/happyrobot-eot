@@ -36,7 +36,9 @@ async def main(args):
                     print(label,concurrency,result['client_total_ms']['p95'],result['errors'],flush=True)
                 results.append(dict(artifact=str(artifact),threads=threads,health=health,startup_to_ready_ms=startup,levels=levels))
                 args.out.parent.mkdir(parents=True,exist_ok=True)
-                args.out.write_text(json.dumps(dict(platform=platform.platform(),image=args.image,results=results),indent=2)+'\n')
+                temporary=args.out.with_name('.'+args.out.name+'.tmp')
+                temporary.write_text(json.dumps(dict(platform=platform.platform(),image=args.image,results=results),indent=2)+'\n')
+                temporary.replace(args.out)
             finally:
                 subprocess.run(['docker','stop',cid],stdout=subprocess.DEVNULL,check=True)
 

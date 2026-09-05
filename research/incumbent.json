@@ -1,0 +1,14 @@
+{
+  "checkpoint": "/home/ad/Desktop/happyrobot-eot/runs/opt_clean/model.pt",
+  "checkpoint_sha256": "88caebec25e2ed7406c5a023b579f0c0727b967a85f2155b193238ca66802385",
+  "id": "H-1d657c44f3",
+  "name": "OPT clean mixed (CPU-matched FP32)",
+  "onnx": "/home/ad/Desktop/happyrobot-eot/exports/opt_clean/eot.onnx",
+  "onnx_sha256": "1ee1c00dca9a9447d6fa531e325d985aa0e8973acff5d9791b9ab3c0e5bf679e",
+  "performance": "/home/ad/Desktop/happyrobot-eot/eval/performance/docker_final.json",
+  "production_ready": false,
+  "quality_dir": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/eot_adapter__1d657c44f3",
+  "release_check": "/home/ad/Desktop/happyrobot-eot/eval/release_check.json",
+  "source_snapshot": "c71ea45fd48ee2f4945cc2381b51e8a3195fc85f",
+  "submission_bundle": "/home/ad/Desktop/happyrobot-eot/artifacts/research/incumbent-20260905"
+}

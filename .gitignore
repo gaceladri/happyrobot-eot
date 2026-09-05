@@ -36,3 +36,6 @@ dist/
 *.egg-info/
 third_party/
 logs/
+
+# Research registry lock (runtime)
+research/.registry.lock

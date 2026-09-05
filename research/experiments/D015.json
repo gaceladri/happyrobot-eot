@@ -1,0 +1,24 @@
+{
+  "code_commit": "c2301d9360ecc5ee5b6492b83c393927e3590135",
+  "compute_allowance": "Synthetic edge-case correctness checks only while authorized corpus access is unavailable; no corpus or model training",
+  "decision": "15 synthetic semantic/parser tests pass; real-data validation remains required",
+  "early_stop": "Stop before real corpus ingestion if access/use scope unresolved",
+  "historical_curves_synced": false,
+  "hypothesis": "Explicit conversational event annotations can distinguish short completed responses from backchannels, reducing duration-only label ambiguity.",
+  "id": "D015",
+  "metrics": {
+    "real_data_examples": 0,
+    "tests_passed": 15
+  },
+  "modifications": "Strict SRT event parser and conservative source-independent label policy using future events only as supervision, never inference inputs.",
+  "name": "D015 event-aware otoSpeech labeling scaffold",
+  "parent": "D012",
+  "resume": "Run tests/test_turn_events.py; apply to authorized pinned local otoSpeech snapshot only after access is established",
+  "status": "scaffold-complete",
+  "success_criteria": "Reject unknown events and censored/ambiguous boundaries; distinguish annotated floor holds, backchannels and completed responses; no claim of real-data quality before reviewed pilot",
+  "time_unix": 1788595004.7133572,
+  "wandb_id": "ara84c4215f9",
+  "wandb_status": "synced",
+  "wandb_url": "https://wandb.ai/adrianbrunetto1-reshape/happyrobot-eot/runs/ara84c4215f9",
+  "worktree": "/home/ad/Desktop/happyrobot-eot-experiments/d015"
+}

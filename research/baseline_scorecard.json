@@ -1,0 +1,57 @@
+[
+  {
+    "cutoff_at_300ms_pct": 9.929078014184398,
+    "cutoff_at_600ms_pct": 4.539007092198582,
+    "delay_at_10pct_ms": 294.50000000000006,
+    "delay_at_2pct_ms": 991.4999999999998,
+    "delay_at_5pct_ms": 542.9999999999999,
+    "directory": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/live_kit_turn_detector_adapter__turn_detector_v1",
+    "name": "LiveKit Turn Detector v1",
+    "score_mode": "score_point",
+    "score_point_s": 0.2
+  },
+  {
+    "cutoff_at_300ms_pct": 27.659574468085108,
+    "cutoff_at_600ms_pct": 11.914893617021278,
+    "delay_at_10pct_ms": 662.9999999999998,
+    "delay_at_2pct_ms": 1556.0000000000002,
+    "delay_at_5pct_ms": 899.0,
+    "directory": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/ultra_vad_adapter__920c72c9d9",
+    "name": "ultraVAD",
+    "score_mode": "score_point",
+    "score_point_s": 0.2
+  },
+  {
+    "cutoff_at_300ms_pct": 27.801418439716315,
+    "cutoff_at_600ms_pct": 12.056737588652481,
+    "delay_at_10pct_ms": 697.5,
+    "delay_at_2pct_ms": 1828.5000000000002,
+    "delay_at_5pct_ms": 1070.4999999999998,
+    "directory": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/live_kit_turn_detector_mini_adapter__7cd280604d",
+    "name": "LiveKit Turn Detector v1-mini",
+    "score_mode": "score_point",
+    "score_point_s": 0.2
+  },
+  {
+    "cutoff_at_300ms_pct": 35.177304964539005,
+    "cutoff_at_600ms_pct": 14.75177304964539,
+    "delay_at_10pct_ms": 739.0000000000001,
+    "delay_at_2pct_ms": 1685.4999999999998,
+    "delay_at_5pct_ms": 1050.7499999999998,
+    "directory": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/smart_turn_audio_adapter__cb4f57229a",
+    "name": "SmartTurn v3.2",
+    "score_mode": "score_point",
+    "score_point_s": 0.2
+  },
+  {
+    "cutoff_at_300ms_pct": 30.49645390070922,
+    "cutoff_at_600ms_pct": 14.468085106382977,
+    "delay_at_10pct_ms": 731.5,
+    "delay_at_2pct_ms": 1637.5,
+    "delay_at_5pct_ms": 1031.4999999999998,
+    "directory": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/eot_adapter__1d657c44f3",
+    "name": "OPT clean mixed (CPU-matched FP32)",
+    "score_mode": "score_point",
+    "score_point_s": 0.2
+  }
+]

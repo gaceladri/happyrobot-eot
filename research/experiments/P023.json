@@ -1,0 +1,36 @@
+{
+  "active_control": "silence",
+  "compute_allowance": "Incremental CLI build <=5min; 2 audio controls <=240s each; no full pilot unless controls pass and timing supports a new bounded allowance.",
+  "config": {
+    "context": 4096,
+    "decoding": "JSON schema constrained; CLI has no reasoning-budget option",
+    "gpu_layers": 0,
+    "max_tokens": 256,
+    "projector_gpu": false,
+    "seed": 17,
+    "temperature": 0,
+    "threads": 6
+  },
+  "decision": "CPU audio wiring passed",
+  "early_stop": "Any resource/runtime failure or timeout stops probe; no automatic retries.",
+  "hypothesis": "The same pinned Qwen3 Omni assets can perform offline audio judgments through the console on CPU, allowing an informative smoke test without GPU or sockets.",
+  "id": "P023",
+  "metrics": {
+    "controls_attempted": 2,
+    "controls_passed": 2,
+    "total_seconds": 40.62907787700533
+  },
+  "modifications": "Build existing llama-mtmd-cli target from the pinned source; run CPU-only, no socket, no GPU; separate results and runtime from D022.",
+  "name": "P023 CPU console audio teacher feasibility",
+  "parent": "D022",
+  "preflight_notes": "CLI target built successfully. CLI lacks HTTP reasoning-budget setting; explicitly use JSON schema for the boolean audio wiring control. This differs from D022, so results remain P023 only.",
+  "result_path": "/home/ad/Desktop/happyrobot-eot/data/research/P023/summary.json",
+  "runner_pid": 4,
+  "runtime_sha256": "19a415a784426eae56f1083c40dc6662a02e8114d3dab8791d8349a7df74e18c",
+  "status": "probe-complete",
+  "success_criteria": "Speech/silence controls differ correctly, actual audio encoding present in stderr, no network or GPU required; this only validates wiring, not EoT precision.",
+  "time_unix": 1788597608.8153698,
+  "wandb_error": "Network disabled by resumed session sandbox",
+  "wandb_id": "ara638ecc641",
+  "wandb_status": "pending"
+}

@@ -1,0 +1,93 @@
+{
+  "checkpoint": "/home/ad/Desktop/happyrobot-eot-experiments/e020/runs/e020/model.pt",
+  "checkpoint_sha256": "5f2afd5059e47d2f8689a174dfce2952c58778ebb1a2751128910753377693f9",
+  "code_commit": "e27b75abade3cb1c9be93a550229285a208fbc66",
+  "command": [
+    "/home/ad/Desktop/happyrobot-eot/.venv/bin/python",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e020/scripts/weight_soup.py",
+    "--left",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e013/runs/e013/model.pt",
+    "--right",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e017/runs/e017/model.pt",
+    "--samples",
+    "/home/ad/Desktop/happyrobot-eot/data/optimization/mixed.jsonl",
+    "--out",
+    "/home/ad/Desktop/happyrobot-eot-experiments/e020/runs/e020",
+    "--alpha",
+    ".5"
+  ],
+  "completed_unix": 1788594751.2355227,
+  "compute_allowance": "One dev evaluation per fixed average; <=5minutes total, no optimizer updates",
+  "config": {
+    "alpha": 0.5,
+    "parent_hashes": [
+      "0d25149451e9c95314e83da728ae7db7fcb927ad0bf0a3e28538328f6f23d08a",
+      "384df9ff8d1e95a33197c58b450398b060f8f2f410964da36462d66faa302227"
+    ],
+    "parents": [
+      "E013",
+      "E017"
+    ]
+  },
+  "control_gate_passed": true,
+  "decision": "Rejected by predeclared quality gates; incumbent unchanged",
+  "dev_gate_passed": true,
+  "early_stop": "Exact architecture/config mismatch aborts; do not tune alpha or rerun final benchmark on failures",
+  "environment": {
+    "HF_HUB_OFFLINE": "1",
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONPATH": "/home/ad/Desktop/happyrobot-eot-experiments/e020/src"
+  },
+  "evaluation_completed": 1788594868.5480614,
+  "evaluation_log": "/home/ad/Desktop/happyrobot-eot/logs/research_E020_eval.log",
+  "evaluation_started": 1788594819.9037726,
+  "exclude_train_ids": "/home/ad/Desktop/happyrobot-eot/data/research/E013/exclude.json",
+  "exclude_train_sha256": "f91dfcbf5e5db55227cdcf60e8c82348aff665efea4e1e8c14905974f2aa8375",
+  "historical_curves_synced": false,
+  "hypothesis": "The data-filter effect is partly obscured by optimization variance; fixed equal-weight averaging over the already-trained matched seed pairs can test it without extra serving computation.",
+  "id": "E020",
+  "leakage_audit": "/home/ad/Desktop/happyrobot-eot/data/research/E013/leakage.json",
+  "log": "/home/ad/Desktop/happyrobot-eot/logs/research_E020.log",
+  "matched_control": "E021",
+  "matched_control_auc_margin": 0.002594407213085903,
+  "matched_control_dev_auc": 0.8775172501212468,
+  "metrics": {
+    "cutoff_at_300ms_pct": 28.085106382978726,
+    "cutoff_at_600ms_pct": 13.47517730496454,
+    "delay_at_10pct_ms": 704.9999999999999,
+    "delay_at_2pct_ms": 1575.9999999999998,
+    "delay_at_5pct_ms": 992.4999999999998,
+    "dev_auc": 0.8801116573343327,
+    "optimizer_updates": 0,
+    "training_elapsed_s": 7.321296215057373
+  },
+  "modifications": "One alpha0.5 weight average per data condition; no new training, architecture change or alpha search",
+  "name": "E020 fixed two-seed filtered-data average",
+  "other_parents": [
+    "E013",
+    "E017"
+  ],
+  "parent": "H-1d657c44f3",
+  "prior_failure_distinction": "E008 mixed two sampler recipes; this averages independent seeds within each fixed data condition after E017/E018 revealed seed sensitivity. E013 remains unpromoted.",
+  "quality_gates": {
+    "delay10": true,
+    "fc300": true,
+    "fc600": true,
+    "paired_latency_upper_negative": false,
+    "primary": false
+  },
+  "quality_parent": "H-1d657c44f3",
+  "result_dir": "/home/ad/Desktop/happyrobot-eot-experiments/e020/eval/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__2b952558b7",
+  "resume": "Only interrupted fixed-average creation may restart; never overwrite complete artifacts",
+  "runner_pid": 1375852,
+  "started_unix": 1788594737.8296523,
+  "status": "rejected",
+  "success_criteria": "E020 devAUC >=0.8773890591 AND exceeds E021 by>=0.002 before benchmark access; original promotion gates still apply",
+  "time_unix": 1788595047.1837914,
+  "training_pid": 1375889,
+  "wandb_id": "ar81cbf6eae1",
+  "wandb_status": "synced",
+  "wandb_url": "https://wandb.ai/adrianbrunetto1-reshape/happyrobot-eot/runs/ar81cbf6eae1",
+  "worktree": "/home/ad/Desktop/happyrobot-eot-experiments/e020"
+}

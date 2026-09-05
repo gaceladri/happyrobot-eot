@@ -47,3 +47,14 @@ retain atomic training checkpoints and mark partial results explicitly. The incu
 W&B project: existing `happyrobot-eot`, group `autoresearch-20260905`. Only scalar metrics,
 small tables, plots, config and provenance; never checkpoint/model artifacts, audio or datasets.
 Local JSON is authoritative; W&B failures are recorded as pending synchronization.
+
+The clean baseline submission bundle is at `artifacts/research/incumbent-20260905/` (source tar,
+ONNX, metadata, load test, parity and checksums). It remains independent of running experiments.
+The source snapshot branch is `research/baseline-20260905`; the main branch/index were not changed.
+
+On unexpected process termination, `python scripts/research.py reconcile` marks abandoned
+PID-tracked runs interrupted; it never starts duplicate work. Then run
+`.venv/bin/python scripts/research_train.py E00N --resume` for the selected interrupted trial.
+A quality-qualified candidate still needs deployment evidence and
+`research_promote.py`; that command rejects incomplete or stale evidence and atomically updates
+the incumbent manifest, leaving old releases intact.

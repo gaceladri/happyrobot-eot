@@ -1,0 +1,31 @@
+{
+  "benchmark_points": 11191,
+  "dev_n": 1818,
+  "extra_samples_sha256": null,
+  "limitations": "Exact decoded last-window fingerprints and recorded provenance only; not semantic/near-duplicate detection or proof about unknown public pretraining data.",
+  "passed": true,
+  "source_split": {
+    "dev": {
+      "groups": 4,
+      "labels": {
+        "0": 1226,
+        "1": 592
+      },
+      "n": 1818
+    },
+    "group_key": "source",
+    "group_overlap": [],
+    "requested_group_key": "source",
+    "train": {
+      "groups": 17,
+      "labels": {
+        "0": 6451,
+        "1": 3725
+      },
+      "n": 10176
+    }
+  },
+  "train_benchmark_exact_audio_collisions": [],
+  "train_dev_exact_audio_collisions": [],
+  "train_n": 10176
+}

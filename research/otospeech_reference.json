@@ -1,0 +1,12 @@
+{
+  "access": "Verified authorized metadata access using existing project credential after user confirmed gate acceptance",
+  "annotation_types": 17,
+  "channels": "two aligned mono channels",
+  "conversations": 420,
+  "hours": 104.94,
+  "license_url": "https://huggingface.co/datasets/otoearth/otoSpeech-full-duplex-turn-104h/blob/46f520297f434edf804389f82f9075a59d2f8268/LICENSE.md",
+  "next": "Await existing authorized access/use scope; implement data-independent parser/rules with synthetic fixtures meanwhile",
+  "repo": "otoearth/otoSpeech-full-duplex-turn-104h",
+  "revision": "46f520297f434edf804389f82f9075a59d2f8268",
+  "training_started": false
+}

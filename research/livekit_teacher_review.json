@@ -1,0 +1,12 @@
+{
+  "cloud_terms": "https://livekit.com/legal/terms-of-service",
+  "cloud_terms_section": "3.2(c): written consent for competing-product/service development or competitive benchmarking",
+  "cloud_terms_updated": "2026-07-22",
+  "decision": "Use published official benchmark artifacts for comparison. No LiveKit-output training labels collected. Obtain applicable permission before teacher distillation/label generation for standalone student.",
+  "messages_sent": false,
+  "model_distinction": "Full audio v1 uses Cloud; v1-mini model files use the Model License; public Hugging Face text model is older and distinct. Do not assume identical deployment terms across them.",
+  "model_license": "https://github.com/livekit/agents/blob/main/MODEL_LICENSE",
+  "model_license_section": "3.b(ii): restriction on using models/materials/outputs to develop non-LiveKit models",
+  "reference": "https://livekit.com/blog/solving-end-of-turn-detection",
+  "reviewed": "2026-09-05"
+}
