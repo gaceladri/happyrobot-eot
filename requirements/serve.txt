@@ -1,0 +1,10 @@
+# Exact CPU-serving environment. Torch is intentionally absent.
+numpy==2.5.2
+transformers==5.16.1
+soundfile==0.14.0
+onnxruntime==1.29.0
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+httpx==0.28.1
+pydantic==2.13.5
+

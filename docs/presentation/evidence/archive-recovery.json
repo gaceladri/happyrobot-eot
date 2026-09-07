@@ -1,0 +1,14 @@
+{
+  "verified_on": "2026-09-07",
+  "archive": "/media/ad/00b5422b-9d54-4449-8b5d-08eab5cdac8c/happyrobot-archive-2026-09-07/happyrobot-eot__data__research__L040.tar.zst",
+  "archive_member": "happyrobot-eot/data/research/L040/exports/B11_kd_tail/seed333/eot.onnx",
+  "restored_model": "/home/ad/Desktop/happyrobot-eot/data/research/L040/exports/B11_kd_tail/seed333/eot.onnx",
+  "bytes": 80850958,
+  "sha256": "7dc74c902351bed860f6ea4463e8dda9d0550efb2c2230094246a21afe1e88aa",
+  "matches_selected_hardware_receipt": true,
+  "restored_files": [
+    "eot.onnx",
+    "eot.json"
+  ],
+  "new_inference_performed": false
+}

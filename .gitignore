@@ -1,0 +1,46 @@
+# Local environments and caches
+.venv/
+.venv-*/
+.pytest_cache/
+wandb/
+**/__pycache__/
+*.py[cod]
+.DS_Store
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Scratch space
+/tmp/
+
+# Training data, caches, checkpoints, exports, and benchmark outputs
+/data/
+/cache/
+/runs/
+/exports/
+/eval/
+/artifacts/
+/models/
+*.pt
+*.pth
+*.onnx
+*.plan
+*.engine
+*.npz
+*.npy
+*.wav
+*.flac
+*.parquet
+*.log
+
+# Packaging/build output
+/build/
+/dist/
+*.egg-info/
+/third_party/
+/logs/
+
+# Rebuildable presentation bundle
+/docs/*.zip

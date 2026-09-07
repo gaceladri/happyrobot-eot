@@ -1,0 +1,192 @@
+{
+  "label": "C2_lora_seed111_RTX3090",
+  "checkpoint": "/home/ad/Desktop/happyrobot-eot/data/research/L031/runs/C2_lora/seed111/delta.pt",
+  "checkpoint_sha256": "c9d90ac8d9d633c3033a0d4078b21283343241ea0a823edb65dbce8ff5d82a0b",
+  "backend": "Torch FP32 CUDA, merged LoRA, L031 HTTP service",
+  "device": "NVIDIA GeForce RTX 3090",
+  "dtype": "fp32",
+  "torch": "2.14.0+cu130",
+  "cuda": "13.0",
+  "tf32": false,
+  "autocast": false,
+  "batch_size": 1,
+  "merged_lora_layers": 384,
+  "input_s": 8.0,
+  "model_window_s": 4.0,
+  "parity": {
+    "max_absolute_drift": 5.21540641784668e-07,
+    "cpu_scores": [
+      0.24608902633190155,
+      0.7042165398597717,
+      0.01682429201900959,
+      0.9869964122772217
+    ],
+    "gpu_scores": [
+      0.24608850479125977,
+      0.7042165398597717,
+      0.016824275255203247,
+      0.9869964122772217
+    ],
+    "scope": "4 prefixes of one real clip, numeric smoke check only"
+  },
+  "allocated_gpu_bytes": 7845742080,
+  "reserved_gpu_bytes": 8092909568,
+  "requests_per_level": 400,
+  "concurrency": [
+    1,
+    4,
+    8
+  ],
+  "threads": 4,
+  "max_inflight": 8,
+  "docker": false,
+  "cpu_quota": false,
+  "wav": "/home/ad/Desktop/happyrobot-eot/data/mined/smart-turn-ensemble/audio/3fc2e840-d3f2-452f-b93e-6456e7941329_03-ccf51929ace0.wav",
+  "wav_sha256": "08792af2dde86378d7f0535f45c14d852c959757a134c00eff9ada7234c5aeda",
+  "payload_bytes": 256000,
+  "startup_with_parity_and_warmup_ms": 22651.747418000014,
+  "health": {
+    "ok": true,
+    "version": "l031-torch",
+    "model_sha": "c9d90ac8d9d633c3",
+    "use_context": false,
+    "threads": 4,
+    "max_inflight": 8,
+    "max_body_bytes": 2000000,
+    "merged_lora_layers": 384
+  },
+  "time_unix": 1788724165.4103732,
+  "platform": "Linux-7.0.0-31-generic-x86_64-with-glibc2.39",
+  "loadavg_before": [
+    1.28125,
+    0.79150390625,
+    0.9189453125
+  ],
+  "concurrent_score_smoke": {
+    "requests": 8,
+    "max_drift": 0.0
+  },
+  "levels": [
+    {
+      "concurrency": 1,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 16.014645437453947,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 67.35798079926099,
+        "p99": 70.09247956031685
+      },
+      "meets_100ms_p95_no_errors": true,
+      "client_total_ms": {
+        "p50": 61.70099100017978,
+        "p95": 67.35798079926099,
+        "p99": 70.09247956031685,
+        "mean": 62.395001365007374
+      },
+      "server_inference_ms": {
+        "p50": 59.1,
+        "p95": 64.251,
+        "p99": 67.71849999999999
+      },
+      "server_features_ms": {
+        "p50": 0.02,
+        "p95": 0.04
+      }
+    },
+    {
+      "concurrency": 4,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 19.737379131756747,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 215.5943870510782,
+        "p99": 237.7704386994992
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 201.2662495008044,
+        "p95": 215.5943870510782,
+        "p99": 237.7704386994992,
+        "mean": 202.48211126748174
+      },
+      "server_inference_ms": {
+        "p50": 198.6,
+        "p95": 212.68449999999999,
+        "p99": 231.9802
+      },
+      "server_features_ms": {
+        "p50": 0.02,
+        "p95": 0.04
+      }
+    },
+    {
+      "concurrency": 8,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 16.112595555051204,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 744.8084822007327,
+        "p99": 847.4114468299921
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 455.597170499459,
+        "p95": 744.8084822007327,
+        "p99": 847.4114468299921,
+        "mean": 494.9340669699405
+      },
+      "server_inference_ms": {
+        "p50": 452.365,
+        "p95": 726.7669999999994,
+        "p99": 837.0155999999997
+      },
+      "server_features_ms": {
+        "p50": 0.02,
+        "p95": 0.02
+      }
+    }
+  ],
+  "scope": "One local warm sweep; full HTTP client latency. Fixed real clip, batch one, no dynamic batching. Cold start excluded. Desktop GPU also drives display. No production capacity or cross-runtime speedup claim.",
+  "sources": [
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/scripts/measure_cohere_gpu.py",
+      "sha256": "1543b901019d0c2f30e134c339087edd8e979d0e6f100d5d31ec76452334eb53"
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/backbone/serve.py",
+      "sha256": "28aac961b99727be28d2e1a9a09b5851b24b65bd1d53b448beb69a9d2479c8b6"
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/backbone/model.py",
+      "sha256": "7bf8af6826b5a643919c6cf4267742bbda88825936b416003d4951c24aee6392"
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/backbone/backbones.py",
+      "sha256": "927c530bacdb26145413407cc85f2750409c869ccd420dcbc07692713994b871"
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/backbone/lora.py",
+      "sha256": "554f64c245c3c4dd8bc0c08d9ab0bd4f0b4ed494ae0593b9f3f2d576678b3393"
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/src/eot/serving/load_test.py",
+      "sha256": "75b6d3f699e0efd53c092822164656bfb79b834260dbafe04f284fde845d3d3d"
+    }
+  ],
+  "loadavg_after": [
+    5.33544921875,
+    1.82861328125,
+    1.255859375
+  ],
+  "complete": true,
+  "under_100ms_p95_all_levels_no_errors": false
+}

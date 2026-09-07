@@ -1,0 +1,21 @@
+{
+  "model_sha256": "b3841feace2c17c15d10c1383a16fdcd907e7f9ae7ffdc53bebcafc9e3fb3be6",
+  "input_identity": {
+    "rows": 11191,
+    "turns": 400,
+    "dataset_revision": "ca9d98a9686b920a2d8c9eb984224ba9be74e4dd",
+    "harness_commit": "6594d8b3b8af385b15f116dde310ce45af92d646",
+    "max_audio_sec": 8,
+    "inference_interval": 0.1,
+    "min_silence_span": 0.1,
+    "score_point": 0.2,
+    "waves_sha256": "137c009a770a19ddf046ca4793dc3faad17d82d647ef085ef1793f27d3529c42",
+    "metadata_sha256": "90b1e8d2283140c6ba3201922d585c56ee56e5c8cd3686a997240309eae6cbaf"
+  },
+  "kind": "diagnostic",
+  "batch": 4,
+  "examples": 11191,
+  "seconds": 99.00834145599947,
+  "scores_sha256": "ee66daff35b87018cdd013c979e261e69783e082c167ac6ac1837bfd29e7fbbb",
+  "numerical_diagnostic": true
+}

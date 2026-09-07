@@ -1,0 +1,216 @@
+{
+  "id": "L041",
+  "program": "labeling",
+  "name": "Final recipe: enriched teacher ensembles, dense multi-view distillation and quantization-aware training",
+  "status": "registered_batch_pilot_complete_pending_budget_pilot",
+  "created_utc": "2026-09-06T20:06:49.971084+00:00",
+  "branch": "research/L041",
+  "worktree": "/home/ad/Desktop/happyrobot-eot-experiments/l041",
+  "base_commit": "b864316",
+  "authorization": "Latest user explicitly authorizes +English Smart Turn and +AppTek, excludes AMI/ICSI, and launch after readiness; exploratory audit limitations retained.",
+  "parents": [
+    "L031",
+    "L032",
+    "L037",
+    "L040",
+    "E008",
+    "E020"
+  ],
+  "data": {
+    "manifest": "data/research/L041/data_v2/inputs/train.jsonl",
+    "split_seed": 17,
+    "dev_fraction": 0.15,
+    "train_rows": 144197,
+    "dev_rows": 16390,
+    "labels_splits_immutable": true,
+    "training_cloud_sources": "Only explicitly allowlisted public training audio and associated manifests; no Krisp, otoSpeech or TurnBench.",
+    "dense": "Derived causal prefixes from existing training groups only; 100ms grid in eligible pause regions, deterministic stratified sample capped16384per student epoch including eligible HOLD pauses without original rows. No hard labels invented; raw grid is not all scored.",
+    "dense_eligibility": "Train groups only, causal client-speech prefix; exclude technical, low_confidence (VAD confidence), overlap_at_pause, no_speech_before and customer_backchannel; truncate at agent onset. No hard labels assigned to retained dense points.",
+    "dense_grid_count_before_filters": 2702231,
+    "dense_historical_count_note": "The original L0321.4M and L009654 were estimates/audits of different universes; record actual final eligibility counts without equating them.",
+    "train_logical_sha256": "f6fe7761a8fc22fa38c39cf1c75a7bb3bbaa549d5b0620bfe57bbcc1e9c1b07d",
+    "dev_logical_sha256": "d6cef4d131b48a658b431c33e56798aa2e17c905a279f2d33dd1bb56f855150e",
+    "dev_manifest": "data/research/L041/data_v2/inputs/dev.jsonl",
+    "split_policy": "Explicit frozen r3 dev; never regroup expanded manifests",
+    "added_apptek_rows": 24571,
+    "added_smart_turn_raw_clips": 8000,
+    "added_smart_turn_rows": 26077,
+    "excluded_new_corpora": [
+      "AMI",
+      "ICSI"
+    ],
+    "source_original_sha256": "85982315fcd808b35ab2fcd9c9821b7a03cdfacc8cc9fd0754da6a2646fa8bc1",
+    "expanded_train_only": true,
+    "dense_metadata": "data/research/L041/data_v3/dense_metadata.json"
+  },
+  "teacher": {
+    "architecture": "Cohere Transcribe C2 LoRA r16 alpha32 dropout0.05",
+    "parents": {
+      "111": {
+        "path": "data/research/L031/runs/C2_lora/seed111/delta.pt",
+        "sha256": "c9d90ac8d9d633c3033a0d4078b21283343241ea0a823edb65dbce8ff5d82a0b"
+      },
+      "222": {
+        "path": "data/research/L031/runs/C2_lora/seed222/delta.pt",
+        "sha256": "5873671a34acd23353acf685f37d4534dad7fe4c0a84b6b72178013ce5e9d7b0"
+      },
+      "333": {
+        "path": "data/research/L031/runs/C2_lora/seed333/delta.pt",
+        "sha256": "c9c336543266665fd1c065044049f9987d2780de3c3ad3b3f6cb2a3fd36dfd1e"
+      }
+    },
+    "seeds": [
+      111,
+      222,
+      333
+    ],
+    "continuation_epochs": 1,
+    "updates_per_seed": 1127,
+    "optimizer": "new AdamW, FP32 master weights and moments; not exact resume of old Adam",
+    "lr_encoder": 2e-05,
+    "lr_head": 0.001,
+    "warmup_fraction": 0.2,
+    "weight_decay": 0.01,
+    "batch": 128,
+    "micro": 128,
+    "precision": "BF16 eager autocast; IEEE FP32 for ensemble cache unless separately validated",
+    "gradient_checkpointing": false,
+    "views": "L037 A1 pinned augmentation, telephony0.3 and room tone; epoch1",
+    "checkpoint": "final fixed budget, preserve per-step resume checkpoints",
+    "ensemble": "arithmetic mean of three raw logits, then temperature2; never average LoRA factors",
+    "cache": "same causal realized waveform for all teachers and student; FP32 accumulation, storageFP32; key binds parent/ensemble/model/code/manifest/row/cut/view seed/epoch/waveform SHA",
+    "pos_weight": "Preserve each original parent cfg pos_weight; new data do not change the parent loss ratio"
+  },
+  "student": {
+    "architecture": "Whisper-base4s, 8s external interface, normalize_audioTrue",
+    "seed": 111,
+    "parent": {
+      "path": "data/research/L040/runs/B11_kd_tail/seed111/model.pt",
+      "sha256": "02736dd42f69a9d36ff5a9ad1b15f4d8d1bff342bbd9adc164e9ed2a9f85fc8a"
+    },
+    "additional_epochs": [
+      1,
+      2
+    ],
+    "loss": "pure temperature2 Bernoulli KL, unchanged original row weights, no class posweight or hard BCE; dense row weight1",
+    "learning_rate": 2e-05,
+    "batch": 1024,
+    "precision": "BF16 eager and FP32 master AdamW, no activation checkpointing",
+    "warmup_fraction": 0.1,
+    "weight_decay": 0.01,
+    "cache_epoch3": "32768 fixed train views for1024 matched updates per branch, batch32 preserved",
+    "checkpoint": "final fixed budget plus last-three predetermined trajectory snapshots; no benchmark-driven early stopping",
+    "updates_total": 314,
+    "snapshot_steps": [
+      283,
+      298,
+      314
+    ],
+    "precompute_features": true,
+    "learning_rate_candidates": [
+      2e-05,
+      8e-05,
+      0.00032
+    ],
+    "learning_rate_selection": "Same full two-pass budget and seed111 for three LRs; highest fixed-dev AUC, then lowest weighted hard BCE, then lower LR. No public/Krisp selection. Preserve candidates and numerical failures; infrastructure errors halt."
+  },
+  "ensembles_and_soups": {
+    "existing_students": {
+      "111": {
+        "path": "data/research/L040/runs/B11_kd_tail/seed111/model.pt",
+        "sha256": "02736dd42f69a9d36ff5a9ad1b15f4d8d1bff342bbd9adc164e9ed2a9f85fc8a"
+      },
+      "222": {
+        "path": "data/research/L040/runs/B11_kd_tail/seed222/model.pt",
+        "sha256": "fe2c14c9c876e81c2bc088b04260169461d1e83e4d845930dcdd003eb38b6ee1"
+      },
+      "333": {
+        "path": "data/research/L040/runs/B11_kd_tail/seed333/model.pt",
+        "sha256": "fb27fd5c0489dbf5e1c943cfb07539c155a8e28dbd28965f76ad7baa6f4638d0"
+      }
+    },
+    "existing_B11_ensemble": "mean of raw logits from all three existing students; no repeated training; quality and full API latency reported as three-forward model",
+    "existing_B11_soup": "average corresponding full floating model weights, retain nonfloating buffers only if identical; require same configuration and keys; diagnostic on training dev before any downstream use",
+    "trajectory_soup": "average three predeclared late snapshots from the same new student trajectory, equal weights",
+    "selection": "For final-vs-trajectory-soup, choose soup only if fixed training-dev AUC is at least final and BCE no worse; otherwise choose final. Existing-seed soup is separate diagnostic. Never use Krisp/public benchmark to select this."
+  },
+  "quantization": {
+    "mandatory": true,
+    "init": "identical selected new student checkpoint for matchedFP andQAT branches",
+    "updates_each": 1024,
+    "seed": 111,
+    "cache_epoch": 3,
+    "learning_rate": 5e-06,
+    "warmup_fraction": 0.1,
+    "control": "same Linear FP32 wrappers, arithmetic precision, init, data order, teacher targets and optimizer budget; fake quant disabled only inFP branch",
+    "target": "encoder Linear activationUINT8 per tensor and weightINT8 symmetric per output channel, input/output fake quant as required by actual ORT kernels; Conv/LayerNorm/softmax/head remain floating",
+    "observers": "Observe first512 updates, freeze final512; preserve original matched fine-tuning budget independently of main-training batch",
+    "serving": "exportQDQONNX, require actual integer kernels inORT profile and checkpoint/export parity; fakequant Torch timing is not deployedINT8 timing",
+    "comparison": "quality differences and actual fullHTTP latency/throughput/model size; preserve both outputs regardless of pass/fail",
+    "batch": 32
+  },
+  "evaluation": {
+    "public": "official harness unchanged; heldout accents, L007 and internal frontier; compare current baseline and historical results with clear protocol context",
+    "krisp": "host evaluation only for L041; two firing rules, G3 harness; no training, threshold tuning for training, clips/IDs/audio upload",
+    "quantization_quality": "same items, paired by official turn or Krisp speaker,1000bootstrap. Report fixedFP policy and independently refitted policies distinctly; no claim of blind confirmation on reused benchmarks",
+    "cpu_http": "same host,4threads,400requests each c1/4/8,0error accounting,flock hostquiet and no competing scientific workloads; matchedFPONNXvsQATINT8",
+    "gpu_http": "full Cohere HTTP in the rentedH200 with hardware/backend/precision/concurrency explicit; encoder-forward latency alone not accepted",
+    "limitations": "one new student seed, adaptive combined recipe and reused dev/test; individual contributions other than matchedQAT cannot be attributed; no SOTA or production-ready claim"
+  },
+  "operations": {
+    "provider": "Lium",
+    "gpu_count": 1,
+    "preferred_gpu": "H200",
+    "price_quote_usd_hour": 2.75,
+    "B200_quote_usd_hour": 5.5,
+    "selection": "H200 provisional total-cost choice: B200 requires>2x overall speed at quoted rates; no measured2x evidence for our mixed pipeline. Include transfer and initialization, not nominal FLOPS.",
+    "cap_usd": 20,
+    "provider_termination_hours": 7,
+    "nominal_max_at_quote": 19.25,
+    "host_guard": "budget/progress supervision and repeated artifact collection; stop early if work complete; reserve recovery time before provider termination",
+    "estimated_components_hours": {
+      "teacher_historical_H100_contended": 3.2,
+      "ensemble_two_epochs_plus_dense_at125waves_s": 1.47,
+      "matched_pair_extra_cache": 0.22,
+      "student_QAT_eval_setup_recovery_budget": 2.11
+    },
+    "budget_policy": "Do not rent before verified public bundle and local QAT/teacher smoke readiness. Measure GPU throughput on bounded train-only pilot before full queue; record any reduced update budget before scientific stages. QAT and matched measurements mandatory. Do not silently drop work or exceed20USD.",
+    "secrets": "Lium API key host env only; no key in payload files, logs, models, image, git or W&B",
+    "tracking": "aggregated W&B metrics only; no audio/predictions/IDs",
+    "promotion": false,
+    "pre_scientific_pilot": "Measure train-only throughput before full queue; do not begin if conservative remaining total plus recovery exceeds the $20 deadline. Any lower fixed budget must be registered before training, never chosen from evaluation quality."
+  },
+  "revision": 3,
+  "batch_selection": {
+    "decisions": {
+      "teacher": {
+        "batch": 128,
+        "examples_per_s": 292.2942750455787,
+        "speedup_vs32": 2.2080515829201404
+      },
+      "student": {
+        "batch": 1024,
+        "examples_per_s": 6859.679354454046,
+        "speedup_vs32": 2.5659960767354573
+      }
+    },
+    "evidence_sha256": {
+      "teacher_32.json": "c2e6ee1828c4685190b4aa95b25a86020ac6954286d55917cdee3e7071b183c5",
+      "teacher_64.json": "a0b3a447f470a8b978f50c04891e21be922b93fac5f478c7261d2db1352c1a58",
+      "teacher_128.json": "d6685a42cbc809df50f46f9c3e871679c330dc2135bca1bd0a8d3f184e6f0a29",
+      "large/teacher_256.json": "76a7dfeed112028e0f25427ded7fe717657a49c354bc559590b711c91fedc216",
+      "large/teacher_512.json": "68651725e2647024cb852a007f93b308c635553b000140b7c8797d5b57d67be6",
+      "cached/student_32.json": "f56ff22f308792124c71b04e556c163e7bb9a177672e024f29ac03c2c172cea1",
+      "cached/student_128.json": "d16821055b0f51f0a3564456d8f4c9ed826f9f843383feb191f5c93d6f166c42",
+      "cached/student_256.json": "6e0a9ae8c22e02510546547fa2efe616e3fa27680fe461429a55eae2a6ea7e16",
+      "cached/student_512.json": "493d12f27ed823c8a08416954c9da876f68b4802989c2e1824c65ef758b0b2fc",
+      "cached/student_1024.json": "4f49f6ab8f665f3f2243cac963c391caa0fd221920fa60b12321550d56556485"
+    },
+    "previous_protocol_sha256": "b1a510c815b0241a184166ead20b812271404780c77e27f185d638cfe264ceb9",
+    "rule": "Smallest batch within5% fastest, require>=10% gain over32 and<=126GiB memory; long train-only disposable pilot",
+    "learning_rates": "Teacher and matched FP/QAT unchanged; main student compares 2e-5, 8e-5, 3.2e-4 on fixed dev only. Throughput evidence does not establish quality.",
+    "exposure": "Preserve all teacher/student passes; keep matched continuation batch32/1024updates and32768examples",
+    "feature_cache": "FP32 mel computed from full normalized8s view during teacher scoring; cache exact trailing400frames. Target/wave/feature SHA checks and source identity. No lossy storage or frontend change.",
+    "limitation": "Timing proxy uses repeated1280 train views and constant student KD targets; validate sustained training throughput. Batch choice is not proof of quality optimum."
+  }
+}

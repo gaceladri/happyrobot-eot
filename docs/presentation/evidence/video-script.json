@@ -1,0 +1,98 @@
+[
+  {
+    "slide": 1,
+    "id": "cover",
+    "title": "Knowing when to answer",
+    "action": "Play the caller after the second sentence. Pause narration for the ten-second clip.",
+    "spoken": "This project is about knowing when to answer. Listen to this caller: there are three pauses, but only one ends the turn.\n\nThe first two pauses mean keep listening. Responding too early would interrupt the caller; waiting too long would make the agent feel slow.\n\nI built two inference services: distilled Whisper-base on CPU, and fine-tuned Cohere on GPU. I\u2019ll explain the data, the experiments, the serving results, and how I would monitor and improve them in production.",
+    "words": 78
+  },
+  {
+    "slide": 2,
+    "id": "metric",
+    "title": "Our solutions vs public baselines",
+    "action": "Keep the slider at 300 ms. Point to Whisper Tiny, Whisper-base CPU and Cohere GPU; do not read the full ranking.",
+    "spoken": "Here, every model gets the same waiting budget. At three hundred milliseconds, I compare how often it would cut off an unfinished utterance.\n\nOur trained models and the original Whisper Tiny baseline are highlighted alongside the public references. The selected CPU and GPU curves were measured using the actual deployed artifacts.\n\nThis is a local comparison on the same benchmark protocol, not an official leaderboard submission. We repeatedly inspected this benchmark, so it is not a blind test. These percentages count eligible pauses, not entire calls.",
+    "words": 86
+  },
+  {
+    "slide": 3,
+    "id": "serving",
+    "title": "Whisper on CPU, Cohere on GPU",
+    "action": "Point first to one request, then eight. Do not change the slide or combine endpointing delay with HTTP p95.",
+    "spoken": "This chart measures something different: the full HTTP response, including preprocessing and queuing.\n\nWith one request, Whisper takes about twenty milliseconds at the ninety-fifth percentile. With eight simultaneous requests, it takes eighty-seven. Cohere on the RTX thirty-ninety takes about eighteen and fifty-six milliseconds respectively.\n\nAt eight requests, measured throughput was roughly one hundred and eight requests per second on CPU, and one hundred and fifty-nine on GPU, with zero errors. These were warm, fixed-audio tests. They do not establish how many live phone calls each service can support.",
+    "words": 88
+  },
+  {
+    "slide": 4,
+    "id": "system",
+    "title": "The detector scores a pause; the agent decides when to respond",
+    "action": "Follow the four steps from caller audio to the voice agent.",
+    "spoken": "The detector is one component of the voice agent.\n\nVoice activity detection finds a pause. The model scores the available audio. A separate policy decides whether to commit or keep waiting, and cancels stale decisions when speech resumes.\n\nI reuse speech encoders because audio provides cues without waiting for a transcript. A future transcription system could share its encoder with an end-of-turn head. Text could add context, but would need its own timing comparison.\n\nThe Docker APIs are implemented; the complete streaming agent still needs integration testing.",
+    "words": 87
+  },
+  {
+    "slide": 5,
+    "id": "calibration",
+    "title": "Existing human annotations help us improve automatic rules",
+    "action": "Point to existing annotations, then calibrated rules. The recall figures are calibration results, not independent test results.",
+    "spoken": "I did not manually label a new dataset. I used existing public annotations to calibrate automatic rules.\n\nTurnBench\u2019s conversational events provide a reference. I tuned timing and event rules to recover more endings while retaining high precision. Crucially, I also checked whether each recovered ending was still actionable by a detector scoring two hundred milliseconds into a pause.\n\nThose rules recovered additional AppTek candidates. The otoSpeech work remained a preparation pilot and did not enter model training. More automatically labeled examples still need to prove their value in a controlled model experiment.",
+    "words": 92
+  },
+  {
+    "slide": 6,
+    "id": "evidence-data",
+    "title": "Testing the supervision",
+    "action": "Point to 55.6% and 31.9%, then mention the rejected curation result.",
+    "spoken": "One clear improvement came from changing the training unit.\n\nWith matched starting weights and source clips, training on pause prefixes reduced false cutoffs from fifty-five point six to thirty-one point nine percent at the same waiting budget.\n\nOther curation ideas failed. Removing ambiguous examples looked promising once, but did not beat matched random removal in follow-up experiments.\n\nI kept that rejection. Related audio stays in the same split, and only past audio reaches the model, even when later speech helps construct an offline label.",
+    "words": 84
+  },
+  {
+    "slide": 7,
+    "id": "distillation",
+    "title": "Fine-tuning and distillation",
+    "action": "Explain the left column, then the right. Replay is optional; do not pause to wait for it.",
+    "spoken": "There are two learning steps here.\n\nFirst, I adapt Cohere to turn endings. Training low-rank adapters and the classification head reduced average waiting from seven hundred and eighty-nine to six hundred and thirty-six milliseconds across three runs.\n\nSecond, I freeze that adapted model and train Whisper to match its probabilities. Both receive exactly the same audio, including augmentation. The student learns the teacher\u2019s decisions, not a copy of its weights.\n\nWhisper has its own encoder and classification head. For CPU inference, it runs alone; Cohere is no longer required.",
+    "words": 89
+  },
+  {
+    "slide": 8,
+    "id": "hill-slide",
+    "title": "Research progression: Whisper and Cohere",
+    "action": "Show the complete curves. Avoid replaying every point during the recording.",
+    "spoken": "These curves summarize the two research paths. Every point includes a classification head; the frozen-encoder experiment belongs specifically to Cohere.\n\nWhisper improves through greater capacity, distillation, and more varied pause audio. Pause augmentation replaces some silence with low-level noise, or vice versa, without changing speech or labels.\n\nThe final recipe also adds data and teacher probabilities at more points inside pauses. It reaches seven hundred and fifty-six milliseconds for Whisper; the selected Cohere reaches six hundred and fifteen.\n\nThose final changes were combined, so I cannot isolate each contribution.",
+    "words": 89
+  },
+  {
+    "slide": 9,
+    "id": "validation",
+    "title": "Evidence and the next quality test",
+    "action": "Point to the two improvements, then the next test. Keep this slide short.",
+    "spoken": "The earlier controlled distillation study improved both evaluations: about forty-seven milliseconds less waiting on EoT Bench and one hundred and eight on Krisp.\n\nThat supports distillation, but does not validate every later change. The final deployed models still need newly reviewed, representative English calls, including numbers, hesitations, accents and overlap.\n\nI would freeze the response policy before that test and measure both premature cutoffs and waiting. No new human listening audit has been completed yet.",
+    "words": 75
+  },
+  {
+    "slide": 10,
+    "id": "monitoring",
+    "title": "Production monitoring: signals and actions",
+    "action": "Read by row: signal, then action. Make clear that this is a proposed production plan.",
+    "spoken": "My production monitoring plan connects signals to actions.\n\nFor service speed, I would track latency, queuing, timeouts and rejected requests, with alerts and a conservative fallback.\n\nFor conversation quality, I would combine reviewed cutoffs and waiting with caller resumption, repeated questions and task completion. Resumed speech is a warning signal, not a reliable label by itself.\n\nFor data coverage, I would watch changes by campaign, channel and language. Every event needs a model and policy version so we can diagnose regressions and roll back. The production dashboards and alerts are proposed, not deployed.",
+    "words": 93
+  },
+  {
+    "slide": 11,
+    "id": "production-learning",
+    "title": "Improve with reviewed production calls",
+    "action": "Follow sample, review, train/test and gradual release.",
+    "spoken": "At the scale described in the exercise, roughly one million calls a month, we can improve beyond the initial datasets.\n\nI would combine a representative random sample with targeted failures, then have reviewers judge whether the caller had finished. The hard-case queue must not become our estimate of overall error rates.\n\nReviewed examples can expand training, while untouched calls remain reserved for evaluation. Candidates progress through shadow testing and a small canary, with rollback ready. We should add data where measured failures reveal missing coverage, not automatically label every production call.",
+    "words": 91
+  },
+  {
+    "slide": 12,
+    "id": "closing",
+    "title": "Serve on CPU or GPU; validate on real calls",
+    "action": "Finish on the two deployment choices. Do not open the appendix during the main video.",
+    "spoken": "The deliverable is two measured inference paths: Whisper-base with ONNX for CPU, and fine-tuned Cohere with TensorRT for GPU.\n\nThe code, short document and evaluation receipts make those choices inspectable. My next priority is representative labels and live integration, followed by monitored, gradual release.\n\nThe central approach is to make each data, modeling and serving decision earn its place through evidence. Thank you.",
+    "words": 63
+  }
+]

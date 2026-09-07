@@ -1,0 +1,28 @@
+{
+  "onnx_fp32_max_drift": 2.8312206268310547e-07,
+  "onnx_fp32_scores": [
+    0.24608874320983887,
+    0.7042165398597717,
+    0.01682424545288086,
+    0.9869964122772217
+  ],
+  "torch_fp32_scores": [
+    0.24608902633190155,
+    0.7042165398597717,
+    0.01682429201900959,
+    0.9869964122772217
+  ],
+  "engine_inspection": [
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/output/cohere-onnx/trt-cache/TensorrtExecutionProvider_TRTKernel_graph_main_graph_5416069481731485202_0_0_fp16_int8_sm86.engine",
+      "layers": 2867,
+      "precision_details_available": false
+    }
+  ],
+  "scope": "4 real prefixes; confirms export numerics and realized INT8 engine formats, not overall model quality",
+  "nsight_kernel_verification": {
+    "actual_int8_matrix_kernel_families": 5,
+    "report": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/cohere-int8-kernel-summary.csv",
+    "scope": "Separate one-inference diagnostic trace; these timings are not used for HTTP latency numbers."
+  }
+}

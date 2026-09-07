@@ -1,0 +1,515 @@
+{
+  "container": "eot-delivery-cohere-gpu-1",
+  "container_inspect": {
+    "Id": "9118eb3f4290b0845ba6e903ebf3e831b41d5adbc0b4c75eccc74ebf19e16b2e",
+    "Created": "2026-09-07T14:46:34.391212778Z",
+    "Path": "python",
+    "Args": [
+      "-m",
+      "eot.serving.tensorrt_service",
+      "--host",
+      "0.0.0.0",
+      "--port",
+      "8000"
+    ],
+    "State": {
+      "Status": "running",
+      "Running": true,
+      "Paused": false,
+      "Restarting": false,
+      "OOMKilled": false,
+      "Dead": false,
+      "Pid": 924861,
+      "ExitCode": 0,
+      "Error": "",
+      "StartedAt": "2026-09-07T14:46:37.582874687Z",
+      "FinishedAt": "0001-01-01T00:00:00Z",
+      "Health": {
+        "Status": "healthy",
+        "FailingStreak": 0,
+        "Log": [
+          {
+            "Start": "2026-09-07T16:46:47.754774248+02:00",
+            "End": "2026-09-07T16:46:48.490127997+02:00",
+            "ExitCode": 1,
+            "Output": "Traceback (most recent call last):\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_transports/default.py\", line 101, in map_httpcore_exceptions\n    yield\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_transports/default.py\", line 250, in handle_request\n    resp = self._pool.handle_request(req)\n  File \"/usr/local/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py\", line 256, in handle_request\n    raise exc from None\n  File \"/usr/local/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py\", line 236, in handle_request\n    response = connection.handle_request(\n        pool_request.request\n    )\n  File \"/usr/local/lib/python3.13/site-packages/httpcore/_sync/connection.py\", line 101, in handle_request\n    raise exc\n  File \"/usr/local/lib/python3.13/site-packages/httpcore/_sync/connection.py\", line 78, in handle_request\n    stream = self._connect(request)\n  File \"/usr/local/lib/python3.13/site-packages/httpcore/_sync/connection.py\", line 124, in _connect\n    stream = self._network_backend.connect_tcp(**kwargs)\n  File \"/usr/local/lib/python3.13/site-packages/httpcore/_backends/sync.py\", line 207, in connect_tcp\n    with map_exceptions(exc_map):\n         ~~~~~~~~~~~~~~^^^^^^^^^\n  File \"/usr/local/lib/python3.13/contextlib.py\", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File \"/usr/local/lib/python3.13/site-packages/httpcore/_exceptions.py\", line 14, in map_exceptions\n    raise to_exc(exc) from exc\nhttpcore.ConnectError: [Errno 111] Connection refused\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import httpx,sys; sys.exit(0 if httpx.get('http://127.0.0.1:8000/healthz').status_code==200 else 1)\n                                    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_api.py\", line 195, in get\n    return request(\n        \"GET\",\n    ...<9 lines>...\n        trust_env=trust_env,\n    )\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_api.py\", line 109, in request\n    return client.request(\n           ~~~~~~~~~~~~~~^\n        method=method,\n        ^^^^^^^^^^^^^^\n    ...<8 lines>...\n        follow_redirects=follow_redirects,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_client.py\", line 825, in request\n    return self.send(request, auth=auth, follow_redirects=follow_redirects)\n           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_client.py\", line 914, in send\n    response = self._send_handling_auth(\n        request,\n    ...<2 lines>...\n        history=[],\n    )\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_client.py\", line 942, in _send_handling_auth\n    response = self._send_handling_redirects(\n        request,\n        follow_redirects=follow_redirects,\n        history=history,\n    )\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_client.py\", line 979, in _send_handling_redirects\n    response = self._send_single_request(request)\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_client.py\", line 1014, in _send_single_request\n    response = transport.handle_request(request)\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_transports/default.py\", line 249, in handle_request\n    with map_httpcore_exceptions():\n         ~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/usr/local/lib/python3.13/contextlib.py\", line 162, in __exit__\n    self.gen.throw(value)\n    ~~~~~~~~~~~~~~^^^^^^^\n  File \"/usr/local/lib/python3.13/site-packages/httpx/_transports/default.py\", line 118, in map_httpcore_exceptions\n    raise mapped_exc(message) from exc\nhttpx.ConnectError: [Errno 111] Connection refused\n"
+          },
+          {
+            "Start": "2026-09-07T16:46:58.491578706+02:00",
+            "End": "2026-09-07T16:46:59.198510841+02:00",
+            "ExitCode": 0,
+            "Output": ""
+          },
+          {
+            "Start": "2026-09-07T16:47:09.200280524+02:00",
+            "End": "2026-09-07T16:47:09.918890837+02:00",
+            "ExitCode": 0,
+            "Output": ""
+          },
+          {
+            "Start": "2026-09-07T16:47:19.920243878+02:00",
+            "End": "2026-09-07T16:47:20.672455965+02:00",
+            "ExitCode": 0,
+            "Output": ""
+          },
+          {
+            "Start": "2026-09-07T16:47:30.673455422+02:00",
+            "End": "2026-09-07T16:47:31.6707825+02:00",
+            "ExitCode": 0,
+            "Output": ""
+          }
+        ]
+      }
+    },
+    "Image": "sha256:6686c3c60410f627d3b2937ece36fedbab80f8a07a7b23fead8ce809954d462a",
+    "ResolvConfPath": "/var/lib/docker/containers/9118eb3f4290b0845ba6e903ebf3e831b41d5adbc0b4c75eccc74ebf19e16b2e/resolv.conf",
+    "HostnamePath": "/var/lib/docker/containers/9118eb3f4290b0845ba6e903ebf3e831b41d5adbc0b4c75eccc74ebf19e16b2e/hostname",
+    "HostsPath": "/var/lib/docker/containers/9118eb3f4290b0845ba6e903ebf3e831b41d5adbc0b4c75eccc74ebf19e16b2e/hosts",
+    "LogPath": "/var/lib/docker/containers/9118eb3f4290b0845ba6e903ebf3e831b41d5adbc0b4c75eccc74ebf19e16b2e/9118eb3f4290b0845ba6e903ebf3e831b41d5adbc0b4c75eccc74ebf19e16b2e-json.log",
+    "Name": "/eot-delivery-cohere-gpu-1",
+    "RestartCount": 0,
+    "Driver": "overlay2",
+    "Platform": "linux",
+    "MountLabel": "",
+    "ProcessLabel": "",
+    "AppArmorProfile": "docker-default",
+    "ExecIDs": null,
+    "HostConfig": {
+      "Binds": [
+        "/home/ad/Desktop/happyrobot-eot/artifacts/deployment/cohere-gpu:/models:ro"
+      ],
+      "ContainerIDFile": "",
+      "LogConfig": {
+        "Type": "json-file",
+        "Config": {}
+      },
+      "NetworkMode": "eot-delivery_default",
+      "PortBindings": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8892"
+          }
+        ]
+      },
+      "RestartPolicy": {
+        "Name": "no",
+        "MaximumRetryCount": 0
+      },
+      "AutoRemove": false,
+      "VolumeDriver": "",
+      "VolumesFrom": null,
+      "ConsoleSize": [
+        0,
+        0
+      ],
+      "CapAdd": null,
+      "CapDrop": [
+        "ALL"
+      ],
+      "CgroupnsMode": "private",
+      "Dns": null,
+      "DnsOptions": null,
+      "DnsSearch": null,
+      "ExtraHosts": [],
+      "GroupAdd": null,
+      "IpcMode": "private",
+      "Cgroup": "",
+      "Links": null,
+      "OomScoreAdj": 0,
+      "PidMode": "",
+      "Privileged": false,
+      "PublishAllPorts": false,
+      "ReadonlyRootfs": true,
+      "SecurityOpt": [
+        "no-new-privileges:true"
+      ],
+      "Tmpfs": {
+        "/tmp": ""
+      },
+      "UTSMode": "",
+      "UsernsMode": "",
+      "ShmSize": 67108864,
+      "Runtime": "runc",
+      "Isolation": "",
+      "CpuShares": 0,
+      "Memory": 0,
+      "NanoCpus": 0,
+      "CgroupParent": "",
+      "BlkioWeight": 0,
+      "BlkioWeightDevice": null,
+      "BlkioDeviceReadBps": null,
+      "BlkioDeviceWriteBps": null,
+      "BlkioDeviceReadIOps": null,
+      "BlkioDeviceWriteIOps": null,
+      "CpuPeriod": 0,
+      "CpuQuota": 0,
+      "CpuRealtimePeriod": 0,
+      "CpuRealtimeRuntime": 0,
+      "CpusetCpus": "",
+      "CpusetMems": "",
+      "Devices": null,
+      "DeviceCgroupRules": null,
+      "DeviceRequests": [
+        {
+          "Driver": "",
+          "Count": -1,
+          "DeviceIDs": null,
+          "Capabilities": [
+            [
+              "gpu"
+            ]
+          ],
+          "Options": null
+        }
+      ],
+      "MemoryReservation": 0,
+      "MemorySwap": 0,
+      "MemorySwappiness": null,
+      "OomKillDisable": null,
+      "PidsLimit": null,
+      "Ulimits": null,
+      "CpuCount": 0,
+      "CpuPercent": 0,
+      "IOMaximumIOps": 0,
+      "IOMaximumBandwidth": 0,
+      "MaskedPaths": [
+        "/proc/asound",
+        "/proc/acpi",
+        "/proc/interrupts",
+        "/proc/kcore",
+        "/proc/keys",
+        "/proc/latency_stats",
+        "/proc/timer_list",
+        "/proc/timer_stats",
+        "/proc/sched_debug",
+        "/proc/scsi",
+        "/sys/firmware",
+        "/sys/devices/virtual/powercap",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle",
+        "/sys/devices/system/cpu/cpu8/thermal_throttle",
+        "/sys/devices/system/cpu/cpu9/thermal_throttle",
+        "/sys/devices/system/cpu/cpu10/thermal_throttle",
+        "/sys/devices/system/cpu/cpu11/thermal_throttle",
+        "/sys/devices/system/cpu/cpu12/thermal_throttle",
+        "/sys/devices/system/cpu/cpu13/thermal_throttle",
+        "/sys/devices/system/cpu/cpu14/thermal_throttle",
+        "/sys/devices/system/cpu/cpu15/thermal_throttle",
+        "/sys/devices/system/cpu/cpu16/thermal_throttle",
+        "/sys/devices/system/cpu/cpu17/thermal_throttle",
+        "/sys/devices/system/cpu/cpu18/thermal_throttle",
+        "/sys/devices/system/cpu/cpu19/thermal_throttle"
+      ],
+      "ReadonlyPaths": [
+        "/proc/bus",
+        "/proc/fs",
+        "/proc/irq",
+        "/proc/sys",
+        "/proc/sysrq-trigger"
+      ]
+    },
+    "GraphDriver": {
+      "Data": {
+        "ID": "9118eb3f4290b0845ba6e903ebf3e831b41d5adbc0b4c75eccc74ebf19e16b2e",
+        "LowerDir": "/var/lib/docker/overlay2/9e1d5c61728f0ea477037be6dfb522d3988efeab3035e80ab9a88a17577e066a-init/diff:/var/lib/docker/overlay2/622236e1493c1af4a54025f613a145033a05986899f92db1fec4100cc7cde065/diff:/var/lib/docker/overlay2/3c92264f3040010d208298f4d64d12914a07157a1248213876501c44fb943d6b/diff:/var/lib/docker/overlay2/c3d3d55e71cc914b89ddfd466f79a739f1920c7d372acd0119aae680dc553cbc/diff:/var/lib/docker/overlay2/a15f68bee89d1301a6837c0297dd6c130b0db0ac9f2aa5b5ce1dd796e29cfe67/diff:/var/lib/docker/overlay2/1de2840d5b9f28c0e6576048bec28005654b64ff2ae38b703aed0ed08e961bfe/diff:/var/lib/docker/overlay2/eab4482fc5949cfe4f774e7b57f0471f02cfa0cb3aa94a1754e79b7536020626/diff:/var/lib/docker/overlay2/3eb0f2ab3ac9d9d3617963ffdd274d877a7b668049dec29e3719b92013f6e0fa/diff:/var/lib/docker/overlay2/48568a745c18a11f6d3ac00e266d259ded0a4beb636e0c9099b947feb2ee9ba0/diff:/var/lib/docker/overlay2/c2d83b3d629522c41720b2cbd46cdae248b7668daea17d7678d7f7b44e3fe629/diff:/var/lib/docker/overlay2/e28e4de2d2eb477b8cf8b82d6441608835aadbe3f6987a5cf6a1bf8cb34e77f0/diff:/var/lib/docker/overlay2/01b40688115d82e8290c8da5272f98be8433fa61c3a85cdf2bda86ebd45e85af/diff:/var/lib/docker/overlay2/d17045c6ec5b1233694665062c18adf8f4504dbe580174851476d4f2a204be18/diff:/var/lib/docker/overlay2/815293c3d579058448184a19be16bfab23589cce62c1364a8dd44449537e7988/diff",
+        "MergedDir": "/var/lib/docker/overlay2/9e1d5c61728f0ea477037be6dfb522d3988efeab3035e80ab9a88a17577e066a/merged",
+        "UpperDir": "/var/lib/docker/overlay2/9e1d5c61728f0ea477037be6dfb522d3988efeab3035e80ab9a88a17577e066a/diff",
+        "WorkDir": "/var/lib/docker/overlay2/9e1d5c61728f0ea477037be6dfb522d3988efeab3035e80ab9a88a17577e066a/work"
+      },
+      "Name": "overlay2"
+    },
+    "Mounts": [
+      {
+        "Type": "bind",
+        "Source": "/home/ad/Desktop/happyrobot-eot/artifacts/deployment/cohere-gpu",
+        "Destination": "/models",
+        "Mode": "ro",
+        "RW": false,
+        "Propagation": "rprivate"
+      }
+    ],
+    "Config": {
+      "Hostname": "9118eb3f4290",
+      "Domainname": "",
+      "User": "10001",
+      "AttachStdin": false,
+      "AttachStdout": true,
+      "AttachStderr": true,
+      "ExposedPorts": {
+        "8000/tcp": {}
+      },
+      "Tty": false,
+      "OpenStdin": false,
+      "StdinOnce": false,
+      "Env": [
+        "EOT_TRT_ENGINE=/models/eot.plan",
+        "EOT_THREADS=2",
+        "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+        "PYTHON_VERSION=3.13.15",
+        "PYTHON_SHA256=1e66a7945a48390ee4c2a4268a0e4185884059a13c4aab6d148aa208deea4a76",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONUNBUFFERED=1",
+        "OMP_NUM_THREADS=1",
+        "OPENBLAS_NUM_THREADS=1",
+        "MKL_NUM_THREADS=1",
+        "HF_HUB_OFFLINE=1",
+        "TRANSFORMERS_OFFLINE=1",
+        "NVIDIA_DRIVER_CAPABILITIES=compute,utility",
+        "LD_LIBRARY_PATH=/usr/local/lib/python3.13/site-packages/nvidia/cu13/lib"
+      ],
+      "Cmd": [
+        "python",
+        "-m",
+        "eot.serving.tensorrt_service",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000"
+      ],
+      "Healthcheck": {
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import httpx,sys; sys.exit(0 if httpx.get('http://127.0.0.1:8000/healthz').status_code==200 else 1)\""
+        ],
+        "Interval": 10000000000,
+        "Timeout": 3000000000
+      },
+      "Image": "happyrobot-eot:cohere-gpu-delivery",
+      "Volumes": null,
+      "WorkingDir": "/app",
+      "Entrypoint": null,
+      "OnBuild": null,
+      "Labels": {
+        "com.docker.compose.config-hash": "b8398669c295377037b036a3a22cfff996b64dfbb5a2951c2a7e4d2573ceea1f",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "",
+        "com.docker.compose.image": "sha256:6686c3c60410f627d3b2937ece36fedbab80f8a07a7b23fead8ce809954d462a",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "eot-delivery",
+        "com.docker.compose.project.config_files": "/home/ad/Desktop/happyrobot-eot/compose.inference.yaml",
+        "com.docker.compose.project.working_dir": "/home/ad/Desktop/happyrobot-eot",
+        "com.docker.compose.replace": "cohere-gpu-1",
+        "com.docker.compose.service": "cohere-gpu",
+        "com.docker.compose.version": "2.39.1"
+      }
+    },
+    "NetworkSettings": {
+      "Bridge": "",
+      "SandboxID": "d7843614ac9f241342a0721dfd56d89094e24c3b52febe4f07aefb6b58f34821",
+      "SandboxKey": "/var/run/docker/netns/d7843614ac9f",
+      "Ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8892"
+          }
+        ]
+      },
+      "HairpinMode": false,
+      "LinkLocalIPv6Address": "",
+      "LinkLocalIPv6PrefixLen": 0,
+      "SecondaryIPAddresses": null,
+      "SecondaryIPv6Addresses": null,
+      "EndpointID": "",
+      "Gateway": "",
+      "GlobalIPv6Address": "",
+      "GlobalIPv6PrefixLen": 0,
+      "IPAddress": "",
+      "IPPrefixLen": 0,
+      "IPv6Gateway": "",
+      "MacAddress": "",
+      "Networks": {
+        "eot-delivery_default": {
+          "IPAMConfig": null,
+          "Links": null,
+          "Aliases": [
+            "eot-delivery-cohere-gpu-1",
+            "cohere-gpu"
+          ],
+          "MacAddress": "ae:60:1d:cd:40:e3",
+          "DriverOpts": null,
+          "GwPriority": 0,
+          "NetworkID": "5767327447d5d7a69db25f49c88e02c8594cfdf4580635de1b833558600f5412",
+          "EndpointID": "7a5a020c4de8c2030586487d16bd69d7667794cc2c7d1bda1cbeeada6933f09f",
+          "Gateway": "172.20.0.1",
+          "IPAddress": "172.20.0.3",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "DNSNames": [
+            "eot-delivery-cohere-gpu-1",
+            "cohere-gpu",
+            "9118eb3f4290"
+          ]
+        }
+      }
+    }
+  },
+  "payload_sha256": "a0579bc7560032f6137237177f09da25b7cb0d28c0f7ccff9f2c1b4bc25908cc",
+  "payload_bytes": 252800,
+  "health": {
+    "ok": true,
+    "model_sha": "dde5dd2cd196821d",
+    "max_inflight": 8,
+    "max_batch": 8,
+    "batch_wait_ms": 2,
+    "max_body_bytes": 2000000,
+    "observed_batch_sizes": {
+      "1": 34
+    },
+    "model_name": "Cohere fine-tuned",
+    "engine_sha256": "dde5dd2cd196821d78b4eabf4d7f683544d50e8c78077ed9d61f80428eb8cb2e",
+    "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+    "runtime": "TensorRT",
+    "tensorrt": "10.16.1.11",
+    "precision": "fp16",
+    "cuda_graphs": true,
+    "threads": 2,
+    "original_frontend": true
+  },
+  "ready_wait_seconds": 0.06245878500340041,
+  "first_response": {
+    "p_eot": 0.0010080337524414062,
+    "decision": "hold",
+    "threshold": 0.5,
+    "p_fvad": {},
+    "context_used": false,
+    "audio_seconds": 7.9,
+    "model_sha": "dde5dd2cd196821d",
+    "batch_size": 1,
+    "timings_ms": {
+      "decode": 1.6239269971265458,
+      "features": 1.896007001050748,
+      "inference": 24.54770400072448,
+      "total": 30.630380002548918
+    }
+  },
+  "levels": [
+    {
+      "concurrency": 1,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 59.625302906981,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 18.09021025110269,
+        "p99": 19.006698231387418
+      },
+      "meets_100ms_p95_no_errors": true,
+      "client_total_ms": {
+        "p50": 16.63498699781485,
+        "p95": 18.09021025110269,
+        "p99": 19.006698231387418,
+        "mean": 16.72022238270074
+      },
+      "server_inference_ms": {
+        "p50": 9.237326499714982,
+        "p95": 10.158918152592378,
+        "p99": 11.034813927035428
+      },
+      "server_features_ms": {
+        "p50": 2.102463004121091,
+        "p95": 2.9100564010150265
+      }
+    },
+    {
+      "concurrency": 4,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 110.17576192213686,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 39.89512765001563,
+        "p99": 41.37013098785246
+      },
+      "meets_100ms_p95_no_errors": true,
+      "client_total_ms": {
+        "p50": 35.86707599606598,
+        "p95": 39.89512765001563,
+        "p99": 41.37013098785246,
+        "mean": 35.806601717613376
+      },
+      "server_inference_ms": {
+        "p50": 14.139888997306116,
+        "p95": 15.190172998700291,
+        "p99": 16.12209300219547
+      },
+      "server_features_ms": {
+        "p50": 4.6857839988661,
+        "p95": 6.572375998075586
+      }
+    },
+    {
+      "concurrency": 8,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 164.73771012415875,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 53.631321599459596,
+        "p99": 58.213062605282175
+      },
+      "meets_100ms_p95_no_errors": true,
+      "client_total_ms": {
+        "p50": 47.008900000946596,
+        "p95": 53.631321599459596,
+        "p99": 58.213062605282175,
+        "mean": 47.52796081511406
+      },
+      "server_inference_ms": {
+        "p50": 15.311159499105997,
+        "p95": 18.726971599971776,
+        "p99": 24.621819000458345
+      },
+      "server_features_ms": {
+        "p50": 6.079764498281293,
+        "p95": 7.977910853514905
+      }
+    }
+  ],
+  "timing": "Warm full HTTP; same frozen training PCM16 payload; no inference cache",
+  "gpu_before": "NVIDIA GeForce RTX 3090, 595.84, 67, 120.04 W, 1695 MHz, 7005 MiB",
+  "health_after": {
+    "ok": true,
+    "model_sha": "dde5dd2cd196821d",
+    "max_inflight": 8,
+    "max_batch": 8,
+    "batch_wait_ms": 2,
+    "max_body_bytes": 2000000,
+    "observed_batch_sizes": {
+      "1": 535,
+      "7": 1,
+      "2": 3,
+      "6": 3,
+      "4": 99,
+      "3": 99,
+      "8": 1
+    },
+    "model_name": "Cohere fine-tuned",
+    "engine_sha256": "dde5dd2cd196821d78b4eabf4d7f683544d50e8c78077ed9d61f80428eb8cb2e",
+    "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+    "runtime": "TensorRT",
+    "tensorrt": "10.16.1.11",
+    "precision": "fp16",
+    "cuda_graphs": true,
+    "threads": 2,
+    "original_frontend": true
+  },
+  "gpu_after": "NVIDIA GeForce RTX 3090, 595.84, 79, 338.35 W, 1830 MHz, 7093 MiB",
+  "accepted": true
+}

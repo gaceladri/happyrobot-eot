@@ -1,0 +1,586 @@
+[
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/assemblyai_streaming_adapter__universal_streaming_multilingual/metrics/summary.json",
+    "sha256": "944479a6221f4358d3da05f0847362765566382518e75cc063f1d3278fb04fde"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/cartesia_streaming_adapter__ink_2/metrics/summary.json",
+    "sha256": "12cc5b90ff401734139388a256225aad30ae553709b4dddf62edeaf0eaa64a90"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/deepgram_flux_streaming_adapter__flux_general_multi/metrics/summary.json",
+    "sha256": "e8698ce12513b859298d1e05f1034f83d7cc04b43132edf424f2ac2f28f8bab0"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/gradium_streaming_adapter__default/metrics/summary.json",
+    "sha256": "573faeefe357263cff1e5ce277fc9be4d17b84611fc39b8baaf6bffb3ed862c1"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/live_kit_turn_detector_adapter__turn_detector_v1/metrics/summary.json",
+    "sha256": "c8f8443643d4839a758b44917480ede9091574bc3f4f758414e7514287be6d73"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/live_kit_turn_detector_mini_adapter__7cd280604d/metrics/summary.json",
+    "sha256": "a11870025a988bc84526e24cd24bc1d2a7807eba5ff0709e78f3ac88ff25d6b9"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/openai_realtime2_adapter__gpt_realtime_2_semantic_vad_auto/metrics/summary.json",
+    "sha256": "ffad362d315e30a4368fb905a6632f132de5c7a36ca3b3e713a82661b6e2c715"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/smart_turn_audio_adapter__cb4f57229a/metrics/summary.json",
+    "sha256": "cb445adcead8c16aa2caff9ec228fda31f226034cdda5a8d794f2927d28c1a6a"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/soniox_streaming_adapter__stt_rt_preview/metrics/summary.json",
+    "sha256": "f03bf9f202ddad7da9713e85d9ebb3ce55f4de5287a5de3af8b0b2791815d097"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/ultra_vad_adapter__920c72c9d9/metrics/summary.json",
+    "sha256": "0f5aba70839c3aa30729638590be860af90ecea73543c228a9dc0a815a907b43"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/results/C2_lora_seed111.json",
+    "sha256": "ea18915c85a0937de048272e87a43c14eb9a499e9465b7e538b9f24bf6bc93b0"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/results/C2_lora_seed222.json",
+    "sha256": "a900604b815c0dab847335c038529dd4499e92b59d5d5b9046345f409fa0b37e"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/results/C2_lora_seed333.json",
+    "sha256": "b2808985e8b87a27d0259f872ed5ef941114e19d4226666431e6d9a47784b49f"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__e131b7ff01/metrics/summary.json",
+    "sha256": "b5bf55daa1b8f4087dcffffcabd6bba2f615577164da1103ff5c4f45c7ccc7f5"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__e131b7ff01/manifest.json",
+    "sha256": "1de77fa3286d53c917bf0b4da9fd21311230178902cf2b20441dcc3b39217d43"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__bafeff1594/metrics/summary.json",
+    "sha256": "707a150579a20738e565e9cdaf2bb18b6d922bdd37f86e9dbc1e046d7e7dda4a"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__bafeff1594/manifest.json",
+    "sha256": "4f8fd8243d678602ac926dea2f8e775b3fcde5c063a1cf421321983e697f2ec4"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__fe422b6a4a/metrics/summary.json",
+    "sha256": "9c9a65472221f9dc1d9c7be92f076d0d5975e3ffa8fa8b5f7ed85dcf32f78fd2"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__fe422b6a4a/manifest.json",
+    "sha256": "c279fe8e98ddb1b99bf641a022d7c4f9219e9137e259b67c83ced647f23c1235"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/C2_lora_complete_arm_snapshot.json",
+    "sha256": "e806e6f2f9821466871fe23d591eaabc16ad544ac99ebb713e544c04a30d97ca"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l022/research/labeling/experiments/L022/results/B1_seed101.json",
+    "sha256": "1c03259723ddfd199b14342e8b0668bf2bf6432b111a1613755d9ae365ed368c"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l022/research/labeling/experiments/L022/results/B1_seed202.json",
+    "sha256": "6bca0026d88f71f05a7d3ce29369ee0dbab46b68ff1f3e86593b050731305467"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l022/research/labeling/experiments/L022/results/B1_seed303.json",
+    "sha256": "ad29bca086160dded579aa7b9316e2509b85279ac7a0eb8f4f3973b9738e25be"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l026/research/labeling/experiments/L026/results/F1_seed111.json",
+    "sha256": "be77a304178ab9d848985cf059f9fdffb9308bfe51b0cc704f698ca5995d1e7b"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l026/research/labeling/experiments/L026/results/F1_seed222.json",
+    "sha256": "e0f7915305fa2316cf4cea31f0e0c5e6e5d157bd2b738969021d96863b192d26"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l026/research/labeling/experiments/L026/results/F1_seed333.json",
+    "sha256": "245c8ee2f541a18feec5d072edab4f9380d159dd85bc0edc200c65adb79e0ae6"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/results/C0_frozen_seed111.json",
+    "sha256": "24304ffe14499edcdc53656722e0a300296e8af3807f9da04559d65d7f6b6d74"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/results/C0_frozen_seed222.json",
+    "sha256": "80098714d2174e434f2b891546bcb0d00666921d2f6f7803176a4a35e034b8a6"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/results/C0_frozen_seed333.json",
+    "sha256": "aa37f28ecef81185c9c5e1a37eb4e04f64eed86a97eaa3155f8e708a6dea492e"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/results/C1_top_seed111.json",
+    "sha256": "63345c57226c78ddf0e68729c56161bf791721aa94653c3005263e91dbeabd75"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/results/C1_top_seed222.json",
+    "sha256": "cfd9fd44d84d9e13a20a6d120cc2699f6dd153bd6a5339a18e45063137ce84de"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/results/C1_top_seed333.json",
+    "sha256": "81d3607eaea913128439be2929d3b83a70e3ac36ee451ed09cf48c5e15c67631"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/serving/C2_lora_seed111.json",
+    "sha256": "4943b656712661671e22834e60757e66910b46544bc8e67b88d25b9ea5f276e4"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/eval/loadtest_unified_noquota.json",
+    "sha256": "c43ad7239920364fc0ba917609327512bd0de3d3ed5b59b1e1d93a3de5ed2374"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/eval/loadtest_unified_cpus8.json",
+    "sha256": "e47c811339783753012b59114b2ac0f0a9e617b93df11c436484bcfb47320258"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/01_solution_report.md",
+    "sha256": "697e761c5d442e9e79d9a9a8d827179bfd41d2d8dee1443d0c05e8e2816ba1f0"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l035/research/labeling/experiments/L035/REPORT.md",
+    "sha256": "ba58db884750830138855d8b64a15a7cc9b62c66dc753a97649d7c7195cb0818"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l008/research/labeling/experiments/L008/REPORT.md",
+    "sha256": "51e5f6a0e7516fbf266d255bc8c79cf46e50c8a727611605902deef874c3864b"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l039/research/labeling/experiments/L039/REPORT.md",
+    "sha256": "e0628e88f80a0e98ad671b564aa45aebf8b51ad8088b768247df8753b5707053"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/results.json",
+    "sha256": "b1060948a389126b665912f75242a5b20e24ddea1cff862a8b477c73e5e177b2"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/REPORT.md",
+    "sha256": "469181ad7222a9307eafc8bdfe736173251908d09e61a2c13736dc68ad04ceb7"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/models.py",
+    "sha256": "37b4b7eb7c9c642e09bb5317fc07e4feb954d1040705afe23f5d8af82435540f"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/CLOSURE_MANIFEST.json",
+    "sha256": "920323d204fc0e5e1c7d920a067155260687a508322ab5dec7ce6d575f900dee"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/results/B01_kd_seed111.json",
+    "sha256": "f844e977668ef3113d6683cf053edbe587f9111a338e559909a4e3b499cece45"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__ea020f6fd9/manifest.json",
+    "sha256": "ac711b95f7961f0333044865943c2d4e8ab95399ff57de9ce6a254ce0ae7fa7f"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__ea020f6fd9/metrics/summary.json",
+    "sha256": "c8d320722a69bdd847fcc8f35c23a101ac7e356f34debb24ef841aafd5a2dc59"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__ea020f6fd9/predictions.parquet",
+    "sha256": "30d2c7f3da88cc83da8a0a3b7e56b5a7dbf3bec309340146d9f32d916a6dadcc"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__ea020f6fd9/metrics/tradeoff.parquet",
+    "sha256": "e22fc5c0a53800a3d2ac7e0025b5dd4f0c5b8737768a0b3339c8facfaaa85d59"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/results/B01_kd_seed222.json",
+    "sha256": "7f271cc255aa5145684faf997c2ebb43899032036acb3f9f99f22698adcd40f7"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__db7dcb66a7/manifest.json",
+    "sha256": "6d364cac3058a2959c15f14b7c9c564c19dc153df15a1d8fc458c88e7df9a519"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__db7dcb66a7/metrics/summary.json",
+    "sha256": "080190f9c276dc692de19490fff50c99acd9c8e93acd80b4d61e731bced1f77f"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__db7dcb66a7/predictions.parquet",
+    "sha256": "f85c381c6e06d1fd206f44702d57a1df8e88d682eee6f10b37ee3d16fafe2d87"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__db7dcb66a7/metrics/tradeoff.parquet",
+    "sha256": "a013dd66e3653c120b4b8b8d88aa9be368ed76cddde4d3821e077f9143dbf818"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/results/B01_kd_seed333.json",
+    "sha256": "7cc088c72c32cc0435b9946824db7b865c6588cc05daea16e43e91ab1a65a704"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__ce2af04d18/manifest.json",
+    "sha256": "14f343938f8e5dc017af0daa6c4c197c22215bf75de64c599e6ac31509618fff"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__ce2af04d18/metrics/summary.json",
+    "sha256": "7172d57ad559db86ddf33077a11359f29d1ad790ac4cf39abcef3bb078fb1d23"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__ce2af04d18/predictions.parquet",
+    "sha256": "aca098a72cf740d16580efb8803ad6448a627b9755d981675f52849faf7d94c3"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__ce2af04d18/metrics/tradeoff.parquet",
+    "sha256": "f5b0d052818a938bbde8b662a6c0e7a9b3452f117cdc7cf58f051e3507ea960c"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/serving/B01_kd_seed222.json",
+    "sha256": "ea1a0f8be619429bc6cd7b48f0a9ff4066aeb1e715a5c6dfd842222dfeaf1fbc"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/results/B11_kd_tail_seed111.json",
+    "sha256": "0ac7c691ab7c4e08d2599985365dada71f9ce79feed625cc2d375c59c9e40e38"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__3ad4d98395/manifest.json",
+    "sha256": "a178ad54fd049b53983b22782bca602b419cdf33fdc62a5bbde61ce515c15da7"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__3ad4d98395/metrics/summary.json",
+    "sha256": "e4efeebad20ad7f03dadcabb85c80cf7819179c2bd4c1a7b56c7e86af4834843"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__3ad4d98395/predictions.parquet",
+    "sha256": "59004ed808e3937962a3f20424c1fd6d5a11b2ee3f8009cd94bf027ed3b5c6d4"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__3ad4d98395/metrics/tradeoff.parquet",
+    "sha256": "417d7f59bbd5b6a9d129e3d97a8f9d49d0f8e64b79140e8e5dc85d6ae11592a2"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/results/B11_kd_tail_seed222.json",
+    "sha256": "7cfcb77113a5c4f146312c91f63feae18693464e53fc80e9a0d7fe503178c7fa"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__fb6caaf8d6/manifest.json",
+    "sha256": "2909ff1166dd91e8014a3b07b20add8da0174128d8605a5154e6c7a3287bbd41"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__fb6caaf8d6/metrics/summary.json",
+    "sha256": "409247542597ed89582d3dcf7c3203dcdbddc159aee2d3aa9f6f314faa6ca10c"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__fb6caaf8d6/predictions.parquet",
+    "sha256": "dbb957316fcebd4c59045e83fd197c3c25820b6cf95a02199de2546307432c54"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__fb6caaf8d6/metrics/tradeoff.parquet",
+    "sha256": "295a8b83613bb3267f728a208c7d6bae6d35aa87b6f35acfd65f8eb2fa3fb825"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/results/B11_kd_tail_seed333.json",
+    "sha256": "6bf5b921efba652eb513b7e6e8da9d4c7084ef3e9404c4c1cdec613bdf5e3aa5"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__e5f495d9e4/manifest.json",
+    "sha256": "8ad3e51e3a18350fb7b6e27c1e500720e7852660a83146b4d7608a71138978a0"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__e5f495d9e4/metrics/summary.json",
+    "sha256": "182631769fd841a4b9f8c28268457d8de481db2452f425ca590fa277565c6aac"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__e5f495d9e4/predictions.parquet",
+    "sha256": "94bf3e1311ba89d7c1b90b49a806088a243eccb2faca77d44ca37ec69ead1732"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__e5f495d9e4/metrics/tradeoff.parquet",
+    "sha256": "c36aef25bc83d2723285aefcb72fffa8b115d79c6f4a098c65aa27e7e40a4436"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/research/labeling/experiments/L040/serving/B11_kd_tail_seed333.json",
+    "sha256": "ba2a81e843c2939c83b3a63d895eafc030962bef566a895cf2af19a8eda64063"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/REPORT.md",
+    "sha256": "692c1673354e0b34c9906deaf15d57e4481dec4579dbbc5d0b68e5defda7f107"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l001/research/labeling/experiments/L001/REPORT.md",
+    "sha256": "1fb1c5fd93067e67c3817eedaf4e808dcb7d625133f57323f45acee456029f66"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l002/research/labeling/experiments/L002/REPORT.md",
+    "sha256": "222198b3ccc0692f6a6fb310ff9d78d657174ded84ec228ed3b771e4bce0c85f"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l009/research/labeling/experiments/L009/REPORT.md",
+    "sha256": "b48f49ca293c765612ce1df62394bc3617acd0054c011aa7074a28c092f05e67"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/D019.json",
+    "sha256": "ac0195480e189872e25b1d8dfc64a265c3a6cfdaa212838dfaea579226b68e4c"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l020/research/labeling/experiments/L020/REPORT.md",
+    "sha256": "90ce96d16cbeddcbcdfe4823217ab260ff8cdc309bb263587070d0ed3ca58264"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l036/research/labeling/experiments/L036/REPORT.md",
+    "sha256": "d74689381bb519755fef07300e2c0bc730ced71bd2dc44b2c5fec9b8b1b62648"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l036/research/labeling/experiments/L036/results.json",
+    "sha256": "deb4eb205fa106aa45e0a878c19a9efb152a1a105911514b1d75209ec274a2b0"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/eval/eotbench_comparison/en/eot_adapter__1d657c44f3/metrics/tradeoff.parquet",
+    "sha256": "50235681ac40eae514185b31810c72fe38a44213f549716a503bf7aaf9f19d5b"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/span_set.parquet",
+    "sha256": "0a18829b2c15df7ed49781e907b80941ce7998f40b9d1b45ce19559102d9b408"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/selected-hardware.json",
+    "sha256": "7034305b0e854df30811ca4c70c53bbbb73e6b8c6f6903c48ee2da5c212d59f1"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/scripts/measure_selected_hardware.py",
+    "sha256": "39919724d5cb36dc1c1547d2aa2d3f33e7cbc854d26775ad6a2131671342d68a"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/src/eot/serving/service.py",
+    "sha256": "d08908ab2b6a71d03acb7b18ddf5f2a056d88a8c8b91e947bf23efa279a1a17b"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/l040/src/eot/serving/load_test.py",
+    "sha256": "75b6d3f699e0efd53c092822164656bfb79b834260dbafe04f284fde845d3d3d"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/assemblyai_streaming_adapter__universal_streaming_multilingual/metrics/tradeoff.parquet",
+    "sha256": "a6ed303272a651cd130a750aa97d88adddd32ce4c9abccee74932e4a784a1ffb"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/cartesia_streaming_adapter__ink_2/metrics/tradeoff.parquet",
+    "sha256": "84969c0b2c51fcf906d2badb12156eb538b00e49e00dffe0488fcf71ec578f3c"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/deepgram_flux_streaming_adapter__flux_general_multi/metrics/tradeoff.parquet",
+    "sha256": "dcd984eef0a6872954d543a8263412773bb3224f9b3ab6074352956dfa107a5b"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/gradium_streaming_adapter__default/metrics/tradeoff.parquet",
+    "sha256": "70c9299c4a7ba860b759623c059804d81b5d8a981e59dc760d866a0cb4a8bff9"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/live_kit_turn_detector_adapter__turn_detector_v1/metrics/tradeoff.parquet",
+    "sha256": "98150398e74567cb7f404d331bbb4618d3c056be1cf48bd4156d1548fba8a75d"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/live_kit_turn_detector_mini_adapter__7cd280604d/metrics/tradeoff.parquet",
+    "sha256": "6c6ab9370851b38499bc8b58b1ee58227a2cf774eb7e523f8a5e1b8976e83d23"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/openai_realtime2_adapter__gpt_realtime_2_semantic_vad_auto/metrics/tradeoff.parquet",
+    "sha256": "8acccbd5b367e113122e0a503fb07883b20fe1847c6c825100e2c00d48eddb2d"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/smart_turn_audio_adapter__cb4f57229a/metrics/tradeoff.parquet",
+    "sha256": "32db898f3d6d62bb249b19624a55a9f1cf7b470aca1a499e7020ddf45b8ea9f4"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/soniox_streaming_adapter__stt_rt_preview/metrics/tradeoff.parquet",
+    "sha256": "a07ecdb9291d4b2f9685887d122d45bfdaae24d3f4a0fe329b563ead645d2a6d"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/third_party/eot-bench/output/livekit__eot-bench-data__validation__min_silence_100ms/en/ultra_vad_adapter__920c72c9d9/metrics/tradeoff.parquet",
+    "sha256": "95838bf26415b9ee26ca51872cc80fef622badd4e45af03b49a8a4dc53281763"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__e131b7ff01/metrics/tradeoff.parquet",
+    "sha256": "6a26f675c5e2aba57d8a7a83bcc44f333b94048db46ace334518bd09043d174a"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__bafeff1594/metrics/tradeoff.parquet",
+    "sha256": "3bb2292972c562eb50fd55c7d7dd42dae7319b31125ec6a11880b0992ad0c59d"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L031/eotbench/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__fe422b6a4a/metrics/tradeoff.parquet",
+    "sha256": "8b5f2f089aa9fef9384f04591b4397d9abd9360ad4843551a89e1a8e4ce87914"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L041/host_quality/cohere_seed222/public/official/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__4171f6d813/metrics/summary.json",
+    "sha256": "6c79189a03fa1a5acfeb3cbd0c1d3a0ca4e51246ff59ecfd34edc772f2af8e03"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L041/host_quality/cohere_seed222/public/official/livekit__eot-bench-data__revision_ca9d98a9686b920a2d8c9eb984224ba9be74e4dd__validation__min_silence_100ms/en/eot_adapter__4171f6d813/metrics/tradeoff.parquet",
+    "sha256": "c9a26cdd2a3d32c0178c5369213272451d2d582ae16ad8794f57af36dd94e583"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L041/public_analysis/selected_student/summary.json",
+    "sha256": "d783d323176d02099004579c743e2ceabaf379abc2eb9b8f1a2e6e799336668c"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L041/public_analysis/selected_student/tradeoff.parquet",
+    "sha256": "803fbe7ed53b99465248d11245954038b6f4f1808c8a64b30a31de9d2e781350"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L041/public_analysis/whisper_native_fp_cpu/summary.json",
+    "sha256": "d9b9e2ee023b8580faa0c2c046386c89956ac0ab0e60a398639066cb7d19c9a2"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L041/public_analysis/whisper_native_fp_cpu/tradeoff.parquet",
+    "sha256": "6239be5f88a448e1d0884f4886ab0f7052fd709cafe38195a7f4311a0876a947"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L041/public_analysis/whisper_native_qat_cpu/summary.json",
+    "sha256": "30f8f8a3a26f0989b6629ddcd33ff682e46ab0e84c2976a8c8951aedc77f2713"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L041/public_analysis/whisper_native_qat_cpu/tradeoff.parquet",
+    "sha256": "0ae112f8cbc2bc7da5271511ddb4c15b610fe4edcb386db668f760fa1635886e"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L041/public_analysis/cohere_native_gpu_qat_b1/summary.json",
+    "sha256": "4c0a2414a72a68d05250a377be49c25025b1a2380cfaacb423f77b4c66e30902"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/data/research/L041/public_analysis/cohere_native_gpu_qat_b1/tradeoff.parquet",
+    "sha256": "2ca4a5c07d3704605db25e3fa261896d2ee7a4b05d9c608c501f59951da946bd"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/native_cpu_inventory.json",
+    "sha256": "c23ada582507af50904c416df5ad66fad4ad0d464bc1cb85c39b4ced2f02e9bb"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/l041-cohere-local.json",
+    "sha256": "168f7373905af46459da858d0a3f0e943858176002139872592f27475ab2e17f"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/l041-cohere-seed222-cuda-http.json",
+    "sha256": "9193ef5281fd0ee0a7203c670e4f582ce95f3675e86d7725099a7b9ada70607a"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/l041-cohere-seed222-cpu-http.json",
+    "sha256": "58ddc2084a4921ef9a197257e19d3bb107a4d88a533fc5e6fb7bd2fe9b088379"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/REPORT.md",
+    "sha256": "f82c8d842dce7cb0e4b52ebfa9b389be18ff680fda0784e80cd6040c58376c72"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/NATIVE_CPU.md",
+    "sha256": "6b7b2fdfc801cf99e48da92dc2a7d360ad424d1770f09b232b649b5fcb3e200b"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/CLOSEOUT.json",
+    "sha256": "b00efa5522a2a8fc7f9801f3a41697965de6541ede6e3c341cadb1118e12ffca"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/evidence_inventory.json",
+    "sha256": "fc9c7e6cd6d03e3ffa207b372076e9673c472d7db5c30a6f6115fd4caaec287e"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/Dockerfile.gpu",
+    "sha256": "160fa5ba63cad2c2e093c62aab158ab628ce5e97b96993f8bd509939607f1db7",
+    "bytes": 1103,
+    "scope": "Local deployment followup, 7 September 2026"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/compose.inference.yaml",
+    "sha256": "20a88b7add9d5bc582c6c6861eaf5ef75b3f7575b89bffa98a690cc4a57d3d8d",
+    "bytes": 824,
+    "scope": "Local deployment followup, 7 September 2026"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/src/eot/serving/tensorrt_engine.py",
+    "sha256": "1333d72afe5e813e97abe2003ac71f2d1d3c53612e98538cad127b922f55acc3",
+    "bytes": 7440,
+    "scope": "Local deployment followup, 7 September 2026"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/src/eot/serving/tensorrt_service.py",
+    "sha256": "96ee57de68ae2f32f50be44e2d5369264cdf3beeaf22811c37dfe9eb39165f57",
+    "bytes": 6987,
+    "scope": "Local deployment followup, 7 September 2026"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/src/eot/serving/cohere_frontend.py",
+    "sha256": "42083efe2fbb472e29d142008a7ad14554fe93c86a3088c024d3b24e2e79653d",
+    "bytes": 936,
+    "scope": "Local deployment followup, 7 September 2026"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041/deployment/registration.json",
+    "sha256": "a664a804d92593a3178bf9203730a86bada2fab63be521a4c1e8937d391e4c0f",
+    "bytes": 2787,
+    "scope": "Local deployment followup, 7 September 2026"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/deployment/deployment.json",
+    "sha256": "64251d806f2a0f50567e7bf550c46237279cd1391b35456707d121222f4074f1",
+    "bytes": 115697,
+    "scope": "Local deployment followup, 7 September 2026"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/deployment/compose-health.json",
+    "sha256": "2f62f9ebbbad3729831d4a3bee6be87f9842687e9abb9652740d7d94312c1f27",
+    "bytes": 768,
+    "scope": "Local deployment followup, 7 September 2026"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/deployment/service-tests.log",
+    "sha256": "1d1c1756e7cc923f6726c79155b4b0189764b0985384bbb0fda36c015c543a31",
+    "bytes": 963,
+    "scope": "Local deployment followup, 7 September 2026"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/deployment/DEPLOYMENT_REPORT.md",
+    "sha256": "e0a0ee1408cbb18ab081e633df53581364ab6b66a588c9d415d204c5cd4449b3",
+    "bytes": 9047,
+    "scope": "Local deployment followup, 7 September 2026"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041/deployment/measure_http.py",
+    "sha256": "e2a21d18f6a9614b888c3801b390ede6d2267e0f413f3adf11cdc2fd746e217b"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041/deployment/fuse_qat_offsets.py",
+    "sha256": "276083022b8297690b6bbbbe13121c70cdf6b7944fa926ce83bf10fcbe0a1fa4"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041/deployment/verify_trt.py",
+    "sha256": "9dcab6ee01d15a64bf755b708aedfe0d6886e8e879a3bd1fb866ee4f8197c545"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041/deployment/public_quality.py",
+    "sha256": "c2ab4a2ae9dc3bee082ace4e0a27bf1943383ea2f4262a9a831883a5e038c411"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041/deployment/write_report.py",
+    "sha256": "fae0c59718ff391174a3e5afcb953f589477152cff4bbcbac8794ccfe4eec7df"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041/deployment/recenter_qat.py",
+    "sha256": "52bd83751bdc8f5ccd212e8b126c8ba4dfbda35aba787464160c1f5c48c446c1"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041/deployment/build_trt.py",
+    "sha256": "e9d4c52591c7fbf68362a1f6e88c6e3ee2443b6cc8e61c9c0e4e8fee86b0d408"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041/deployment/assemble_report.py",
+    "sha256": "5b247c2baf148ff7a7be076e6e617085c55aa4b8fdff44f3dfb11c8c0c0fa786"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041/deployment/export_models.py",
+    "sha256": "ea613b5d91a5ed7072d73466a88a356d0dc5dfad867c51c17fdbde2643a660dd"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/deployment/compose-smoke.json",
+    "sha256": "494dfee2a148deaa3f950afedaf50279e2b103973b7c1ace8b8d494d91d1c937"
+  },
+  {
+    "path": "/home/ad/Desktop/happyrobot-eot/output/L041/deployment/cpu-thread-parity.json",
+    "sha256": "c6cd473dc4a0c734023327684bc3bbb63e4d4c6587fd99e251f8c71d011e78e2"
+  }
+]

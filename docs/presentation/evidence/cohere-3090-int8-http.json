@@ -1,0 +1,226 @@
+{
+  "label": "C2_lora_seed111_RTX3090_INT8_TensorRT",
+  "checkpoint_sha256": "c9d90ac8d9d633c3033a0d4078b21283343241ea0a823edb65dbce8ff5d82a0b",
+  "device": "NVIDIA GeForce RTX 3090",
+  "runtime": "1.29.0",
+  "precision": "INT8 QDQ MatMul, TensorRT FP16 fallback; FP32 CPU frontend",
+  "providers": [
+    "TensorrtExecutionProvider",
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "executed_nodes": {
+    "TensorrtExecutionProvider": 4
+  },
+  "provider_options": {
+    "trt_int8_enable": true,
+    "trt_fp16_enable": true,
+    "trt_max_workspace_size": 1073741824,
+    "trt_builder_optimization_level": 1,
+    "trt_engine_cache_enable": true,
+    "trt_engine_cache_path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/output/cohere-onnx/trt-cache",
+    "trt_timing_cache_enable": true,
+    "trt_timing_cache_path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/output/cohere-onnx/trt-cache",
+    "trt_detailed_build_log": true
+  },
+  "parity": {
+    "reference": [
+      0.24608902633190155,
+      0.7042165398597717,
+      0.01682429201900959,
+      0.9869964122772217
+    ],
+    "quantized": [
+      0.496337890625,
+      0.62060546875,
+      0.05389404296875,
+      0.98486328125
+    ],
+    "max_absolute_drift": 0.25024886429309845,
+    "scope": "4 real prefixes, not a full quality evaluation"
+  },
+  "model_sha256": "7cf9be8ce042b0d2024e0ed5be50b5dc0867977554a3c898ebb883bed1af5e72",
+  "calibration": {
+    "training_only": true,
+    "count": 32,
+    "labels": {
+      "0": 16,
+      "1": 16
+    },
+    "split": {
+      "group_key": "source",
+      "requested_group_key": "source",
+      "train": {
+        "n": 93549,
+        "labels": {
+          "0": 58989,
+          "1": 34560
+        },
+        "groups": 17
+      },
+      "dev": {
+        "n": 16390,
+        "labels": {
+          "0": 10930,
+          "1": 5460
+        },
+        "groups": 4
+      },
+      "group_overlap": []
+    },
+    "ids": [
+      "en_CA_Hospitality_1588708_075",
+      "4a1abfc5-7aff-475b-a854-21bb06fda888_02",
+      "en_CA_Finance_1587313_112",
+      "en_AU_Entertainment_1585414_079",
+      "aae9f6e4-266a-4a1c-a0a2-aa81776f143e_00",
+      "6d0eec5a-ee32-4dc8-b42c-2e8a274555f6_03",
+      "en_GB_WLS_Telecom_1593362_181",
+      "en_CA_Aviation_1588678_067",
+      "9fbd1352-92bd-4a2b-bc25-d47c0515d767_04",
+      "a9a37dbd-f9be-4006-95c1-dc096f9683f5_00",
+      "en_MX_Food_1587193_099",
+      "en_MX_Retail_1587212_097",
+      "en_ZA_Technology_1582581_037",
+      "75ec73b2-9e73-4b65-be1d-0a26673f865d_02",
+      "2bb0526f-0213-4738-b577-8703dff944f6_03",
+      "3dc51236-d63e-4b14-875d-d9c947523183_01",
+      "en_US_Southern_Retail_1592959_046",
+      "f0a77331-3d64-4ae4-bf76-2225ca27e811_01",
+      "en_CA_Aviation_1586888_013",
+      "en_US_General_Food_1587971_146",
+      "en_GB_Entertainment_1586511_081",
+      "en_US_Southern_Aviation_1593139_063",
+      "en_CN_Telecom_1582011_063",
+      "en_GB_Food_1586478_218",
+      "en_CA_Insurance_1587317_034",
+      "887f5257-6007-44c9-b7fc-af4c7197c0cb_05",
+      "354e2cf4-f446-49a2-ac3a-9368d0572173_00",
+      "en_CA_Banking_1586889_137",
+      "en_CN_Technology_1584558_098",
+      "en_US_General_Insurance_1587972_127",
+      "en_ZA_Agriculture_1582346_137",
+      "en_GB_Banking_1582368_088"
+    ],
+    "scope": "Small balanced calibration pilot, not production qualification or benchmark calibration"
+  },
+  "health": {
+    "ok": true,
+    "version": "l031-torch",
+    "model_sha": "c9d90ac8d9d633c3",
+    "use_context": false,
+    "threads": 4,
+    "max_inflight": 8,
+    "max_body_bytes": 2000000,
+    "merged_lora_layers": 384
+  },
+  "startup_with_build_and_parity_ms": 116001.83852700138,
+  "requests_per_level": 400,
+  "concurrency": [
+    1,
+    4,
+    8
+  ],
+  "input_s": 8,
+  "model_window_s": 4,
+  "threads": 4,
+  "max_inflight": 8,
+  "docker": false,
+  "time_unix": 1788725156.5101042,
+  "loadavg_before": [
+    2.31689453125,
+    3.4462890625,
+    2.85986328125
+  ],
+  "levels": [
+    {
+      "concurrency": 1,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 70.86288339412108,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 15.813940350017214,
+        "p99": 18.556904289762315
+      },
+      "meets_100ms_p95_no_errors": true,
+      "client_total_ms": {
+        "p50": 13.891702000364603,
+        "p95": 15.813940350017214,
+        "p99": 18.556904289762315,
+        "mean": 14.074647660004302
+      },
+      "server_inference_ms": {
+        "p50": 9.77,
+        "p95": 10.371999999999998,
+        "p99": 12.5709
+      },
+      "server_features_ms": {
+        "p50": 2.14,
+        "p95": 3.310999999999999
+      }
+    },
+    {
+      "concurrency": 4,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 103.49133300292823,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 43.27101969984141,
+        "p99": 45.27326302009896
+      },
+      "meets_100ms_p95_no_errors": true,
+      "client_total_ms": {
+        "p50": 38.04847749961482,
+        "p95": 43.27101969984141,
+        "p99": 45.27326302009896,
+        "mean": 38.438743737533514
+      },
+      "server_inference_ms": {
+        "p50": 34.035,
+        "p95": 38.71049999999998,
+        "p99": 40.810100000000006
+      },
+      "server_features_ms": {
+        "p50": 1.99,
+        "p95": 2.9905
+      }
+    },
+    {
+      "concurrency": 8,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 102.4839980492749,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 83.06005404929235,
+        "p99": 87.9966145401886
+      },
+      "meets_100ms_p95_no_errors": true,
+      "client_total_ms": {
+        "p50": 76.82112749989756,
+        "p95": 83.06005404929235,
+        "p99": 87.9966145401886,
+        "mean": 77.20083695003723
+      },
+      "server_inference_ms": {
+        "p50": 72.75,
+        "p95": 78.91949999999999,
+        "p99": 83.44859999999998
+      },
+      "server_features_ms": {
+        "p50": 1.92,
+        "p95": 3.2144999999999957
+      }
+    }
+  ],
+  "scope": "Experimental 32-training-prefix calibration. Full warm HTTP. INT8 quality not qualified; single sweep, desktop host.",
+  "complete": true
+}

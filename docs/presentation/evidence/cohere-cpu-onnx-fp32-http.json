@@ -1,0 +1,198 @@
+{
+  "label": "C2_lora_seed111_CPU_ONNX_fp32",
+  "checkpoint_sha256": "c9d90ac8d9d633c3033a0d4078b21283343241ea0a823edb65dbce8ff5d82a0b",
+  "cpu": "Intel Core i9-10900X",
+  "precision": "fp32",
+  "onnxruntime": "1.29.0",
+  "torch_frontend": "2.14.0+cu130",
+  "providers": [
+    "CPUExecutionProvider"
+  ],
+  "executed_ops": {
+    "Transpose": 1160,
+    "Unsqueeze": 4,
+    "Mul": 808,
+    "Conv": 596,
+    "ReorderOutput": 20,
+    "Relu": 12,
+    "ReorderInput": 16,
+    "Reshape": 3480,
+    "Gemm": 1560,
+    "LayerNormalization": 772,
+    "QuickGelu": 576,
+    "Add": 1152,
+    "MatMul": 576,
+    "Pad": 192,
+    "Slice": 388,
+    "Where": 576,
+    "Softmax": 196,
+    "Split": 192,
+    "Sigmoid": 196,
+    "SkipLayerNormalization": 192,
+    "Tanh": 4,
+    "ReduceSum": 4,
+    "Gelu": 8,
+    "Squeeze": 4
+  },
+  "onnx_sha256": "5c411038293d37d005860aa416a494f540d321b4bc9b57c7da874b67a74bf819",
+  "parity": {
+    "reference": [
+      0.24608902633190155,
+      0.7042165398597717,
+      0.01682429201900959,
+      0.9869964122772217
+    ],
+    "predictions": [
+      0.24608880281448364,
+      0.7042170763015747,
+      0.01682421565055847,
+      0.9869964122772217
+    ],
+    "max_absolute_drift": 5.364418029785156e-07,
+    "scope": "4 prefixes of one real clip; not benchmark-wide quality validation"
+  },
+  "calibration": null,
+  "health": {
+    "ok": true,
+    "version": "l031-torch",
+    "model_sha": "c9d90ac8d9d633c3",
+    "use_context": false,
+    "threads": 4,
+    "max_inflight": 8,
+    "max_body_bytes": 2000000,
+    "merged_lora_layers": 384
+  },
+  "requests_per_level": 400,
+  "concurrency": [
+    1,
+    4,
+    8
+  ],
+  "input_seconds": 8,
+  "model_window_seconds": 4,
+  "threads": 4,
+  "inter_op_threads": 1,
+  "max_inflight": 8,
+  "docker": false,
+  "cpu_quota": false,
+  "wav": "/home/ad/Desktop/happyrobot-eot/data/mined/smart-turn-ensemble/audio/3fc2e840-d3f2-452f-b93e-6456e7941329_03-ccf51929ace0.wav",
+  "wav_sha256": "08792af2dde86378d7f0535f45c14d852c959757a134c00eff9ada7234c5aeda",
+  "payload_bytes": 256000,
+  "time_unix": 1788733105.271569,
+  "startup_with_parity_and_warmup_ms": 38145.74443699894,
+  "loadavg_before": [
+    2.02978515625,
+    1.11767578125,
+    1.2490234375
+  ],
+  "levels": [
+    {
+      "concurrency": 1,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 2.1141409141122245,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 493.19721295232733,
+        "p99": 507.19006498067756
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 470.12526000071375,
+        "p95": 493.19721295232733,
+        "p99": 507.19006498067756,
+        "mean": 472.94507499758765
+      },
+      "server_inference_ms": {
+        "p50": 463.395,
+        "p95": 486.043,
+        "p99": 501.6538
+      },
+      "server_features_ms": {
+        "p50": 3.06,
+        "p95": 5.67
+      }
+    },
+    {
+      "concurrency": 4,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 3.3131721675112846,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 1251.43050900042,
+        "p99": 1275.228439890816
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 1205.132652499742,
+        "p95": 1251.43050900042,
+        "p99": 1275.228439890816,
+        "mean": 1205.417199337453
+      },
+      "server_inference_ms": {
+        "p50": 1198.245,
+        "p95": 1244.7405,
+        "p99": 1268.3871
+      },
+      "server_features_ms": {
+        "p50": 2.68,
+        "p95": 3.7904999999999998
+      }
+    },
+    {
+      "concurrency": 8,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 3.7541419721962637,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 2424.3287871498974,
+        "p99": 2551.9562854287506
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 2081.045033000919,
+        "p95": 2424.3287871498974,
+        "p99": 2551.9562854287506,
+        "mean": 2121.129870745117
+      },
+      "server_inference_ms": {
+        "p50": 2067.5950000000003,
+        "p95": 2404.9784999999993,
+        "p99": 2541.0382
+      },
+      "server_features_ms": {
+        "p50": 4.2,
+        "p95": 6.911999999999998
+      }
+    }
+  ],
+  "scope": "One local warm HTTP sweep. Same model and input as GPU tests. INT8 is a 32-training-prefix calibration pilot; quality not qualified.",
+  "sources": [
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/scripts/measure_cohere_onnx_cpu.py",
+      "sha256": "ab955e790f3ba0b86675e392fc2e8f3c16839da62d9b397eef6c2fb5a21fa4da"
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/backbone/serve.py",
+      "sha256": "28aac961b99727be28d2e1a9a09b5851b24b65bd1d53b448beb69a9d2479c8b6"
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/src/eot/serving/load_test.py",
+      "sha256": "75b6d3f699e0efd53c092822164656bfb79b834260dbafe04f284fde845d3d3d"
+    }
+  ],
+  "complete": true,
+  "loadavg_after": [
+    11.873046875,
+    7.09521484375,
+    3.767578125
+  ]
+}

@@ -1,0 +1,103 @@
+This project is about knowing when to answer. Listen to this caller: there are three pauses, but only one ends the turn.
+
+The first two pauses mean keep listening. Responding too early would interrupt the caller; waiting too long would make the agent feel slow.
+
+I built two inference services: distilled Whisper-base on CPU, and fine-tuned Cohere on GPU. I’ll explain the data, the experiments, the serving results, and how I would monitor and improve them in production.
+
+
+
+Here, every model gets the same waiting budget. At three hundred milliseconds, I compare how often it would cut off an unfinished utterance.
+
+Our trained models and the original Whisper Tiny baseline are highlighted alongside the public references. The selected CPU and GPU curves were measured using the actual deployed artifacts.
+
+This is a local comparison on the same benchmark protocol, not an official leaderboard submission. We repeatedly inspected this benchmark, so it is not a blind test. These percentages count eligible pauses, not entire calls.
+
+
+
+This chart measures something different: the full HTTP response, including preprocessing and queuing.
+
+With one request, Whisper takes about twenty milliseconds at the ninety-fifth percentile. With eight simultaneous requests, it takes eighty-seven. Cohere on the RTX thirty-ninety takes about eighteen and fifty-six milliseconds respectively.
+
+At eight requests, measured throughput was roughly one hundred and eight requests per second on CPU, and one hundred and fifty-nine on GPU, with zero errors. These were warm, fixed-audio tests. They do not establish how many live phone calls each service can support.
+
+
+
+The detector is one component of the voice agent.
+
+Voice activity detection finds a pause. The model scores the available audio. A separate policy decides whether to commit or keep waiting, and cancels stale decisions when speech resumes.
+
+I reuse speech encoders because audio provides cues without waiting for a transcript. A future transcription system could share its encoder with an end-of-turn head. Text could add context, but would need its own timing comparison.
+
+The Docker APIs are implemented; the complete streaming agent still needs integration testing.
+
+
+
+I did not manually label a new dataset. I used existing public annotations to calibrate automatic rules.
+
+TurnBench’s conversational events provide a reference. I tuned timing and event rules to recover more endings while retaining high precision. Crucially, I also checked whether each recovered ending was still actionable by a detector scoring two hundred milliseconds into a pause.
+
+Those rules recovered additional AppTek candidates. The otoSpeech work remained a preparation pilot and did not enter model training. More automatically labeled examples still need to prove their value in a controlled model experiment.
+
+
+
+One clear improvement came from changing the training unit.
+
+With matched starting weights and source clips, training on pause prefixes reduced false cutoffs from fifty-five point six to thirty-one point nine percent at the same waiting budget.
+
+Other curation ideas failed. Removing ambiguous examples looked promising once, but did not beat matched random removal in follow-up experiments.
+
+I kept that rejection. Related audio stays in the same split, and only past audio reaches the model, even when later speech helps construct an offline label.
+
+
+
+There are two learning steps here.
+
+First, I adapt Cohere to turn endings. Training low-rank adapters and the classification head reduced average waiting from seven hundred and eighty-nine to six hundred and thirty-six milliseconds across three runs.
+
+Second, I freeze that adapted model and train Whisper to match its probabilities. Both receive exactly the same audio, including augmentation. The student learns the teacher’s decisions, not a copy of its weights.
+
+Whisper has its own encoder and classification head. For CPU inference, it runs alone; Cohere is no longer required.
+
+
+
+These curves summarize the two research paths. Every point includes a classification head; the frozen-encoder experiment belongs specifically to Cohere.
+
+Whisper improves through greater capacity, distillation, and more varied pause audio. Pause augmentation replaces some silence with low-level noise, or vice versa, without changing speech or labels.
+
+The final recipe also adds data and teacher probabilities at more points inside pauses. It reaches seven hundred and fifty-six milliseconds for Whisper; the selected Cohere reaches six hundred and fifteen.
+
+Those final changes were combined, so I cannot isolate each contribution.
+
+
+
+The earlier controlled distillation study improved both evaluations: about forty-seven milliseconds less waiting on EoT Bench and one hundred and eight on Krisp.
+
+That supports distillation, but does not validate every later change. The final deployed models still need newly reviewed, representative English calls, including numbers, hesitations, accents and overlap.
+
+I would freeze the response policy before that test and measure both premature cutoffs and waiting. No new human listening audit has been completed yet.
+
+
+
+My production monitoring plan connects signals to actions.
+
+For service speed, I would track latency, queuing, timeouts and rejected requests, with alerts and a conservative fallback.
+
+For conversation quality, I would combine reviewed cutoffs and waiting with caller resumption, repeated questions and task completion. Resumed speech is a warning signal, not a reliable label by itself.
+
+For data coverage, I would watch changes by campaign, channel and language. Every event needs a model and policy version so we can diagnose regressions and roll back. The production dashboards and alerts are proposed, not deployed.
+
+
+
+At the scale described in the exercise, roughly one million calls a month, we can improve beyond the initial datasets.
+
+I would combine a representative random sample with targeted failures, then have reviewers judge whether the caller had finished. The hard-case queue must not become our estimate of overall error rates.
+
+Reviewed examples can expand training, while untouched calls remain reserved for evaluation. Candidates progress through shadow testing and a small canary, with rollback ready. We should add data where measured failures reveal missing coverage, not automatically label every production call.
+
+
+
+The deliverable is two measured inference paths: Whisper-base with ONNX for CPU, and fine-tuned Cohere with TensorRT for GPU.
+
+The code, short document and evaluation receipts make those choices inspectable. My next priority is representative labels and live integration, followed by monitored, gradual release.
+
+The central approach is to make each data, modeling and serving decision earn its place through evidence. Thank you.

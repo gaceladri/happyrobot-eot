@@ -1,0 +1,51 @@
+{
+  "cpu": "Intel Core i9-10900X",
+  "physical_cores": 10,
+  "logical_cpus": 20,
+  "backend": "ONNX Runtime CPUExecutionProvider 1.29.0",
+  "intra_op_threads": 4,
+  "inter_op_threads": 1,
+  "threads_note": "ORT intra-op setting is not a whole-process CPU limit; request workers also execute operators. No CPU quota or affinity pinning.",
+  "http_requests_total": 2400,
+  "errors_total": 0,
+  "input_seconds": 8,
+  "model_window_seconds": 4,
+  "rows": [
+    {
+      "precision": "fp32",
+      "http_p95_ms": {
+        "1": 493.19721295232733,
+        "4": 1251.43050900042,
+        "8": 2424.3287871498974
+      },
+      "max_smoke_score_drift": 5.364418029785156e-07,
+      "receipt": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/cohere-cpu-onnx-fp32-http.json",
+      "receipt_sha256": "63cae75a7744823abf29c5390e0d18cb6483f5ebdd49d010712e3934cd2ca675"
+    },
+    {
+      "precision": "int8",
+      "http_p95_ms": {
+        "1": 1326.2855382487032,
+        "4": 1558.9920189990153,
+        "8": 2725.230973050384
+      },
+      "max_smoke_score_drift": 0.21642766892910004,
+      "receipt": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/cohere-cpu-onnx-int8-http.json",
+      "receipt_sha256": "00cd710e3db786f21f1b3fe7787e9573225818057bb57cc83dd0381c1f1b1b4f"
+    }
+  ],
+  "cpu_utilization_snapshots": {
+    "fp32_c4_percent": 700.5,
+    "fp32_c8_percent": 1100.5,
+    "int8_c1_percent": 400,
+    "int8_c8_percent": 1100.5
+  },
+  "limitations": [
+    "Single warm sweep per precision and concurrency; not repeated confidence intervals.",
+    "Same fixed audio payload across requests.",
+    "Four-prefix smoke validation is not a complete quality evaluation.",
+    "INT8 uses a 32-training-prefix static QDQ calibration pilot and retains floating point operators. Its quality is not qualified.",
+    "No thread-count optimization sweep.",
+    "CPU utilization percentages are short pidstat snapshots, not averages over full load tests."
+  ]
+}

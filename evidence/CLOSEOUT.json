@@ -1,0 +1,37 @@
+{
+  "cancelled_http_configurations": {
+    "cohere_eager_pair": 2,
+    "cohere_graph_pair": 2,
+    "original_local_matrix": 18,
+    "whisper_graph_pair": 2
+  },
+  "cloud_status": "Lium H200 termination and zero-pod confirmation retained in supervision receipts; no new rental",
+  "experiment": "L041",
+  "http_configurations_cancelled_total": 24,
+  "krisp": "OMITTED_BY_USER",
+  "local_gpu_compute_processes": [],
+  "name": "Final Cohere teachers and distilled Whisper with QAT",
+  "new_compute_authorized": false,
+  "promoted": false,
+  "protocol_sha256": "946652a6a190aa9a5fa31bd615642693c9b5c774cf817997ead0dcc39050f0c2",
+  "quality_pairs_complete": {
+    "cohere": 4,
+    "whisper": 4
+  },
+  "reason": "User ended experimentation and requested final consolidated documentation. Do not resume jobs automatically.",
+  "receipt_sha256": {
+    "cohere_practical_gpu/batch_sensitivity.json": "056bcc69fe23fca06183d34972af56874ef7110246e30d9c415fac4d7483900c",
+    "cohere_practical_gpu/complete.json": "5baf45c6b755d1d545deceb95ccdbb48e0b563732248645ff3ef07b9c2fde946",
+    "cohere_practical_gpu/paired_b1.json": "532aebebe5020600714cb9938891b53207be75fa68eada0e9e78f6f5b81ca70b",
+    "whisper_practical_gpu/batch_sensitivity.json": "a733d98a760d244b71051c02cc3c4442c175e61749cd5445f340ff966d944ded",
+    "whisper_practical_gpu/complete.json": "dff3449fdd83f419412bdc89fac42f56012c0c87fe45c74d50352121cfd0aeac"
+  },
+  "scientific_target_achieved": false,
+  "status": "CLOSED_BY_USER_TARGET_UNMET",
+  "units": {
+    "l041-cohere-practical-gpu.service": "MainPID=0\nActiveState=inactive",
+    "l041-local-serving-final-pairs.service": "MainPID=0\nActiveState=inactive",
+    "l041-whisper-gpu-quality.service": "MainPID=0\nActiveState=inactive"
+  },
+  "utc": "2026-09-07T08:13:25.739154+00:00"
+}

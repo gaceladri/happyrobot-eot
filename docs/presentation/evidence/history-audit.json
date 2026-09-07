@@ -1,0 +1,955 @@
+{
+  "scope": "L000-L041 including absent IDs, historical registry, original and unified git history. Read-only; no model execution.",
+  "git_head": "ee2ad5776f35aa272cec18dd5542771fdc6ffaf9",
+  "experiments": [
+    {
+      "id": "L000",
+      "spec_exists": false
+    },
+    {
+      "id": "L001",
+      "spec_exists": true,
+      "name": "TurnBench dev audit of the labeler",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L001/REPORT.md"
+      ]
+    },
+    {
+      "id": "L002",
+      "spec_exists": true,
+      "name": "Silence-signature shortcut test on the incumbent",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L002/REPORT.md"
+      ]
+    },
+    {
+      "id": "L003",
+      "spec_exists": true,
+      "name": "Counterfactual policy replay on AppTek",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L003/REPORT.md"
+      ]
+    },
+    {
+      "id": "L004",
+      "spec_exists": true,
+      "name": "Oracle threshold multiverse, per-agent latency and horizon sweep",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L004/REPORT.md"
+      ]
+    },
+    {
+      "id": "L005",
+      "spec_exists": true,
+      "name": "Detector bias/jitter and the 34 % flagged HOLD cuts",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L005/REPORT.md"
+      ]
+    },
+    {
+      "id": "L006",
+      "spec_exists": true,
+      "name": "Censoring ledger and deterministic consistency checks",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L006/REPORT.md"
+      ]
+    },
+    {
+      "id": "L007",
+      "spec_exists": true,
+      "name": "Objective-aligned evaluation panel and re-ranking of past trials",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L007/REPORT.md"
+      ]
+    },
+    {
+      "id": "L008",
+      "spec_exists": true,
+      "name": "Recover the human EOTs the oracle rule drops",
+      "registered_status": "planned",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L008/REPORT.md"
+      ]
+    },
+    {
+      "id": "L009",
+      "spec_exists": true,
+      "name": "Censoring-correct labeling and training (code change in src/eot, with tests)",
+      "registered_status": "planned",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L009/REPORT.md"
+      ]
+    },
+    {
+      "id": "L010",
+      "spec_exists": false
+    },
+    {
+      "id": "L011",
+      "spec_exists": false
+    },
+    {
+      "id": "L012",
+      "spec_exists": true,
+      "name": "Apply the +67 ms resumption correction to the re-mined manifests and count label flips",
+      "registered_status": "planned",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L012/REPORT.md"
+      ]
+    },
+    {
+      "id": "L013",
+      "spec_exists": false
+    },
+    {
+      "id": "L014",
+      "spec_exists": false
+    },
+    {
+      "id": "L015",
+      "spec_exists": false
+    },
+    {
+      "id": "L016",
+      "spec_exists": false
+    },
+    {
+      "id": "L017",
+      "spec_exists": false
+    },
+    {
+      "id": "L018",
+      "spec_exists": false
+    },
+    {
+      "id": "L019",
+      "spec_exists": false
+    },
+    {
+      "id": "L020",
+      "spec_exists": true,
+      "name": "Three-seed data ablation of the wave-1/2 labeling changes",
+      "registered_status": "planned",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L020/REPORT.md"
+      ]
+    },
+    {
+      "id": "L021",
+      "spec_exists": true,
+      "name": "A11/A11b: the +67 ms resumption correction as a training arm with a matched-exclusion control",
+      "registered_status": "planned (after L020)",
+      "available_reports": []
+    },
+    {
+      "id": "L022",
+      "spec_exists": true,
+      "name": "Is L020's control (public init + r3 manifest + incumbent recipe) a real improvement over the incumbent? Reproduction, attribution and candidate evidence",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L022/REPORT.md"
+      ]
+    },
+    {
+      "id": "L023",
+      "spec_exists": true,
+      "name": "Rare-row labeling changes at a longer matched budget (~3 epochs)",
+      "registered_status": "planned (after L022)",
+      "available_reports": []
+    },
+    {
+      "id": "L024",
+      "spec_exists": true,
+      "name": "Registered candidate: r3 manifest + incumbent recipe, with a pre-registered Krisp gate and arms that try to close the Krisp 5 % gap",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L024/REPORT.md"
+      ]
+    },
+    {
+      "id": "L025",
+      "spec_exists": true,
+      "name": "Krisp strict-tail deficit of the r3 recipe: which labels or budget move it?",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L025/REPORT.md"
+      ]
+    },
+    {
+      "id": "L026",
+      "spec_exists": true,
+      "name": "Encoder capacity: whisper-base with the r3 recipe, init-matched, under the serving latency budget",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L026/REPORT.md"
+      ]
+    },
+    {
+      "id": "L027",
+      "spec_exists": false
+    },
+    {
+      "id": "L028",
+      "spec_exists": true,
+      "name": "Voxtral-Mini-4B-Realtime audio encoder (970M, causal) fine-tuned end to end for EoT: capacity ceiling, with the frozen encoder as control, and latency",
+      "registered_status": "running",
+      "available_reports": []
+    },
+    {
+      "id": "L029",
+      "spec_exists": false
+    },
+    {
+      "id": "L030",
+      "spec_exists": false
+    },
+    {
+      "id": "L031",
+      "spec_exists": true,
+      "name": "Cohere Transcribe (cohere-transcribe-03-2026) Fast Conformer encoder (~1.8B, offline) fine-tuned for EoT: capacity ceiling, frozen-encoder control, latency",
+      "registered_status": "planned (after L028)",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L031/REPORT.md"
+      ]
+    },
+    {
+      "id": "L032",
+      "spec_exists": true,
+      "name": "Knowledge distillation from a large teacher (L028 Voxtral probe / L031 Cohere probe / L033 UltraVAD or UltraVAD-small) into a deployable student (whisper-base 4 s, whisper-tiny public init), with dense unlabeled cut points as the labeling lever",
+      "registered_status": "planned (conditional: needs a teacher from L028/L031/L033)",
+      "available_reports": []
+    },
+    {
+      "id": "L033",
+      "spec_exists": true,
+      "name": "UltraVAD: open weights through the official harness and on our internal sets (reference / teacher candidate), CPU-GPU latency, and a small-scale replication of its recipe (LM post-trained with <eot> tokens + audio projector)",
+      "registered_status": "part(e) registered for immediate implementation/launch; original UltraVAD parts remain license-blocked",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L033/REPORT.md"
+      ]
+    },
+    {
+      "id": "L034",
+      "spec_exists": true,
+      "name": "LiveKit Turn Detector v1 recipe replication at our scale: parallel semantic branch (audio encoder -> adapter -> small LM) and acoustic branch (encoder -> recurrent layer) with a fusion module, current turn only; no LiveKit weights or outputs",
+      "registered_status": "planned (after L033; shares its stage-1 text LM)",
+      "available_reports": []
+    },
+    {
+      "id": "L035",
+      "spec_exists": true,
+      "name": "Context and front-end contrast across inits: public Smart Turn tiny at 4 s and 2 s internal context; whisper-base 4 s fresh init with normalize_audio=True",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L035/REPORT.md"
+      ]
+    },
+    {
+      "id": "L036",
+      "spec_exists": true,
+      "name": "Diagnosis of the official-vs-Krisp gap (front end, pause structure, threshold calibration, score trajectories, speakers, causal transforms)",
+      "registered_status": "running",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L036/REPORT.md"
+      ]
+    },
+    {
+      "id": "L037",
+      "spec_exists": true,
+      "name": "Krisp-domain augmentation on the fresh whisper-base 4 s recipe: tail texture, short-context excerpts, noise floor",
+      "registered_status": "planned",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L037/REPORT.md"
+      ]
+    },
+    {
+      "id": "L038",
+      "spec_exists": true,
+      "name": "VibeVoice-ASR-Streaming-1.5B (Microsoft, MIT, causal 7.5 Hz continuous tokenizers + Qwen2 1.5B decoder) as EoT backbone: LoRA / partial fine-tune on L028's wrapper, frozen control, latency and per-hop cost, and teacher candidate for L032",
+      "registered_status": "planned",
+      "available_reports": []
+    },
+    {
+      "id": "L039",
+      "spec_exists": true,
+      "name": "H200 training efficiency: BF16 execution, data pipeline and FP8 pilots",
+      "registered_status": "registered",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L039/REPORT.md"
+      ]
+    },
+    {
+      "id": "L040",
+      "spec_exists": true,
+      "name": "Whisper-base end-of-turn: tail-texture augmentation \u00d7 Cohere LoRA distillation",
+      "registered_status": "registered_implementation_in_progress",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L040/REPORT.md"
+      ]
+    },
+    {
+      "id": "L041",
+      "spec_exists": true,
+      "name": "Final recipe: enriched teacher ensembles, dense multi-view distillation and quantization-aware training",
+      "registered_status": "registered_batch_pilot_complete_pending_budget_pilot",
+      "available_reports": [
+        "/home/ad/Desktop/happyrobot-eot/output/L041/REPORT.md"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L001.json",
+      "sha256": "baa64c7b252c7bd8f03a2f34fac160a258d8eaf0ebb3462e27f06cb32c457dae",
+      "bytes": 1736
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L001/REPORT.md",
+      "sha256": "1fb1c5fd93067e67c3817eedaf4e808dcb7d625133f57323f45acee456029f66",
+      "bytes": 24207
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L001/results.json",
+      "sha256": "4123bcea344babe805edf67c493030f05eb025d9ad906ef38c04c4bc461f4c4e",
+      "bytes": 91875
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L002.json",
+      "sha256": "dcb646b88441e1d950ecaa6f9fd1c788303e42a158bac527735d1557895ea00e",
+      "bytes": 1742
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L002/REPORT.md",
+      "sha256": "222198b3ccc0692f6a6fb310ff9d78d657174ded84ec228ed3b771e4bce0c85f",
+      "bytes": 18425
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L002/results.json",
+      "sha256": "ecd82bb444d74cd733db1a177abcd72c39c37385451106ca9d9649fdf078de04",
+      "bytes": 38068
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L003.json",
+      "sha256": "7a519bb4238a542be42488597a0dd96b07b981015634d38b6e35836a8b7f3a6e",
+      "bytes": 1859
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L003/REPORT.md",
+      "sha256": "c2422263a38c9419d53e5a4ad1a22ed210282015f280898b5aa7e1376682cd6e",
+      "bytes": 17605
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L003/results.json",
+      "sha256": "489dce921e6634a72bcfc0a4adec2510b8ca79250886f38cf087f7a7338a7aed",
+      "bytes": 778925
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L004.json",
+      "sha256": "f8f93a7fce7201456181af26c469ae54dcfd5ab1e71f954c38348ec8db043c2e",
+      "bytes": 2300
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L004/REPORT.md",
+      "sha256": "bf115b0399a12fb1288faa7342313010f2a30146fa621721dcce06018ba7cd62",
+      "bytes": 25417
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L004/results.json",
+      "sha256": "9957924eb623ded44e9427fdc687bb7d06797eb338ae34eeefc5f22a02239497",
+      "bytes": 352417
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L005.json",
+      "sha256": "fecd191834ac831c286f7f070c6f71880f7b5be82c52fb50a89296ed51865831",
+      "bytes": 2263
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L005/REPORT.md",
+      "sha256": "7cb121c986672c7342a6a9fd4172906909a8655626ddc273f31eb56ebad86c67",
+      "bytes": 27896
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L005/results.json",
+      "sha256": "387f858bfc8146401799a11b0145dd3403fad4df8efc0e57f135a06310bd20bd",
+      "bytes": 122751
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L006.json",
+      "sha256": "af27cb90b23db792ca58bee0d7eedaadff1f7c42636523f53de1634cf9e55156",
+      "bytes": 1872
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L006/REPORT.md",
+      "sha256": "cbd0946448db7eabed5375cc043405e1ab8b391ffccb329a35a2e21cbf58bc1f",
+      "bytes": 27434
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L006/results.json",
+      "sha256": "13d2f554f7e98f8685ab8f34a8bf37796458f632c0519eb4ebe36563579a7fc5",
+      "bytes": 188963
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L007.json",
+      "sha256": "269e222eb3d455ded3026b166611d4891e265f6d4655418e9c4a768493da7e67",
+      "bytes": 1945
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L007/REPORT.md",
+      "sha256": "2da5d048a66d4b4d347c102497f4846ab2a27c705bbf55249b467657d4aadf6f",
+      "bytes": 23469
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L007/results.json",
+      "sha256": "a59a3f95312b1b43a7b6d8d74b07027eb53a88441a76f710fd3c5ef19efbd552",
+      "bytes": 348658
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L008.json",
+      "sha256": "0ab42e2d9a6bdf6422e11b2da1b5b3606728d8717c27908cfb2af06250b5b10b",
+      "bytes": 3371
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L008/REPORT.md",
+      "sha256": "51e5f6a0e7516fbf266d255bc8c79cf46e50c8a727611605902deef874c3864b",
+      "bytes": 31506
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L008/results.json",
+      "sha256": "f48453b4f79b0ab32ce6f5acc2a361737b48a9a5c8266581ed5d5508adfd583b",
+      "bytes": 223637
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L009.json",
+      "sha256": "2450c33331da82eb2f59b2d96ac8f7c7a4df66eed512c5aa30c32442fc9ff9a1",
+      "bytes": 2384
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L009/REPORT.md",
+      "sha256": "b48f49ca293c765612ce1df62394bc3617acd0054c011aa7074a28c092f05e67",
+      "bytes": 25304
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L009/results.json",
+      "sha256": "415f1f15f60622673b4fa478067f04a38a53eb87e0744a8103220de2723fd2d9",
+      "bytes": 234614
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L012.json",
+      "sha256": "408c8b3c169ca2d4af66994fc0a2d13a7f53bfc3145f22423163e52e24db669a",
+      "bytes": 1744
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L012/REPORT.md",
+      "sha256": "aa5aefec33d8118fff21bc26341886041d28b96e6febe69e26e2f3a6c8b98254",
+      "bytes": 20376
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L012/results.json",
+      "sha256": "73d711996bb6cc5866a0ef62f4f8e9b3dda68a497388cc121a610d7423a000ba",
+      "bytes": 206861
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L020.json",
+      "sha256": "271c43d8468ae6d4823cb40d50d85284aac4afd5bb9ae19ca77cb5f7b127ce64",
+      "bytes": 3370
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L020/REPORT.md",
+      "sha256": "90ce96d16cbeddcbcdfe4823217ab260ff8cdc309bb263587070d0ed3ca58264",
+      "bytes": 37251
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L020/results.json",
+      "sha256": "65c219f03e18e4ed6b51a8671b00d737bdfaeebafa685b27229689d3779e28e5",
+      "bytes": 657592
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L021.json",
+      "sha256": "f270ccf66e5af3e9e2fd459c6b3a93e4d5a0343ed31c79a1f587970c1fb9317e",
+      "bytes": 1539
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L022.json",
+      "sha256": "f6b220d992f3d3b49be7310d784a9acdfc60e532aad004dcc61b82fa91e9d795",
+      "bytes": 2873
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L022/REPORT.md",
+      "sha256": "d339ed8107c5ce92e597f4ccab28e25d9c1e4ed4bff8a602852ad6c9d26e6b00",
+      "bytes": 36883
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L022/results.json",
+      "sha256": "c0744706e73e25ee04e1ad9686d3496350bf9e4079ae00a65c47eca8607c8359",
+      "bytes": 455915
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L023.json",
+      "sha256": "683709ba3a7a257a053bcfb5bc17e29795603cb41c1a55f84d7464bbe4d43ca4",
+      "bytes": 1361
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L024.json",
+      "sha256": "246773bcec5dc0beeba89440ea8fe01c39262190ef5998b8a9c648a7014d7284",
+      "bytes": 2641
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L024/REPORT.md",
+      "sha256": "a4170b72405ea8220224166b6972b6c7189546a22116b548a58a68f397446b74",
+      "bytes": 36622
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L024/results.json",
+      "sha256": "39698f72c16b94de383a8aa811a8b3f5aa0d05dd8489bea55ed8d0055afc56bd",
+      "bytes": 352052
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L025.json",
+      "sha256": "e17a378b0fe16265210bf49412228ff2d610c683f88adfd050457c3ebedd256b",
+      "bytes": 2194
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L025/REPORT.md",
+      "sha256": "c4a13da0c4243551dc67571d84abde44ac87914ac47adb56679eb2012c890c24",
+      "bytes": 41535
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L025/results.json",
+      "sha256": "2cf70d1a9a8c1a44b8a57e2ba6876591a283bf3e4ac489d0784cdc52323c6f26",
+      "bytes": 157439
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L026.json",
+      "sha256": "79d5669fa5fc91d0e401e87384aec755b57251a440881ed096e4a4aca327346e",
+      "bytes": 3189
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L026/REPORT.md",
+      "sha256": "11dcf0325b1d8fd2ac9a572a32aca8b7584340ce2dfca7acc7f168037a33d8e0",
+      "bytes": 31032
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L026/results.json",
+      "sha256": "da8a518c9fd81687b99766778ec764b50401e86c7e1ec806feaf9275227bdaf8",
+      "bytes": 434839
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L028.json",
+      "sha256": "374b97498834c28c31b0057ef430c2e82f41d7d4345be75b58d5db19f039222f",
+      "bytes": 10215
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L031.json",
+      "sha256": "b45dddd81b54414b0f71649e5316946158a53da9652ec635b6c8df5960a019d0",
+      "bytes": 9651
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L031/REPORT.md",
+      "sha256": "692c1673354e0b34c9906deaf15d57e4481dec4579dbbc5d0b68e5defda7f107",
+      "bytes": 45534
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L031/results.json",
+      "sha256": "be55db45efcfb9cb7948b7fb1a6031425fdaf8078a121dd1f6bae9fd392f1304",
+      "bytes": 945806
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L032.json",
+      "sha256": "7ac8d544728187db5c5f67140a8e5ba941f37ca0139af34e06e62ecb2ee31bdc",
+      "bytes": 9032
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L033.json",
+      "sha256": "0c5e01e8bb59d055f69499624a3dae071604755f3683e4c06cea4b56de7622be",
+      "bytes": 8464
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L033/REPORT.md",
+      "sha256": "db2bf5ee27e433265c2ebc585adfd2dcb5eec83aed19213d68120da48bceb367",
+      "bytes": 11032
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L033/results.json",
+      "sha256": "d09c1f23e7677a19b72c03551a9418618a5dd8efff17c88c70193272f7a434b6",
+      "bytes": 242083
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L034.json",
+      "sha256": "b4e9f12be9ead15c2d9f8be29d2b1f0d50c0a84e4515c7222760a3618090d751",
+      "bytes": 6540
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L035.json",
+      "sha256": "11f1b2ccb092af35f3f340001c6ed42930d74aef60a29f6660c90456b4ee143d",
+      "bytes": 4923
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L035/REPORT.md",
+      "sha256": "ba58db884750830138855d8b64a15a7cc9b62c66dc753a97649d7c7195cb0818",
+      "bytes": 42191
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L035/results.json",
+      "sha256": "05f770d4107c1fd1ef8c55268b34af72cae5ce8f16c3d56a815d89a5f75db070",
+      "bytes": 598706
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L036.json",
+      "sha256": "c146d0760823696d5490ba4274ff94621017d81bed8da9f037ca894adb5cda3c",
+      "bytes": 5092
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L036/REPORT.md",
+      "sha256": "d74689381bb519755fef07300e2c0bc730ced71bd2dc44b2c5fec9b8b1b62648",
+      "bytes": 50636
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L036/results.json",
+      "sha256": "deb4eb205fa106aa45e0a878c19a9efb152a1a105911514b1d75209ec274a2b0",
+      "bytes": 1358614
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L037.json",
+      "sha256": "f7fc47e3bbd0508f69616144b45905dc658092c7fa66f0251bb68372cd5d1ca5",
+      "bytes": 5744
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L037/REPORT.md",
+      "sha256": "af6ba17abc88de5363d0ffcc9bdc0346f0e96e7174acaa7fdd8c90fcebac84ba",
+      "bytes": 9516
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L037/results.json",
+      "sha256": "7483f8a64b913e0b74f420bcfad7f6e5fce505bb9b22520bbbe926556c31bd9a",
+      "bytes": 1709776
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L038.json",
+      "sha256": "50eb64ca6a2646d936a1faaf0be1251e45e2dddd9cce1c60c2dcda0017b50b44",
+      "bytes": 10088
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L039.json",
+      "sha256": "3cbaa73328359193f62a4db1fb8dd71f131ff967c438b2ddbd39201bf2228fac",
+      "bytes": 4545
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L039/REPORT.md",
+      "sha256": "e0628e88f80a0e98ad671b564aa45aebf8b51ad8088b768247df8753b5707053",
+      "bytes": 3916
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L039/results.json",
+      "sha256": "3cc90249ad14d7e6f499638b49196c65b2efeaaa9a06331ce47d82c5fe99566d",
+      "bytes": 15578
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L040.json",
+      "sha256": "1072d8251a6753aceb2fd95b6cba831e72fb52ac3134f8ce093a6f28737e186a",
+      "bytes": 7241
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L040/REPORT.md",
+      "sha256": "469181ad7222a9307eafc8bdfe736173251908d09e61a2c13736dc68ad04ceb7",
+      "bytes": 8981
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L040/results.json",
+      "sha256": "b1060948a389126b665912f75242a5b20e24ddea1cff862a8b477c73e5e177b2",
+      "bytes": 44642
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/labeling/experiments/L041.json",
+      "sha256": "946652a6a190aa9a5fa31bd615642693c9b5c774cf817997ead0dcc39050f0c2",
+      "bytes": 12952
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/output/L041/REPORT.md",
+      "sha256": "f82c8d842dce7cb0e4b52ebfa9b389be18ff680fda0784e80cd6040c58376c72",
+      "bytes": 37948
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/D012.json",
+      "sha256": "31b95f97855fcca39993fc883efe6c44167058c3d04cbd881bd665554fa8f8af",
+      "bytes": 2606
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/D015.json",
+      "sha256": "d9657749cad4f45cb60e6e8bfd17e85a24425de3101a4626240373cb2e1cf9e0",
+      "bytes": 1536
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/D016.json",
+      "sha256": "1be5bdbc017fa0c1d2fff20807e57f8fd0fdbe79a4a0014e5130b28c35845673",
+      "bytes": 2467
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/D019.json",
+      "sha256": "ac0195480e189872e25b1d8dfc64a265c3a6cfdaa212838dfaea579226b68e4c",
+      "bytes": 2612
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/D022.json",
+      "sha256": "4d844dcb0a87012b0bb8e2811630599fc639f47d345a6c698122000d2e48fd11",
+      "bytes": 3831
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/D024.json",
+      "sha256": "38c3beb5544769c161aef10509babf8d90a9740b4e281552f368da5e0fd2ebf2",
+      "bytes": 3334
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E001.json",
+      "sha256": "af74ec42477aec092f68207de9d2962b1fd100dec49674fcfb5f074523ffe05b",
+      "bytes": 2706
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E002.json",
+      "sha256": "9fa90e1bfc760a32a9acac6e48eb53b355f15ace7b58c4492e93eae6637b6e0b",
+      "bytes": 3104
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E003.json",
+      "sha256": "2a9e38af1186da9c93b72f615de29ed71fcb8841f0f397f005d4f24f9910d578",
+      "bytes": 3151
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E004.json",
+      "sha256": "bf28b6beda5a0f10e9b14a826965649fae385bd1d3f5095dd6f8539a3e32b662",
+      "bytes": 3708
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E005.json",
+      "sha256": "711d819941dd4fe2fba6df71cf2c5a06cce08b70b5345950bd5c1e795a29993a",
+      "bytes": 3117
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E006.json",
+      "sha256": "e7eacf4cf44d280dea5479c172ad75b7878fc4d3d452d0efec08098f39a1b386",
+      "bytes": 3230
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E007.json",
+      "sha256": "713d7368cefb1bc7786fd7802bb60f95567a7d4d0a6aa1468ba2a46f83e4c73c",
+      "bytes": 3623
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E008.json",
+      "sha256": "ca8f6bbb933d255f56c8258e356d9a3e59efcdce6b4e510fbd368b9865305f90",
+      "bytes": 2738
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E009.json",
+      "sha256": "15cb8f7f56f692c2ff0a1ddda02facb4579d261b6521d4347a028a98c5a6136c",
+      "bytes": 3706
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E010.json",
+      "sha256": "3ad0e102f9a7796a896912750e743dcc2828df3865b1a5dadf032a98f6f42a15",
+      "bytes": 3467
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E011.json",
+      "sha256": "a6425b23deb984d3a3bfc9564ac67600d0f7fb330500ca3f8adab0ff4f7bef05",
+      "bytes": 3352
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E013.json",
+      "sha256": "c138bb3e4c79a99161eecffe58587abecbaf5b42e1839e5a10b947178c153380",
+      "bytes": 5681
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E014.json",
+      "sha256": "208a019d17f6ae82b6e52b15ef364e10c31566cee7b378e5860ca8d205566099",
+      "bytes": 3540
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E017.json",
+      "sha256": "e463da2302dc3005525c23c8b7e91543ca3664e8f54237b991e50a944ce590e6",
+      "bytes": 3250
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E018.json",
+      "sha256": "a877f6e622fb114f4d4ff523a45e907ea238ca42e3e5e8308ace203fad6f6a92",
+      "bytes": 3267
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E020.json",
+      "sha256": "0aa55d8a84f6670287371e244e5e25889c1be4a7aca404ffbeadb68b0a48ea36",
+      "bytes": 4325
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/E021.json",
+      "sha256": "da17c65186ac8f18bbdcf9bfd584427ea468a545ee2aaba8edc32b9e6f0042a3",
+      "bytes": 3065
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-058f84fc8f.json",
+      "sha256": "fb43a1ae333d9675e8bb4d8e8ebcc6d3fa6a4d2861574510c0d90bc983419d96",
+      "bytes": 2249
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-1d657c44f3.json",
+      "sha256": "395b3d62e66e51e3a8cec9b2cd912ce9afae16477cefd23905bdce300c19a4c9",
+      "bytes": 2302
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-407cd6ddd1.json",
+      "sha256": "27f47224ae96e9a69e2ac22c4e8c6208ea45f7d98dea1d05b94ebcd10675cb79",
+      "bytes": 2043
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-80f418aa6c.json",
+      "sha256": "230224a8020fe06f2c499b9cabb48a2c236467ad9c1d7fe9004af74c1e26828a",
+      "bytes": 2224
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-85778a7c3c.json",
+      "sha256": "e1d53ef9466c7b0b07e34b0a55650de99262e5ac995e0fe0da6efd442235241b",
+      "bytes": 2221
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-8f7d191f82.json",
+      "sha256": "eeb9620a76f16512607af41866997ce17ad74c18c7a3f0f9fbf7589a01efe039",
+      "bytes": 2331
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-98850eae17.json",
+      "sha256": "2c298ad0f91bf78da5a42f5f718623279056af4b054af60d568d6e2bafe23cf6",
+      "bytes": 2028
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-aa5fd4c3b2.json",
+      "sha256": "c66f0686bc67fdbb3ce9d6be421ff3ec29afb7d4da10d13b48b5b48d3f5f127c",
+      "bytes": 2243
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-b5d8b79296.json",
+      "sha256": "86037a116fce73e32346c6b1c9bed1c9ba712c2e6b284f0d30d01bc5b1fcecc6",
+      "bytes": 2326
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-d1d22ff208.json",
+      "sha256": "5fdaae022223888cf508de28869bbc4e32feec4fcffa8ab25ab8ff6fb8bb6d77",
+      "bytes": 2050
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-e2851249af.json",
+      "sha256": "a1663f2d74f30f586575f78462104ee3878d22df8589a01822720743d86ad59f",
+      "bytes": 2337
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/H-f8fde8cf27.json",
+      "sha256": "a35e98e72fcfde8bc42bc00a8c6ffd524da732d82b621f08fb648f006383338b",
+      "bytes": 2022
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/P010.json",
+      "sha256": "b93647d27acd5934c4dd5b52d843b99a83fbcc9b82bca2024799fd66abacfffe",
+      "bytes": 2218
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot/research/experiments/P023.json",
+      "sha256": "6af31a6cf8667494babf3dec9d7f431e526a8da88e616ec3daa5a026d69417f9",
+      "bytes": 1895
+    }
+  ],
+  "commits": [
+    {
+      "commit": "b9fb7f8",
+      "subject": "b9fb7f81448ba8b94512b576008af3410b0a3d8a 2026-09-04 Package reproducible EoT training for RunPod"
+    },
+    {
+      "commit": "c71ea45",
+      "subject": "c71ea45fd48ee2f4945cc2381b51e8a3195fc85f 2026-09-05 Research baseline snapshot: preserve existing working state without altering main branch/index"
+    },
+    {
+      "commit": "fe74511",
+      "subject": "fe745116f6139d1825b705fa9bed5561c5851d6c 2026-09-05 D012: audit ambiguous short listener events and version conservative labeling"
+    },
+    {
+      "commit": "3b5272e",
+      "subject": "3b5272e3b6254937d440da65b582ea4b382bbcea 2026-09-05 D016: freeze metadata-only actor-disjoint otoSpeech splits and pilot"
+    },
+    {
+      "commit": "863141a",
+      "subject": "863141a8ac232084af2edc013b95042ea0600806 2026-09-05 D019: prevent aliasing and future leakage in training-audio resampling"
+    },
+    {
+      "commit": "707a320",
+      "subject": "707a3200eced8e913b55fffda4b4d5e054d313f2 2026-09-05 D019: prevent review judgments from crossing dataset revisions"
+    },
+    {
+      "commit": "8a9fdeb",
+      "subject": "8a9fdeb2b6fc5a7307d6681c85815b5b17d2e8b2 2026-09-05 Restructure eot into pipeline stages and unify the best worktree changes"
+    },
+    {
+      "commit": "e38c69d",
+      "subject": "e38c69d8ad15aa800a99329265a1d42a45c1bfb0 2026-09-05 L001: TurnBench dev audit of the labeler (pipeline, results, report)"
+    },
+    {
+      "commit": "2e700c8",
+      "subject": "2e700c80537816be4be870b687f482aa1d3ed49b 2026-09-05 L008: recover the human EOTs the oracle rule drops \u2014 revised rules, mapper fix, AppTek manifest"
+    },
+    {
+      "commit": "e3384f2",
+      "subject": "e3384f2cdde7616854e8c1acca2e2dec22a27270 2026-09-05 labeling: record the observation window per row and guard HOLD cuts (L009)"
+    },
+    {
+      "commit": "6fe2504",
+      "subject": "6fe25047e7ef16d7a3231998ff747f16a80aae1c 2026-09-05 L009: before/control/after checks, results and report"
+    },
+    {
+      "commit": "dbc87f9",
+      "subject": "dbc87f9d14ce3f3fcffbbe2ef8dc40d51d91e485 2026-09-05 L012: apply the +67 ms resumption correction to the L009 manifests and count flips"
+    },
+    {
+      "commit": "fd88d88",
+      "subject": "fd88d88ed4cc38479953c7bb42fe0a2595768af1 2026-09-05 L020: complete - 10 arms x 3 seeds trained and evaluated; no promotion candidate (all nulls); REPORT.md, results.json"
+    },
+    {
+      "commit": "e05b28e",
+      "subject": "e05b28ec402f328ebb6beb29612d5fad94f7c856 2026-09-05 L022: complete - 6 arms x 3 fresh seeds trained and evaluated; B0 reproduces the incumbent (1029 vs 1031.5 ms), B1 -101 ms [-155, -49] paired vs incumbent but fails the Krisp clause; attribution = data composition; REPORT.md, results.json"
+    },
+    {
+      "commit": "a7b782d",
+      "subject": "a7b782dd250417261866fb4a2d5a85eab39f34f9 2026-09-06 Add opt-in temporal label guards and train-only quality audit"
+    },
+    {
+      "commit": "d255169",
+      "subject": "d255169fecf1ac5437415883b96406f4dff360e5 2026-09-06 Close L040 factorial with paired bootstrap, both benchmark rules and normalized serving"
+    },
+    {
+      "commit": "614d73d",
+      "subject": "614d73d1ead4261ea43962dc18798d683e332347 2026-09-07 Clarify final completed quality status in report"
+    },
+    {
+      "commit": "ee2ad57",
+      "subject": "ee2ad5776f35aa272cec18dd5542771fdc6ffaf9 2026-09-07 Close L041 experimentation and consolidate final verified findings"
+    }
+  ],
+  "manual_annotation_conclusion": "Published human event annotations reused; no completed project-owned human labeling established by the examined records. EOT/HOLD references are our deterministic mapping of existing events.",
+  "data_snapshot_note": "Historical raw data and other weights remain in the user-provided archive. The selected ONNX and sidecar were selectively recovered and the complete weight hash verified against the recorded receipt. No new inference or full raw-data audit is claimed.",
+  "archive_recovery": {
+    "verified_on": "2026-09-07",
+    "archive": "/media/ad/00b5422b-9d54-4449-8b5d-08eab5cdac8c/happyrobot-archive-2026-09-07/happyrobot-eot__data__research__L040.tar.zst",
+    "archive_member": "happyrobot-eot/data/research/L040/exports/B11_kd_tail/seed333/eot.onnx",
+    "restored_model": "/home/ad/Desktop/happyrobot-eot/data/research/L040/exports/B11_kd_tail/seed333/eot.onnx",
+    "bytes": 80850958,
+    "sha256": "7dc74c902351bed860f6ea4463e8dda9d0550efb2c2230094246a21afe1e88aa",
+    "matches_selected_hardware_receipt": true,
+    "restored_files": [
+      "eot.onnx",
+      "eot.json"
+    ],
+    "new_inference_performed": false
+  },
+  "audit_boundary": "Historical source audit plus selected-artifact hash verification. Historical review forms were not re-counted from the archives; no training or inference performed."
+}

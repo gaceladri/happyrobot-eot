@@ -1,0 +1,31 @@
+{
+  "status": "VERIFIED",
+  "root": "artifacts/deployment",
+  "files": [
+    {
+      "path": "whisper-cpu/eot.onnx",
+      "sha256": "b35854bfa52580fee6eee5229eca8d140723f0a04027b261af4aac75b1b4234b",
+      "bytes": 80850958
+    },
+    {
+      "path": "whisper-cpu/eot.json",
+      "sha256": "5414fc5783643c39c14ae11afe5bb3bef0b9e5e2a9bb2be1011bedbb00e7ece1",
+      "bytes": 5087
+    },
+    {
+      "path": "cohere-gpu/eot.plan",
+      "sha256": "dde5dd2cd196821d78b4eabf4d7f683544d50e8c78077ed9d61f80428eb8cb2e",
+      "bytes": 5247248572
+    },
+    {
+      "path": "cohere-gpu/eot.json",
+      "sha256": "f3d4aa087b955a74c5b130a4076b991f8d54f5f416b9a0fda5aa46c3128b2f03",
+      "bytes": 4738
+    },
+    {
+      "path": "cohere-gpu/frontend.pt",
+      "sha256": "cfa632a6e952404b1481ee2c10d7cbaaf60a5892a6e1b57cf4e33e237686c34a",
+      "bytes": 135149
+    }
+  ]
+}

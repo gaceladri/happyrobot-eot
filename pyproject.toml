@@ -1,0 +1,91 @@
+[project]
+name = "eot"
+version = "0.3.0"
+description = "End-of-turn detection for voice agents: data labeling, Whisper/Cohere training and distillation, causal endpointing policy, CPU (ONNX) and GPU (TensorRT) HTTP services."
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+authors = [{ name = "Adrián Brunetto", email = "adrianbrunetto1@gmail.com" }]
+classifiers = ["Programming Language :: Python :: 3.13", "Private :: Do Not Upload"]
+dependencies = [
+    "numpy>=1.26",
+    "torch>=2.3",
+    "transformers>=4.44",
+    "soundfile>=0.12",
+    "onnxruntime>=1.18",
+    "onnx>=1.16",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "httpx>=0.27",
+    "pydantic>=2.7",
+]
+
+[project.optional-dependencies]
+data = [
+    "datasets>=3.0",
+    "pyarrow>=16",
+    "scipy>=1.11",
+]
+dev = [
+    "pytest>=8",
+]
+tracking = [
+    "wandb>=0.29.0",
+]
+# Large pretrained encoders used as teachers (eot.modeling.backbones); pulled in by transformers already.
+backbone = [
+    "safetensors>=0.4",
+    "huggingface_hub>=0.25",
+]
+# TensorRT engine build and the GPU service (eot-serve-gpu); the exact versions are in requirements/gpu-serve.lock.
+gpu = [
+    "tensorrt-cu13==10.16.1.11",
+    "cuda-bindings==13.3.1",
+]
+# Rebuilding the solution brief PDF (docs/presentation/scripts/build_pdf.py).
+docs = [
+    "reportlab>=4",
+]
+
+[project.scripts]
+eot-acquire = "eot.data.smart_turn:main"
+eot-mine = "eot.labeling.prefix_mining:main"
+eot-apptek = "eot.labeling.apptek:main"
+eot-qa = "eot.labeling.qa:main"
+eot-krisp = "eot.eval.krisp:main"
+eot-train = "eot.modeling.train:main"
+eot-train-backbone = "eot.modeling.train_backbone:main"
+eot-distill-cache = "eot.modeling.distill:main"
+eot-soup = "eot.modeling.soup:main"
+eot-export = "eot.modeling.export_onnx:main"
+eot-sweep = "eot.eval.policy:main"
+eot-report = "eot.eval.report:main"
+eot-challenge = "eot.eval.challenge:main"
+eot-backbone-score = "eot.eval.backbone:main"
+eot-serve = "eot.serving.service:main"
+eot-serve-gpu = "eot.serving.tensorrt_service:main"
+eot-artifacts = "eot.serving.artifacts:main"
+eot-loadtest = "eot.serving.load_test:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/eot"]
+
+[tool.uv]
+package = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 140
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "I"]
+ignore = ["E501", "B008", "B905"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["eot"]

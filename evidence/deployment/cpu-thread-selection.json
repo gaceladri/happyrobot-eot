@@ -1,0 +1,26 @@
+{
+  "criterion": "Minimum HTTP c8 p95 over 160 requests; final independent 400 requests per c1/4/8",
+  "screen": [
+    {
+      "threads": 1,
+      "p95_c8_ms": 86.59459000082278,
+      "errors": 0
+    },
+    {
+      "threads": 2,
+      "p95_c8_ms": 88.0762467995737,
+      "errors": 0
+    },
+    {
+      "threads": 4,
+      "p95_c8_ms": 86.39213994774762,
+      "errors": 0
+    },
+    {
+      "threads": 8,
+      "p95_c8_ms": 83.55876095065469,
+      "errors": 0
+    }
+  ],
+  "selected_threads": 8
+}

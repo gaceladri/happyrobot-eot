@@ -1,0 +1,29 @@
+{
+  "cpu": {
+    "ok": true,
+    "version": "0.3.0",
+    "model_sha": "b35854bfa52580fe",
+    "use_context": false,
+    "threads": 8,
+    "max_inflight": 8,
+    "max_body_bytes": 2000000
+  },
+  "gpu": {
+    "ok": true,
+    "model_sha": "dde5dd2cd196821d",
+    "max_inflight": 8,
+    "max_batch": 8,
+    "batch_wait_ms": 2,
+    "max_body_bytes": 2000000,
+    "observed_batch_sizes": {},
+    "model_name": "Cohere fine-tuned",
+    "engine_sha256": "dde5dd2cd196821d78b4eabf4d7f683544d50e8c78077ed9d61f80428eb8cb2e",
+    "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+    "runtime": "TensorRT",
+    "tensorrt": "10.16.1.11",
+    "precision": "fp16",
+    "cuda_graphs": true,
+    "threads": 2,
+    "original_frontend": true
+  }
+}

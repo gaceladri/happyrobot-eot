@@ -1,0 +1,16 @@
+{
+  "cpu": {
+    "artifact": "/home/ad/Desktop/happyrobot-eot/artifacts/deployment/whisper-cpu/eot.onnx",
+    "artifact_sha256": "b35854bfa52580fee6eee5229eca8d140723f0a04027b261af4aac75b1b4234b",
+    "artifact_bytes": 80850958,
+    "container_image": "sha256:27eca409f7c0b7a57bcd3cfb6df50b23d9f68e17c0cc8689b3ab7645f8a143ea",
+    "checkpoint_sha256": "d82bb9172b83251179b2dd759585532da4db72e38321160dd2b19542df406d4a"
+  },
+  "gpu": {
+    "artifact": "/home/ad/Desktop/happyrobot-eot/artifacts/deployment/cohere-gpu/tuned.plan",
+    "artifact_sha256": "dde5dd2cd196821d78b4eabf4d7f683544d50e8c78077ed9d61f80428eb8cb2e",
+    "artifact_bytes": 5247248572,
+    "container_image": "sha256:61b9f9c540d351037bf763e4c9ab8cf0f727cdaa644cd0502dba0033e07a5c4c",
+    "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4"
+  }
+}

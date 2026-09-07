@@ -1,0 +1,33 @@
+{
+  "model": "L041 Cohere seed222 FP32",
+  "quality_mean_delay_ms": 615,
+  "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+  "rows": [
+    {
+      "device": "cuda",
+      "p95_ms": {
+        "1": 65.28324089940723,
+        "4": 148.7517571999888,
+        "8": 201.52359660078218
+      },
+      "source": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/l041-cohere-seed222-cuda-http.json",
+      "sha256": "9193ef5281fd0ee0a7203c670e4f582ce95f3675e86d7725099a7b9ada70607a"
+    },
+    {
+      "device": "cpu",
+      "p95_ms": {
+        "1": 925.1760367495988,
+        "4": 2432.122966398947,
+        "8": 4073.010438800246
+      },
+      "source": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/l041-cohere-seed222-cpu-http.json",
+      "sha256": "58ddc2084a4921ef9a197257e19d3bb107a4d88a533fc5e6fb7bd2fe9b088379"
+    }
+  ],
+  "requests": 2400,
+  "errors": 0,
+  "threads": 4,
+  "max_batch": 8,
+  "batch_wait_ms": 2,
+  "scope": "Post-closeout local measurement requested by user for presentation. CPU/GPU waveform/merge/batch diagnostics retained. CPU zero-wave drift explicitly accepted by user. The 615ms quality score is the original GPU benchmark readout of this checkpoint."
+}

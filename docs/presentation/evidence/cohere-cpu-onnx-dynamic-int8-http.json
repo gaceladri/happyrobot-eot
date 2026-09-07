@@ -1,0 +1,247 @@
+{
+  "label": "C2_lora_seed111_CPU_ONNX_dynamic-int8",
+  "checkpoint_sha256": "c9d90ac8d9d633c3033a0d4078b21283343241ea0a823edb65dbce8ff5d82a0b",
+  "cpu": "Intel Core i9-10900X",
+  "precision": "dynamic-int8",
+  "onnxruntime": "1.29.0",
+  "torch_frontend": "2.14.0+cu130",
+  "providers": [
+    "CPUExecutionProvider"
+  ],
+  "executed_ops": {
+    "Transpose": 1160,
+    "Unsqueeze": 4,
+    "Mul": 808,
+    "Conv": 596,
+    "ReorderOutput": 20,
+    "Relu": 12,
+    "ReorderInput": 16,
+    "Reshape": 1156,
+    "DynamicQuantizeMatMul": 984,
+    "LayerNormalization": 772,
+    "QuickGelu": 576,
+    "Add": 1160,
+    "DynamicQuantizeLinear": 192,
+    "MatMulIntegerToFloat": 576,
+    "MatMul": 576,
+    "Pad": 192,
+    "Slice": 388,
+    "Where": 576,
+    "Softmax": 196,
+    "Split": 192,
+    "Sigmoid": 196,
+    "SkipLayerNormalization": 192,
+    "Tanh": 4,
+    "ReduceSum": 4,
+    "Gelu": 8,
+    "Squeeze": 4
+  },
+  "onnx_sha256": "085d8320a3afb4713cadba2b6b74d1b1fc92fad94ee71beaf72665711a093f18",
+  "parity": {
+    "reference": [
+      0.24608902633190155,
+      0.7042165398597717,
+      0.01682429201900959,
+      0.9869964122772217
+    ],
+    "predictions": [
+      0.23318368196487427,
+      0.6931411027908325,
+      0.018577992916107178,
+      0.9874944090843201
+    ],
+    "max_absolute_drift": 0.012905344367027283,
+    "scope": "4 prefixes of one real clip; not benchmark-wide quality validation"
+  },
+  "calibration": null,
+  "quantization": {
+    "method": "Dynamic U8S8 per-channel constant-weight MatMul only",
+    "preprocessing": "Symbolic + ONNX shape inference; weight transposes previously folded. Offline ORT optimization skipped for >2 GB per documentation; runtime graph optimizations enabled.",
+    "reduce_range": false,
+    "reduce_range_reason": "Host exposes AVX512 VNNI; no 7-bit mitigation required.",
+    "calibration": "None; activation scales computed for each inference.",
+    "graph_ops": {
+      "Constant": 3116,
+      "Transpose": 387,
+      "Unsqueeze": 1953,
+      "Shape": 67,
+      "Cast": 783,
+      "DynamicQuantizeLinear": 342,
+      "Mul": 1292,
+      "Concat": 404,
+      "ConstantOfShape": 67,
+      "MatMulInteger": 438,
+      "Gather": 48,
+      "Reshape": 450,
+      "Sub": 48,
+      "Equal": 18,
+      "Where": 162,
+      "Expand": 19,
+      "Less": 5,
+      "Slice": 145,
+      "Not": 2,
+      "Tile": 1,
+      "And": 2,
+      "Conv": 149,
+      "Relu": 3,
+      "Add": 728,
+      "LayerNormalization": 241,
+      "Sigmoid": 193,
+      "MatMul": 144,
+      "Pad": 48,
+      "Softmax": 49,
+      "Split": 48,
+      "BatchNormalization": 48,
+      "Tanh": 1,
+      "ReduceSum": 1,
+      "Div": 2,
+      "Erf": 2,
+      "Squeeze": 1
+    },
+    "elapsed_seconds": 121.83003211021423,
+    "source": "https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html"
+  },
+  "health": {
+    "ok": true,
+    "version": "l031-torch",
+    "model_sha": "c9d90ac8d9d633c3",
+    "use_context": false,
+    "threads": 4,
+    "max_inflight": 8,
+    "max_body_bytes": 2000000,
+    "merged_lora_layers": 384
+  },
+  "requests_per_level": 400,
+  "concurrency": [
+    1,
+    4,
+    8
+  ],
+  "input_seconds": 8,
+  "model_window_seconds": 4,
+  "threads": 4,
+  "inter_op_threads": 1,
+  "max_inflight": 8,
+  "docker": false,
+  "cpu_quota": false,
+  "wav": "/home/ad/Desktop/happyrobot-eot/data/mined/smart-turn-ensemble/audio/3fc2e840-d3f2-452f-b93e-6456e7941329_03-ccf51929ace0.wav",
+  "wav_sha256": "08792af2dde86378d7f0535f45c14d852c959757a134c00eff9ada7234c5aeda",
+  "payload_bytes": 256000,
+  "time_unix": 1788743773.4193254,
+  "startup_with_parity_and_warmup_ms": 24393.597641999804,
+  "loadavg_before": [
+    3.60888671875,
+    2.3681640625,
+    1.5048828125
+  ],
+  "levels": [
+    {
+      "concurrency": 1,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 3.757151810914631,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 280.24629709930196,
+        "p99": 301.4288270000085
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 264.0195459998722,
+        "p95": 280.24629709930196,
+        "p99": 301.4288270000085,
+        "mean": 266.10662863999323
+      },
+      "server_inference_ms": {
+        "p50": 257.71000000000004,
+        "p95": 273.6379999999999,
+        "p99": 296.8940999999997
+      },
+      "server_features_ms": {
+        "p50": 3.175,
+        "p95": 5.491
+      }
+    },
+    {
+      "concurrency": 4,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 6.771512378998737,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 619.0167629500138,
+        "p99": 638.762554820596
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 588.4624039995288,
+        "p95": 619.0167629500138,
+        "p99": 638.762554820596,
+        "mean": 589.0087318624614
+      },
+      "server_inference_ms": {
+        "p50": 581.71,
+        "p95": 613.0285,
+        "p99": 631.3568
+      },
+      "server_features_ms": {
+        "p50": 2.975,
+        "p95": 4.512999999999997
+      }
+    },
+    {
+      "concurrency": 8,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 7.809927150377559,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 1172.3316218498892,
+        "p99": 1267.5984512396462
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 1004.1417995007578,
+        "p95": 1172.3316218498892,
+        "p99": 1267.5984512396462,
+        "mean": 1019.9411245274837
+      },
+      "server_inference_ms": {
+        "p50": 992.55,
+        "p95": 1158.7515,
+        "p99": 1256.455
+      },
+      "server_features_ms": {
+        "p50": 4.43,
+        "p95": 6.8605
+      }
+    }
+  ],
+  "scope": "One local warm HTTP sweep. Same model and input as GPU tests. Static INT8 uses 32 training prefixes; dynamic INT8 computes activation scales online. Quantized quality not qualified.",
+  "sources": [
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/scripts/measure_cohere_onnx_cpu.py",
+      "sha256": "ec8a825ac88368fab372b50fc6abcbc64d1847ffd0a84a6fcacd210547a64195"
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/research/labeling/experiments/L031/backbone/serve.py",
+      "sha256": "28aac961b99727be28d2e1a9a09b5851b24b65bd1d53b448beb69a9d2479c8b6"
+    },
+    {
+      "path": "/home/ad/Desktop/happyrobot-eot-experiments/l031/src/eot/serving/load_test.py",
+      "sha256": "75b6d3f699e0efd53c092822164656bfb79b834260dbafe04f284fde845d3d3d"
+    }
+  ],
+  "complete": true,
+  "loadavg_after": [
+    9.55029296875,
+    5.134765625,
+    2.728515625
+  ]
+}

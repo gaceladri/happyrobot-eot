@@ -1,0 +1,12 @@
+# TensorRT runs the entire encoder/head. CPU-only PyTorch runs the original frontend.
+torch @ https://download-r2.pytorch.org/whl/cpu/torch-2.14.0%2Bcpu-cp313-cp313-manylinux_2_28_x86_64.whl#sha256=160e1bc46aeded3111d2801f8ae10dc9a1b946843a7e126b4dbf5e19c5706e95
+numpy==2.5.2
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+httpx==0.28.1
+soundfile==0.14.0
+transformers==5.16.1
+onnxruntime==1.29.0
+tensorrt-cu13==10.16.1.11
+cuda-bindings==13.3.1
+nvidia-cuda-runtime==13.0.96

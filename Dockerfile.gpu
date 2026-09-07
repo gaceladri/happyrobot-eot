@@ -1,0 +1,25 @@
+# GPU inference image: TensorRT runs the encoder/head, CPU-only torch runs the original Cohere front-end
+# (service `cohere-gpu` in compose.inference.yaml; needs the NVIDIA Container Toolkit).
+#   docker compose -f compose.inference.yaml up -d --build cohere-gpu
+FROM python:3.13-slim@sha256:9d2e5553305c7c7b0097999bb17187c69b921ccd6bc9d40e4bb5ebe652c00285
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
+    OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 EOT_THREADS=2 \
+    HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    LD_LIBRARY_PATH=/usr/local/lib/python3.13/site-packages/nvidia/cu13/lib
+RUN apt-get update && apt-get install -y --no-install-recommends libsndfile1 libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=ghcr.io/astral-sh/uv:0.10.4@sha256:4cac394b6b72846f8a85a7a0e577c6d61d4e17fe2ccee65d9451a8b3c9efb4ac /uv /usr/local/bin/uv
+WORKDIR /app
+COPY requirements/gpu-serve.txt requirements/gpu-serve.lock ./requirements/
+RUN uv pip install --system --no-cache -r requirements/gpu-serve.lock
+COPY pyproject.toml README.md ./
+COPY src ./src
+# Reported by /healthz as source_sha256: one digest over everything that defines the image's code.
+RUN find pyproject.toml requirements src -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d ' ' -f 1 > /app/SOURCE_SHA256
+RUN uv pip install --system --no-cache --no-deps -e . \
+    && useradd --uid 10001 --create-home --shell /usr/sbin/nologin eot
+USER 10001
+EXPOSE 8000
+HEALTHCHECK --interval=10s --timeout=3s --start-period=120s CMD python -c "import httpx,sys; sys.exit(0 if httpx.get('http://127.0.0.1:8000/healthz').status_code==200 else 1)"
+CMD ["eot-serve-gpu", "--host", "0.0.0.0", "--port", "8000"]

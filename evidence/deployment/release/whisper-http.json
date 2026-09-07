@@ -1,0 +1,463 @@
+{
+  "container": "eot-delivery-whisper-cpu-1",
+  "container_inspect": {
+    "Id": "43278e426b1e18343f00a7912f869e96af4fa87b9eab0b37f317b0579fc4553a",
+    "Created": "2026-09-07T14:46:34.391237516Z",
+    "Path": "eot-serve",
+    "Args": [
+      "--host",
+      "0.0.0.0",
+      "--port",
+      "8000"
+    ],
+    "State": {
+      "Status": "running",
+      "Running": true,
+      "Paused": false,
+      "Restarting": false,
+      "OOMKilled": false,
+      "Dead": false,
+      "Pid": 924869,
+      "ExitCode": 0,
+      "Error": "",
+      "StartedAt": "2026-09-07T14:46:37.583808901Z",
+      "FinishedAt": "0001-01-01T00:00:00Z",
+      "Health": {
+        "Status": "healthy",
+        "FailingStreak": 0,
+        "Log": [
+          {
+            "Start": "2026-09-07T16:46:47.694072637+02:00",
+            "End": "2026-09-07T16:46:48.40181378+02:00",
+            "ExitCode": 0,
+            "Output": ""
+          },
+          {
+            "Start": "2026-09-07T16:46:58.403377334+02:00",
+            "End": "2026-09-07T16:46:59.105625205+02:00",
+            "ExitCode": 0,
+            "Output": ""
+          },
+          {
+            "Start": "2026-09-07T16:47:09.106541708+02:00",
+            "End": "2026-09-07T16:47:09.796108207+02:00",
+            "ExitCode": 0,
+            "Output": ""
+          },
+          {
+            "Start": "2026-09-07T16:47:19.796824118+02:00",
+            "End": "2026-09-07T16:47:20.519377322+02:00",
+            "ExitCode": 0,
+            "Output": ""
+          }
+        ]
+      }
+    },
+    "Image": "sha256:14390c495526c7937e39bd4213f6179b509ba97975331c3fcd57b78bf1603026",
+    "ResolvConfPath": "/var/lib/docker/containers/43278e426b1e18343f00a7912f869e96af4fa87b9eab0b37f317b0579fc4553a/resolv.conf",
+    "HostnamePath": "/var/lib/docker/containers/43278e426b1e18343f00a7912f869e96af4fa87b9eab0b37f317b0579fc4553a/hostname",
+    "HostsPath": "/var/lib/docker/containers/43278e426b1e18343f00a7912f869e96af4fa87b9eab0b37f317b0579fc4553a/hosts",
+    "LogPath": "/var/lib/docker/containers/43278e426b1e18343f00a7912f869e96af4fa87b9eab0b37f317b0579fc4553a/43278e426b1e18343f00a7912f869e96af4fa87b9eab0b37f317b0579fc4553a-json.log",
+    "Name": "/eot-delivery-whisper-cpu-1",
+    "RestartCount": 0,
+    "Driver": "overlay2",
+    "Platform": "linux",
+    "MountLabel": "",
+    "ProcessLabel": "",
+    "AppArmorProfile": "docker-default",
+    "ExecIDs": null,
+    "HostConfig": {
+      "Binds": [
+        "/home/ad/Desktop/happyrobot-eot/artifacts/deployment/whisper-cpu:/models:ro"
+      ],
+      "ContainerIDFile": "",
+      "LogConfig": {
+        "Type": "json-file",
+        "Config": {}
+      },
+      "NetworkMode": "eot-delivery_default",
+      "PortBindings": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8891"
+          }
+        ]
+      },
+      "RestartPolicy": {
+        "Name": "no",
+        "MaximumRetryCount": 0
+      },
+      "AutoRemove": false,
+      "VolumeDriver": "",
+      "VolumesFrom": null,
+      "ConsoleSize": [
+        0,
+        0
+      ],
+      "CapAdd": null,
+      "CapDrop": [
+        "ALL"
+      ],
+      "CgroupnsMode": "private",
+      "Dns": null,
+      "DnsOptions": null,
+      "DnsSearch": null,
+      "ExtraHosts": [],
+      "GroupAdd": null,
+      "IpcMode": "private",
+      "Cgroup": "",
+      "Links": null,
+      "OomScoreAdj": 0,
+      "PidMode": "",
+      "Privileged": false,
+      "PublishAllPorts": false,
+      "ReadonlyRootfs": true,
+      "SecurityOpt": [
+        "no-new-privileges:true"
+      ],
+      "Tmpfs": {
+        "/tmp": ""
+      },
+      "UTSMode": "",
+      "UsernsMode": "",
+      "ShmSize": 67108864,
+      "Runtime": "runc",
+      "Isolation": "",
+      "CpuShares": 0,
+      "Memory": 0,
+      "NanoCpus": 0,
+      "CgroupParent": "",
+      "BlkioWeight": 0,
+      "BlkioWeightDevice": null,
+      "BlkioDeviceReadBps": null,
+      "BlkioDeviceWriteBps": null,
+      "BlkioDeviceReadIOps": null,
+      "BlkioDeviceWriteIOps": null,
+      "CpuPeriod": 0,
+      "CpuQuota": 0,
+      "CpuRealtimePeriod": 0,
+      "CpuRealtimeRuntime": 0,
+      "CpusetCpus": "",
+      "CpusetMems": "",
+      "Devices": null,
+      "DeviceCgroupRules": null,
+      "DeviceRequests": null,
+      "MemoryReservation": 0,
+      "MemorySwap": 0,
+      "MemorySwappiness": null,
+      "OomKillDisable": null,
+      "PidsLimit": null,
+      "Ulimits": null,
+      "CpuCount": 0,
+      "CpuPercent": 0,
+      "IOMaximumIOps": 0,
+      "IOMaximumBandwidth": 0,
+      "MaskedPaths": [
+        "/proc/asound",
+        "/proc/acpi",
+        "/proc/interrupts",
+        "/proc/kcore",
+        "/proc/keys",
+        "/proc/latency_stats",
+        "/proc/timer_list",
+        "/proc/timer_stats",
+        "/proc/sched_debug",
+        "/proc/scsi",
+        "/sys/firmware",
+        "/sys/devices/virtual/powercap",
+        "/sys/devices/system/cpu/cpu0/thermal_throttle",
+        "/sys/devices/system/cpu/cpu1/thermal_throttle",
+        "/sys/devices/system/cpu/cpu2/thermal_throttle",
+        "/sys/devices/system/cpu/cpu3/thermal_throttle",
+        "/sys/devices/system/cpu/cpu4/thermal_throttle",
+        "/sys/devices/system/cpu/cpu5/thermal_throttle",
+        "/sys/devices/system/cpu/cpu6/thermal_throttle",
+        "/sys/devices/system/cpu/cpu7/thermal_throttle",
+        "/sys/devices/system/cpu/cpu8/thermal_throttle",
+        "/sys/devices/system/cpu/cpu9/thermal_throttle",
+        "/sys/devices/system/cpu/cpu10/thermal_throttle",
+        "/sys/devices/system/cpu/cpu11/thermal_throttle",
+        "/sys/devices/system/cpu/cpu12/thermal_throttle",
+        "/sys/devices/system/cpu/cpu13/thermal_throttle",
+        "/sys/devices/system/cpu/cpu14/thermal_throttle",
+        "/sys/devices/system/cpu/cpu15/thermal_throttle",
+        "/sys/devices/system/cpu/cpu16/thermal_throttle",
+        "/sys/devices/system/cpu/cpu17/thermal_throttle",
+        "/sys/devices/system/cpu/cpu18/thermal_throttle",
+        "/sys/devices/system/cpu/cpu19/thermal_throttle"
+      ],
+      "ReadonlyPaths": [
+        "/proc/bus",
+        "/proc/fs",
+        "/proc/irq",
+        "/proc/sys",
+        "/proc/sysrq-trigger"
+      ]
+    },
+    "GraphDriver": {
+      "Data": {
+        "ID": "43278e426b1e18343f00a7912f869e96af4fa87b9eab0b37f317b0579fc4553a",
+        "LowerDir": "/var/lib/docker/overlay2/9ef86d55c7ec2b74c574a05e02fcd737677002c46c2807fd06084129e66ad5d3-init/diff:/var/lib/docker/overlay2/d07f4b3c930540d199b9543e2800584f6ea2e304a90dda926f5c2dadbe121824/diff:/var/lib/docker/overlay2/11b4467229a4582466cd23f58d0bb01b880b6ed8869b6313e07f2f4c1297482d/diff:/var/lib/docker/overlay2/fee2befcab61b6899c5f9e9cabe7ee9194c271da0bdf13025b8b74abaa8ca50b/diff:/var/lib/docker/overlay2/566bdea0985b250bd4fdad9f62a5705497d39fba6c3d3deb7574a7f96fd0aeac/diff:/var/lib/docker/overlay2/478a8d2489feeeee0e2b14e89425db538654988e57c5d7e4635b58f5f6dcf861/diff:/var/lib/docker/overlay2/c061840510c4eab5eb054f931bda3483f9f7a69a0c66707c1d6dc933f5a92d25/diff:/var/lib/docker/overlay2/ae0024a31c38de045d5662b35700c05df542efb1a8b8154232ed84ab513eeee2/diff:/var/lib/docker/overlay2/e3e98feecb68ef1326e6d80461fed562203afedf190435fed1d709c20cba816b/diff:/var/lib/docker/overlay2/967fd7ae112dcc3a9858eb2af632ab58ad9649a6247a5635b7124353ff6ad49e/diff:/var/lib/docker/overlay2/0dec84827c029824f4a3233c65c2d9ec4586654897f3b1d9e2d6f5eb8134ff08/diff:/var/lib/docker/overlay2/f88350917ea91dece6fc1eaf5aaca9e3b7019b6c83cef636b0dcbc1ea4c9caca/diff:/var/lib/docker/overlay2/19246c475835014b6dfd8be16ec8e2ed1b6170ace48d0f39c871300341432184/diff:/var/lib/docker/overlay2/815293c3d579058448184a19be16bfab23589cce62c1364a8dd44449537e7988/diff",
+        "MergedDir": "/var/lib/docker/overlay2/9ef86d55c7ec2b74c574a05e02fcd737677002c46c2807fd06084129e66ad5d3/merged",
+        "UpperDir": "/var/lib/docker/overlay2/9ef86d55c7ec2b74c574a05e02fcd737677002c46c2807fd06084129e66ad5d3/diff",
+        "WorkDir": "/var/lib/docker/overlay2/9ef86d55c7ec2b74c574a05e02fcd737677002c46c2807fd06084129e66ad5d3/work"
+      },
+      "Name": "overlay2"
+    },
+    "Mounts": [
+      {
+        "Type": "bind",
+        "Source": "/home/ad/Desktop/happyrobot-eot/artifacts/deployment/whisper-cpu",
+        "Destination": "/models",
+        "Mode": "ro",
+        "RW": false,
+        "Propagation": "rprivate"
+      }
+    ],
+    "Config": {
+      "Hostname": "43278e426b1e",
+      "Domainname": "",
+      "User": "10001",
+      "AttachStdin": false,
+      "AttachStdout": true,
+      "AttachStderr": true,
+      "ExposedPorts": {
+        "8000/tcp": {}
+      },
+      "Tty": false,
+      "OpenStdin": false,
+      "StdinOnce": false,
+      "Env": [
+        "EOT_THREADS=8",
+        "EOT_ONNX=/models/eot.onnx",
+        "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "LANG=C.UTF-8",
+        "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+        "PYTHON_VERSION=3.12.14",
+        "PYTHON_SHA256=5c8462af5790baf43a321a1559dbe0db06d1be4300fb85fb53c40060668e548a",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONUNBUFFERED=1",
+        "OMP_NUM_THREADS=1",
+        "OPENBLAS_NUM_THREADS=1",
+        "MKL_NUM_THREADS=1",
+        "UV_SYSTEM_PYTHON=1"
+      ],
+      "Cmd": [
+        "eot-serve",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000"
+      ],
+      "Healthcheck": {
+        "Test": [
+          "CMD-SHELL",
+          "python -c \"import httpx,sys; sys.exit(0 if httpx.get('http://127.0.0.1:8000/healthz').status_code==200 else 1)\""
+        ],
+        "Interval": 10000000000,
+        "Timeout": 3000000000
+      },
+      "Image": "happyrobot-eot:whisper-cpu-delivery",
+      "Volumes": null,
+      "WorkingDir": "/app",
+      "Entrypoint": null,
+      "OnBuild": null,
+      "Labels": {
+        "com.docker.compose.config-hash": "71b0db47844f916fddd6ff40b50bb34ab8ab4651a188ba682fe072afc496a259",
+        "com.docker.compose.container-number": "1",
+        "com.docker.compose.depends_on": "",
+        "com.docker.compose.image": "sha256:14390c495526c7937e39bd4213f6179b509ba97975331c3fcd57b78bf1603026",
+        "com.docker.compose.oneoff": "False",
+        "com.docker.compose.project": "eot-delivery",
+        "com.docker.compose.project.config_files": "/home/ad/Desktop/happyrobot-eot/compose.inference.yaml",
+        "com.docker.compose.project.working_dir": "/home/ad/Desktop/happyrobot-eot",
+        "com.docker.compose.replace": "whisper-cpu-1",
+        "com.docker.compose.service": "whisper-cpu",
+        "com.docker.compose.version": "2.39.1"
+      }
+    },
+    "NetworkSettings": {
+      "Bridge": "",
+      "SandboxID": "0906df0455d3b494d6df61f39e865f0ceff62634e6b05522bbf3703ba4c7613c",
+      "SandboxKey": "/var/run/docker/netns/0906df0455d3",
+      "Ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8891"
+          }
+        ]
+      },
+      "HairpinMode": false,
+      "LinkLocalIPv6Address": "",
+      "LinkLocalIPv6PrefixLen": 0,
+      "SecondaryIPAddresses": null,
+      "SecondaryIPv6Addresses": null,
+      "EndpointID": "",
+      "Gateway": "",
+      "GlobalIPv6Address": "",
+      "GlobalIPv6PrefixLen": 0,
+      "IPAddress": "",
+      "IPPrefixLen": 0,
+      "IPv6Gateway": "",
+      "MacAddress": "",
+      "Networks": {
+        "eot-delivery_default": {
+          "IPAMConfig": null,
+          "Links": null,
+          "Aliases": [
+            "eot-delivery-whisper-cpu-1",
+            "whisper-cpu"
+          ],
+          "MacAddress": "aa:06:e7:4c:bd:79",
+          "DriverOpts": null,
+          "GwPriority": 0,
+          "NetworkID": "5767327447d5d7a69db25f49c88e02c8594cfdf4580635de1b833558600f5412",
+          "EndpointID": "457a6798bc3e35acd4d2f0585028cfc7d2854cc4da59c0a0bd27fa7aa71d2cbc",
+          "Gateway": "172.20.0.1",
+          "IPAddress": "172.20.0.2",
+          "IPPrefixLen": 16,
+          "IPv6Gateway": "",
+          "GlobalIPv6Address": "",
+          "GlobalIPv6PrefixLen": 0,
+          "DNSNames": [
+            "eot-delivery-whisper-cpu-1",
+            "whisper-cpu",
+            "43278e426b1e"
+          ]
+        }
+      }
+    }
+  },
+  "payload_sha256": "a0579bc7560032f6137237177f09da25b7cb0d28c0f7ccff9f2c1b4bc25908cc",
+  "payload_bytes": 252800,
+  "health": {
+    "ok": true,
+    "version": "0.3.0",
+    "model_sha": "b35854bfa52580fe",
+    "use_context": false,
+    "threads": 8,
+    "max_inflight": 8,
+    "max_body_bytes": 2000000
+  },
+  "ready_wait_seconds": 0.06135057700157631,
+  "first_response": {
+    "p_eot": 0.003794252872467041,
+    "decision": "hold",
+    "threshold": 0.5,
+    "p_fvad": {},
+    "audio_seconds": 7.9,
+    "context_used": false,
+    "timings_ms": {
+      "decode": 0.35,
+      "features": 5.39,
+      "inference": 13.94,
+      "total": 20.98
+    },
+    "model_sha": "b35854bfa52580fe",
+    "version": "0.3.0"
+  },
+  "levels": [
+    {
+      "concurrency": 1,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 51.521868160005745,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 23.401850149457456,
+        "p99": 25.8659120779339
+      },
+      "meets_100ms_p95_no_errors": true,
+      "client_total_ms": {
+        "p50": 19.06972450160538,
+        "p95": 23.401850149457456,
+        "p99": 25.8659120779339,
+        "mean": 19.357865269939794
+      },
+      "server_inference_ms": {
+        "p50": 12.02,
+        "p95": 14.494499999999997,
+        "p99": 15.192399999999997
+      },
+      "server_features_ms": {
+        "p50": 4.005,
+        "p95": 6.5809999999999995
+      }
+    },
+    {
+      "concurrency": 4,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 93.3092546685328,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 51.77768420362554,
+        "p99": 56.52404228851082
+      },
+      "meets_100ms_p95_no_errors": true,
+      "client_total_ms": {
+        "p50": 42.33961700083455,
+        "p95": 51.77768420362554,
+        "p99": 56.52404228851082,
+        "mean": 42.5802523524726
+      },
+      "server_inference_ms": {
+        "p50": 29.82,
+        "p95": 37.146499999999996,
+        "p99": 40.407999999999994
+      },
+      "server_features_ms": {
+        "p50": 6.89,
+        "p95": 10.13
+      }
+    },
+    {
+      "concurrency": 8,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 102.89532176059284,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 99.9006595026003,
+        "p99": 116.1430943372397
+      },
+      "meets_100ms_p95_no_errors": true,
+      "client_total_ms": {
+        "p50": 76.0704669955885,
+        "p95": 99.9006595026003,
+        "p99": 116.1430943372397,
+        "mean": 76.9096948924198
+      },
+      "server_inference_ms": {
+        "p50": 55.004999999999995,
+        "p95": 68.81099999999999,
+        "p99": 76.43869999999998
+      },
+      "server_features_ms": {
+        "p50": 10.325,
+        "p95": 16.90049999999999
+      }
+    }
+  ],
+  "timing": "Warm full HTTP; same frozen training PCM16 payload; no inference cache",
+  "gpu_before": "NVIDIA GeForce RTX 3090, 595.84, 66, 165.70 W, 1920 MHz, 7242 MiB",
+  "health_after": {
+    "ok": true,
+    "version": "0.3.0",
+    "model_sha": "b35854bfa52580fe",
+    "use_context": false,
+    "threads": 8,
+    "max_inflight": 8,
+    "max_body_bytes": 2000000
+  },
+  "gpu_after": "NVIDIA GeForce RTX 3090, 595.84, 65, 126.76 W, 1695 MHz, 6982 MiB",
+  "accepted": true
+}

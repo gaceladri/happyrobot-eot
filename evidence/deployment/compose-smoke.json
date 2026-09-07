@@ -1,0 +1,70 @@
+{
+  "payload_sha256": "a0579bc7560032f6137237177f09da25b7cb0d28c0f7ccff9f2c1b4bc25908cc",
+  "services": {
+    "cpu": {
+      "health": {
+        "ok": true,
+        "version": "0.3.0",
+        "model_sha": "b35854bfa52580fe",
+        "use_context": false,
+        "threads": 8,
+        "max_inflight": 8,
+        "max_body_bytes": 2000000
+      },
+      "response": {
+        "p_eot": 0.003794252872467041,
+        "decision": "hold",
+        "threshold": 0.5,
+        "p_fvad": {},
+        "audio_seconds": 7.9,
+        "context_used": false,
+        "timings_ms": {
+          "decode": 0.37,
+          "features": 5.2,
+          "inference": 14.84,
+          "total": 21.79
+        },
+        "model_sha": "b35854bfa52580fe",
+        "version": "0.3.0"
+      },
+      "status": 200
+    },
+    "gpu": {
+      "health": {
+        "ok": true,
+        "model_sha": "dde5dd2cd196821d",
+        "max_inflight": 8,
+        "max_batch": 8,
+        "batch_wait_ms": 2,
+        "max_body_bytes": 2000000,
+        "observed_batch_sizes": {},
+        "model_name": "Cohere fine-tuned",
+        "engine_sha256": "dde5dd2cd196821d78b4eabf4d7f683544d50e8c78077ed9d61f80428eb8cb2e",
+        "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+        "runtime": "TensorRT",
+        "tensorrt": "10.16.1.11",
+        "precision": "fp16",
+        "cuda_graphs": true,
+        "threads": 2,
+        "original_frontend": true
+      },
+      "response": {
+        "p_eot": 0.0010080337524414062,
+        "decision": "hold",
+        "threshold": 0.5,
+        "p_fvad": {},
+        "context_used": false,
+        "audio_seconds": 7.9,
+        "model_sha": "dde5dd2cd196821d",
+        "batch_size": 1,
+        "timings_ms": {
+          "decode": 0.7752660021651536,
+          "features": 3.8972369984549005,
+          "inference": 20.47175400002743,
+          "total": 27.969818002020475
+        }
+      },
+      "status": 200
+    }
+  }
+}

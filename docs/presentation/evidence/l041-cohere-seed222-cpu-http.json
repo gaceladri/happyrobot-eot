@@ -1,0 +1,203 @@
+{
+  "status": "COMPLETE",
+  "model": "L041 Cohere teacher seed222",
+  "quality_mean_delay_ms": 615,
+  "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+  "device": "cpu",
+  "precision": "fp32",
+  "registration_sha256": "65d197bbb946e9fc1593482450340a3d7a1d3f8145da78b90706b45d50121fd5",
+  "registration_path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/output/l041-cohere-seed222-local/cpu-continuation-registration.json",
+  "parity": {
+    "accepted": true,
+    "original_tolerance": 0.0001,
+    "original_cross_device_gate_passed": false,
+    "observed_cpu_discrepancy_accepted_by_user": true,
+    "scope": "34 frozen training/synthetic inputs, batches 1/4/8, versus original unmerged CUDA FP32 quality model. Not a full benchmark replay.",
+    "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+    "reference_sha256": "94899e86e9d8a4c1ea1261d9f41b9ae4fb1324da37428773e8614375cefa3ac8",
+    "by_batch": {
+      "1": {
+        "max_error_vs_quality_reference": 0.00031191110610961914,
+        "max_error_vs_batch1": 0.0
+      },
+      "4": {
+        "max_error_vs_quality_reference": 0.00031185150146484375,
+        "max_error_vs_batch1": 4.76837158203125e-07
+      },
+      "8": {
+        "max_error_vs_quality_reference": 0.00031185150146484375,
+        "max_error_vs_batch1": 6.258487701416016e-07
+      }
+    },
+    "metadata": {
+      "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+      "kind": "cohere",
+      "precision": "fp32",
+      "torch": "2.14.0+cu130",
+      "tf32": false,
+      "model_forwards_per_batch": 1,
+      "merged_lora_layers": 384,
+      "threads": 4,
+      "execution": "Single CPU executor, dynamic batch up to8, full original frontend and all members",
+      "device": "cpu",
+      "cpu_name": "Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz",
+      "local_hardware": true
+    }
+  },
+  "health": {
+    "ok": true,
+    "model_sha": "98720ce3ee27a429",
+    "max_inflight": 8,
+    "max_batch": 8,
+    "batch_wait_ms": 2,
+    "observed_batch_sizes": {},
+    "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+    "kind": "cohere",
+    "precision": "fp32",
+    "torch": "2.14.0+cu130",
+    "tf32": false,
+    "model_forwards_per_batch": 1,
+    "merged_lora_layers": 384,
+    "threads": 4,
+    "execution": "Single CPU executor, dynamic batch up to8, full original frontend and all members",
+    "device": "cpu",
+    "cpu_name": "Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz",
+    "local_hardware": true
+  },
+  "threads": 4,
+  "requests_per_level": 400,
+  "concurrency": [
+    1,
+    4,
+    8
+  ],
+  "startup_with_parity_and_warmup_ms": 86785.69139299907,
+  "time_unix": 1788770271.8552055,
+  "loadavg_before": [
+    5.25927734375,
+    4.279296875,
+    3.21923828125
+  ],
+  "levels": [
+    {
+      "concurrency": 1,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 1.1620024514434935,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 925.1760367495988,
+        "p99": 1067.5175045416836
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 855.3780629999892,
+        "p95": 925.1760367495988,
+        "p99": 1067.5175045416836,
+        "mean": 860.5318618325238
+      },
+      "server_inference_ms": {
+        "p50": 850.3335385003084,
+        "p95": 920.1834730503831,
+        "p99": 1062.0284820297456
+      },
+      "server_features_ms": {
+        "p50": 0.14480499976343708,
+        "p95": 0.2529575504013337
+      }
+    },
+    {
+      "concurrency": 4,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 1.7038236425105902,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 2432.122966398947,
+        "p99": 2483.1692635598115
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 2350.6791234995035,
+        "p95": 2432.122966398947,
+        "p99": 2483.1692635598115,
+        "mean": 2341.4385102250117
+      },
+      "server_inference_ms": {
+        "p50": 1172.1701329997813,
+        "p95": 1232.6414375995225,
+        "p99": 1809.1399335499773
+      },
+      "server_features_ms": {
+        "p50": 0.29912349964433815,
+        "p95": 1.050121850312279
+      }
+    },
+    {
+      "concurrency": 8,
+      "requests": 400,
+      "errors": 0,
+      "throughput_rps": 2.150951506539445,
+      "status_counts": {
+        "200": 400
+      },
+      "all_attempts_ms": {
+        "p95": 4073.010438800246,
+        "p99": 4241.142447729562
+      },
+      "meets_100ms_p95_no_errors": false,
+      "client_total_ms": {
+        "p50": 3659.5599085003414,
+        "p95": 4073.010438800246,
+        "p99": 4241.142447729562,
+        "mean": 3705.214338517508
+      },
+      "server_inference_ms": {
+        "p50": 2461.197587499555,
+        "p95": 2671.893668599654,
+        "p99": 3624.9364579998655
+      },
+      "server_features_ms": {
+        "p50": 0.7673994996366673,
+        "p95": 1.9278919990028953
+      }
+    }
+  ],
+  "scope": "Local warm loopback HTTP including original frontend; single executor, max batch/inflight 8, 2 ms batching window. One fixed training payload. Single sweep. No Docker/quota; no geographic network latency; startup excluded. Different checkpoint from historical L031 timings.",
+  "health_after": {
+    "ok": true,
+    "model_sha": "98720ce3ee27a429",
+    "max_inflight": 8,
+    "max_batch": 8,
+    "batch_wait_ms": 2,
+    "observed_batch_sizes": {
+      "1": 410,
+      "4": 2,
+      "2": 245,
+      "8": 1,
+      "6": 49
+    },
+    "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+    "kind": "cohere",
+    "precision": "fp32",
+    "torch": "2.14.0+cu130",
+    "tf32": false,
+    "model_forwards_per_batch": 1,
+    "merged_lora_layers": 384,
+    "threads": 4,
+    "execution": "Single CPU executor, dynamic batch up to8, full original frontend and all members",
+    "device": "cpu",
+    "cpu_name": "Intel(R) Core(TM) i9-10900X CPU @ 3.70GHz",
+    "local_hardware": true
+  },
+  "complete": true,
+  "loadavg_after": [
+    10.25830078125,
+    7.28955078125,
+    5.40087890625
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "gemm_layers": 485,
+  "int8_gemm_layers": 191,
+  "sample": [
+    {
+      "Name": "/layers.0/feed_forward1/linear2/MatMul_myl10_6",
+      "LayerType": "gemm",
+      "Inputs": [
+        {
+          "Name": "/layers.0/feed_forward1/linear2/input_fake_quant/QuantizeLinear_output_0.1_myl10",
+          "Dimensions": [
+            -1,
+            5120
+          ],
+          "Format/Datatype": "Int8"
+        }
+      ],
+      "Outputs": [
+        {
+          "Name": "__myln_k_arg__bb1_36_myl10",
+          "Dimensions": [
+            -1,
+            1280
+          ],
+          "Format/Datatype": "Float"
+        }
+      ],
+      "TacticName": "sm80_xmma_gemm_i8f32_i8i32_f32_tn_n_tilesize64x64x64_stage4_warpsize2x2x1_tensor16x8x32",
+      "StreamId": 0,
+      "Metadata": "[ONNX Layer: /layers.0/feed_forward1/linear2/MatMul]\u001f[ONNX Layer: /layers.0/feed_forward1/linear2/input_fake_quant/DequantizeLinear]\u001f[ONNX Layer: /layers.0/feed_forward1/linear2/weight_fake_quant/DequantizeLinear]\u001f[ONNX Layer: /layers.0/feed_forward1/linear2/Transpose]\u001f[ONNX Layer: /layers.0/feed_forward1/linear2/MatMul_affine_correction_apply]"
+    },
+    {
+      "Name": "/layers.0/self_attn/linear_v/MatMul+/layers.0/self_attn/linear_k/MatMul+/layers.0/self_attn/linear_q/MatMul_myl10_8",
+      "LayerType": "gemm",
+      "Inputs": [
+        {
+          "Name": "__myln_k_arg__bb1_37_myl10",
+          "Dimensions": [
+            -1,
+            1280
+          ],
+          "Format/Datatype": "Int8"
+        }
+      ],
+      "Outputs": [
+        {
+          "Name": "__mye40180_myl10",
+          "Dimensions": [
+            3,
+            -1,
+            1280
+          ],
+          "Format/Datatype": "Float"
+        }
+      ],
+      "TacticName": "sm80_xmma_gemm_i8f32_i8i32_f32_tn_n_tilesize128x128x64_stage3_warpsize2x2x1_tensor16x8x32",
+      "StreamId": 0,
+      "Metadata": "[ONNX Layer: /layers.0/self_attn/linear_v/MatMul]\u001f[ONNX Layer: /layers.0/self_attn/linear_v/input_fake_quant/DequantizeLinear]\u001f[ONNX Layer: /layers.0/self_attn/linear_v/weight_fake_quant/DequantizeLinear]\u001f[ONNX Layer: /layers.0/self_attn/linear_v/Transpose]\u001f[ONNX Layer: /layers.0/self_attn/linear_v/MatMul_affine_correction_apply]\u001f[ONNX Layer: /layers.0/self_attn/linear_k/MatMul]\u001f[ONNX Layer: /layers.0/self_attn/linear_k/weight_fake_quant/DequantizeLinear]\u001f[ONNX Layer: /layers.0/self_attn/linear_k/Transpose]\u001f[ONNX Layer: /layers.0/self_attn/linear_k/MatMul_affine_correction_apply]\u001f[ONNX Layer: /layers.0/self_attn/linear_q/MatMul]\u001f[ONNX Layer: /layers.0/self_attn/linear_q/weight_fake_quant/DequantizeLinear]\u001f[ONNX Layer: /layers.0/self_attn/linear_q/Transpose]\u001f[ONNX Layer: /layers.0/self_attn/linear_q/MatMul_affine_correction_apply]"
+    }
+  ]
+}

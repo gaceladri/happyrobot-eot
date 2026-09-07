@@ -1,0 +1,11 @@
+{
+  "scope": "This exact engine only; not a blanket tolerance change or revised historical result",
+  "engine_sha256": "b3841feace2c17c15d10c1383a16fdcd907e7f9ae7ffdc53bebcafc9e3fb3be6",
+  "max_measured_probability_error": 0.036724209785461426,
+  "original_tolerance": 0.02,
+  "original_numerical_gate_passed": false,
+  "accepted_by_user": true,
+  "user_request": "Author accepted the observed maximum deviation of 0.036 above the 0.02 gate for this diagnostic engine (2026-09-07)",
+  "date": "2026-09-07",
+  "quality_and_http_still_required": true
+}

@@ -1,0 +1,14 @@
+{
+  "README.md": "9b86052fa2c66e67a02536580344021ccf7e875ea742156c5f1285bcec8b0e53",
+  "cohere-http.json": "b7194869f0e7fd6ea312f069522e87c71d32771d9fcc108b53855ea7ecf3bf5f",
+  "first-pass/cohere-http.json": "76dae9b098ba5518cfdf858b019f4b3ae307b59d91f4c023d6fcba63e1e6de8c",
+  "first-pass/http-after.json": "74a89531c115635d850e819555a1aa4b2ae12cc287d350ee97178e95e66c24d7",
+  "first-pass/source.json": "2587cc5d62cc106396dbb6fd055e138f7091491e4d927ae41f01830460ddcf22",
+  "first-pass/source.patch": "8cd81359783a0273488154a49d76ce8bd6a318def9db410dcd10743b0b840551",
+  "first-pass/whisper-http.json": "12ef61c7a56e1c99162b09cf91e89cb5ce258682b09dcfe680470abc55ff63cb",
+  "http-after.json": "04f0d66722fd403bacf3472ecc899c07261832f8c2b60107a9a184a666309318",
+  "http-before.json": "8304ef3bf7c3c34b358e739b8f806602c3b8e1db62699ec573095a3200f53346",
+  "source.json": "b1a73143f21bfc19b80713f8ff639000c054e14cef0c4ae20dff46ab6c89d001",
+  "source.patch": "5a3607bb84f23e49f1c399ed2f0cbc8e59d217089ac29171047116c9286ad8cc",
+  "whisper-http.json": "128e2988ca0ed1d5e166ebb59a0344e8e9f0f5607be3f65605885bfad66afb67"
+}

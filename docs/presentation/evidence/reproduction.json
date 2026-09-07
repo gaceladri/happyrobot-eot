@@ -1,0 +1,58 @@
+{
+  "updated": "2026-09-07",
+  "selection": {
+    "cpu": {
+      "name": "Whisper-base",
+      "artifact_sha256": "b35854bfa52580fee6eee5229eca8d140723f0a04027b261af4aac75b1b4234b",
+      "checkpoint_sha256": "d82bb9172b83251179b2dd759585532da4db72e38321160dd2b19542df406d4a",
+      "delay5": 756.25,
+      "runtime": "ONNX Runtime 1.29.0"
+    },
+    "gpu": {
+      "name": "Cohere",
+      "artifact_sha256": "dde5dd2cd196821d78b4eabf4d7f683544d50e8c78077ed9d61f80428eb8cb2e",
+      "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4",
+      "delay5": 615.0,
+      "runtime": "TensorRT 10.16.1.11"
+    },
+    "note": "Selected take-home deployments. Public policies fitted on inspected benchmark; not blind testing or production qualification."
+  },
+  "artifacts": {
+    "cpu": {
+      "artifact": "/home/ad/Desktop/happyrobot-eot/artifacts/deployment/whisper-cpu/eot.onnx",
+      "artifact_sha256": "b35854bfa52580fee6eee5229eca8d140723f0a04027b261af4aac75b1b4234b",
+      "artifact_bytes": 80850958,
+      "container_image": "sha256:27eca409f7c0b7a57bcd3cfb6df50b23d9f68e17c0cc8689b3ab7645f8a143ea",
+      "checkpoint_sha256": "d82bb9172b83251179b2dd759585532da4db72e38321160dd2b19542df406d4a"
+    },
+    "gpu": {
+      "artifact": "/home/ad/Desktop/happyrobot-eot/artifacts/deployment/cohere-gpu/tuned.plan",
+      "artifact_sha256": "dde5dd2cd196821d78b4eabf4d7f683544d50e8c78077ed9d61f80428eb8cb2e",
+      "artifact_bytes": 5247248572,
+      "container_image": "sha256:61b9f9c540d351037bf763e4c9ab8cf0f727cdaa644cd0502dba0033e07a5c4c",
+      "checkpoint_sha256": "98720ce3ee27a4298d47ae532dd06dcfc3893cd7928fff99c1213eff9ebe5ef4"
+    }
+  },
+  "quality_method": "Unmodified pinned English public harness, 200 ms score point. Displayed curves use batch 1. Its 5% policy also checked at batches 4 and 8 for GPU.",
+  "http_method": "Warm closed-loop full HTTP on one frozen training PCM16 payload; 400 requests at c1/4/8; sequential CPU/GPU sweeps on local desktop; no CPU quota. No concurrent-call capacity claim.",
+  "benchmark": {
+    "rows": 11191,
+    "turns": 400,
+    "dataset_revision": "ca9d98a9686b920a2d8c9eb984224ba9be74e4dd",
+    "harness_commit": "6594d8b3b8af385b15f116dde310ce45af92d646",
+    "max_audio_sec": 8,
+    "inference_interval": 0.1,
+    "min_silence_span": 0.1,
+    "score_point": 0.2,
+    "waves_sha256": "137c009a770a19ddf046ca4793dc3faad17d82d647ef085ef1793f27d3529c42",
+    "metadata_sha256": "90b1e8d2283140c6ba3201922d585c56ee56e5c8cd3686a997240309eae6cbaf"
+  },
+  "new_inference_performed": true,
+  "source_repository": "/home/ad/Desktop/happyrobot-eot",
+  "compose": "compose.inference.yaml",
+  "models_embedded_in_presentation": false,
+  "recovery_readme": "/media/ad/00b5422b-9d54-4449-8b5d-08eab5cdac8c/happyrobot-archive-2026-09-07/README.md",
+  "label_provenance": "No newly manually labeled corpus. Existing public annotations calibrated rules. otoSpeech remained a preparation pilot.",
+  "training_reproduction": "Original checkpoints restored from archive. The unified training port reproduces a recipe, not necessarily identical random training waveforms.",
+  "historical_verdicts_unchanged": true
+}

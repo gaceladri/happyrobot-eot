@@ -1,0 +1,35 @@
+.git
+.venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+
+# Generated or downloaded state belongs on /workspace, never in an image.
+/artifacts
+/data
+/mined
+/runs
+/tmp
+/evidence
+*.onnx
+*.pt
+*.wav
+
+# Source/research artifacts are not runtime inputs.
+*.pdf
+.DS_Store
+/third_party
+/eval
+/exports
+/logs
+/models
+/wandb
+**/__pycache__
+
+.venv-*
+
+/docs
+/configs
+/tests

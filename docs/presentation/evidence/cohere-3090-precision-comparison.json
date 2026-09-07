@@ -1,0 +1,93 @@
+{
+  "device": "NVIDIA GeForce RTX 3090",
+  "checkpoint": "Cohere + LoRA C2 seed111",
+  "requests_per_precision": 1200,
+  "total_requests": 4800,
+  "errors": 0,
+  "metric": "Warm full HTTP client p95 in ms",
+  "rows": [
+    {
+      "label": "C2_lora_seed111_RTX3090",
+      "precision": "fp32",
+      "p95_http_ms": {
+        "1": 67.35798079926099,
+        "4": 215.5943870510782,
+        "8": 744.8084822007327
+      },
+      "max_smoke_score_drift": 5.21540641784668e-07,
+      "source": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/cohere-3090-http.json",
+      "sha256": "f384c635321664372448d651b6dab4a3801bb3a87663e749877d09835db35742"
+    },
+    {
+      "label": "C2_lora_seed111_RTX3090_FP16_autocast",
+      "precision": "fp16 weights/autocast; FP32 frontend and BatchNorm",
+      "p95_http_ms": {
+        "1": 85.4093001506044,
+        "4": 222.1821982497204,
+        "8": 496.198334850942
+      },
+      "max_smoke_score_drift": 9.062141180038452e-05,
+      "source": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/cohere-3090-fp16-http.json",
+      "sha256": "02fbfc3c636fdcc8a62f06875a0707163fbb469ad7fdeff22f81a1f2815db26f"
+    },
+    {
+      "label": "C2_lora_seed111_RTX3090_BF16_autocast",
+      "precision": "bf16 weights/autocast; FP32 frontend and BatchNorm",
+      "p95_http_ms": {
+        "1": 81.60925775146097,
+        "4": 224.7664450003867,
+        "8": 490.705438050918
+      },
+      "max_smoke_score_drift": 0.004823759198188782,
+      "source": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/cohere-3090-bf16-http.json",
+      "sha256": "a7f4eed937770c74bb51e698ea40246830ffaed55fac347fe2b0b9439a58568e"
+    },
+    {
+      "label": "C2_lora_seed111_RTX3090_INT8_TensorRT",
+      "precision": "INT8 QDQ MatMul, TensorRT FP16 fallback; FP32 CPU frontend",
+      "p95_http_ms": {
+        "1": 15.813940350017214,
+        "4": 43.27101969984141,
+        "8": 83.06005404929235
+      },
+      "max_smoke_score_drift": 0.25024886429309845,
+      "source": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/cohere-3090-int8-http.json",
+      "sha256": "9f7eec905cc692bc1b3dfada2fb44148826a78b0cddfbec75582f57dbc2d1ffc"
+    }
+  ],
+  "limits": [
+    "One sweep per configuration on a shared desktop; small gaps are not statistical evidence.",
+    "FP16/BF16 retain the frontend and BatchNorm in FP32. FP16 uses a dtype-safe attention mask in an isolated process.",
+    "INT8 uses a different runtime (ONNX/TensorRT, INT8 QDQ MatMul with FP16 fallback) and FP32 CPU frontend; not an isolated precision comparison.",
+    "INT8 is a calibration pilot with 32 training prefixes; its 0.25 score drift needs quality evaluation before selection.",
+    "Numerical smoke checks use four prefixes of one real audio clip; they do not establish full benchmark parity."
+  ],
+  "onnx_validation": {
+    "onnx_fp32_max_drift": 2.8312206268310547e-07,
+    "onnx_fp32_scores": [
+      0.24608874320983887,
+      0.7042165398597717,
+      0.01682424545288086,
+      0.9869964122772217
+    ],
+    "torch_fp32_scores": [
+      0.24608902633190155,
+      0.7042165398597717,
+      0.01682429201900959,
+      0.9869964122772217
+    ],
+    "engine_inspection": [
+      {
+        "path": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/output/cohere-onnx/trt-cache/TensorrtExecutionProvider_TRTKernel_graph_main_graph_5416069481731485202_0_0_fp16_int8_sm86.engine",
+        "layers": 2867,
+        "precision_details_available": false
+      }
+    ],
+    "scope": "4 real prefixes; confirms export numerics and realized INT8 engine formats, not overall model quality",
+    "nsight_kernel_verification": {
+      "actual_int8_matrix_kernel_families": 5,
+      "report": "/home/ad/Desktop/happyrobot-eot-experiments/ENTREGABLE_FINAL/presentation/evidence/cohere-int8-kernel-summary.csv",
+      "scope": "Separate one-inference diagnostic trace; these timings are not used for HTTP latency numbers."
+    }
+  }
+}

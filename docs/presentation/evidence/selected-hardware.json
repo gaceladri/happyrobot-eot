@@ -1,0 +1,246 @@
+{
+  "model": "Whisper-base distilled + texture",
+  "seed": 333,
+  "onnx_sha256": "7dc74c902351bed860f6ea4463e8dda9d0550efb2c2230094246a21afe1e88aa",
+  "onnx_path": "/home/ad/Desktop/happyrobot-eot/data/research/L040/exports/B11_kd_tail/seed333/eot.onnx",
+  "onnx_bytes": 80850958,
+  "ort_version": "1.29.0",
+  "time_unix": 1788721489.6929193,
+  "cpu": "Intel Core i9-10900X",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "protocol": "Same FP32 ONNX; same L040 HTTP service; 8 s PCM16; warm; 400 requests per concurrency; 4 intra-op threads; max inflight 8; no Docker or CPU quota; TF32 disabled. CPU then GPU, one sweep each on a desktop host.",
+  "wav": "/home/ad/Desktop/happyrobot-eot/data/mined/smart-turn-ensemble/audio/3fc2e840-d3f2-452f-b93e-6456e7941329_03-ccf51929ace0.wav",
+  "wav_sha256": "08792af2dde86378d7f0535f45c14d852c959757a134c00eff9ada7234c5aeda",
+  "quality_delay5_ms": 809.25,
+  "parity": {
+    "examples": 16,
+    "scope": "Prefixes of one real audio clip; numerical smoke check, not dataset-wide quality validation",
+    "max_absolute_drift": 3.337860107421875e-06,
+    "profiled_node_executions": {
+      "CUDAExecutionProvider": 1088,
+      "CPUExecutionProvider": 48
+    }
+  },
+  "devices": {
+    "cpu": {
+      "health": {
+        "ok": true,
+        "version": "0.2.0",
+        "model_sha": "7dc74c902351bed8",
+        "use_context": false,
+        "threads": 4,
+        "max_inflight": 8,
+        "max_body_bytes": 2000000
+      },
+      "loadavg_before": [
+        0.78857421875,
+        0.900390625,
+        1.9814453125
+      ],
+      "loadavg_after": [
+        2.2822265625,
+        1.21826171875,
+        2.068359375
+      ],
+      "levels": [
+        {
+          "concurrency": 1,
+          "requests": 400,
+          "errors": 0,
+          "throughput_rps": 48.107518313709505,
+          "status_counts": {
+            "200": 400
+          },
+          "all_attempts_ms": {
+            "p95": 21.90904694925848,
+            "p99": 26.136514499539764
+          },
+          "meets_100ms_p95_no_errors": true,
+          "client_total_ms": {
+            "p50": 20.517961499535886,
+            "p95": 21.90904694925848,
+            "p99": 26.136514499539764,
+            "mean": 20.740598520060303
+          },
+          "server_inference_ms": {
+            "p50": 15.37,
+            "p95": 16.44199999999999,
+            "p99": 20.6314
+          },
+          "server_features_ms": {
+            "p50": 2.48,
+            "p95": 2.6904999999999997
+          }
+        },
+        {
+          "concurrency": 4,
+          "requests": 400,
+          "errors": 0,
+          "throughput_rps": 93.92744916788023,
+          "status_counts": {
+            "200": 400
+          },
+          "all_attempts_ms": {
+            "p95": 46.619470600671775,
+            "p99": 48.454135591146034
+          },
+          "meets_100ms_p95_no_errors": true,
+          "client_total_ms": {
+            "p50": 42.465347501092765,
+            "p95": 46.619470600671775,
+            "p99": 48.454135591146034,
+            "mean": 42.40469912997469
+          },
+          "server_inference_ms": {
+            "p50": 35.805,
+            "p95": 39.061,
+            "p99": 40.5616
+          },
+          "server_features_ms": {
+            "p50": 3.36,
+            "p95": 4.551999999999998
+          }
+        },
+        {
+          "concurrency": 8,
+          "requests": 400,
+          "errors": 0,
+          "throughput_rps": 112.8084849195193,
+          "status_counts": {
+            "200": 400
+          },
+          "all_attempts_ms": {
+            "p95": 83.84354209983938,
+            "p99": 89.82063171015398
+          },
+          "meets_100ms_p95_no_errors": true,
+          "client_total_ms": {
+            "p50": 69.4854410003245,
+            "p95": 83.84354209983938,
+            "p99": 89.82063171015398,
+            "mean": 70.38181330240604
+          },
+          "server_inference_ms": {
+            "p50": 57.02,
+            "p95": 69.502,
+            "p99": 74.58979999999998
+          },
+          "server_features_ms": {
+            "p50": 5.984999999999999,
+            "p95": 8.231
+          }
+        }
+      ]
+    },
+    "gpu": {
+      "health": {
+        "ok": true,
+        "version": "0.2.0",
+        "model_sha": "7dc74c902351bed8",
+        "use_context": false,
+        "threads": 4,
+        "max_inflight": 8,
+        "max_body_bytes": 2000000
+      },
+      "loadavg_before": [
+        2.17919921875,
+        1.21435546875,
+        2.0625
+      ],
+      "loadavg_after": [
+        2.17919921875,
+        1.21435546875,
+        2.0625
+      ],
+      "levels": [
+        {
+          "concurrency": 1,
+          "requests": 400,
+          "errors": 0,
+          "throughput_rps": 170.2031998857636,
+          "status_counts": {
+            "200": 400
+          },
+          "all_attempts_ms": {
+            "p95": 6.452215349418111,
+            "p99": 6.9625808802447855
+          },
+          "meets_100ms_p95_no_errors": true,
+          "client_total_ms": {
+            "p50": 5.778008999186568,
+            "p95": 6.452215349418111,
+            "p99": 6.9625808802447855,
+            "mean": 5.835184827474222
+          },
+          "server_inference_ms": {
+            "p50": 1.74,
+            "p95": 1.8,
+            "p99": 1.8701
+          },
+          "server_features_ms": {
+            "p50": 2.18,
+            "p95": 2.3204999999999996
+          }
+        },
+        {
+          "concurrency": 4,
+          "requests": 400,
+          "errors": 0,
+          "throughput_rps": 377.9788208489086,
+          "status_counts": {
+            "200": 400
+          },
+          "all_attempts_ms": {
+            "p95": 13.58464055101649,
+            "p99": 16.458791480090436
+          },
+          "meets_100ms_p95_no_errors": true,
+          "client_total_ms": {
+            "p50": 9.941971999978705,
+            "p95": 13.58464055101649,
+            "p99": 16.458791480090436,
+            "mean": 10.29532821995872
+          },
+          "server_inference_ms": {
+            "p50": 2.575,
+            "p95": 3.7704999999999997,
+            "p99": 4.57479999999995
+          },
+          "server_features_ms": {
+            "p50": 3.52,
+            "p95": 5.0305
+          }
+        },
+        {
+          "concurrency": 8,
+          "requests": 400,
+          "errors": 0,
+          "throughput_rps": 518.2556283614897,
+          "status_counts": {
+            "200": 400
+          },
+          "all_attempts_ms": {
+            "p95": 21.20862335023046,
+            "p99": 26.8515104313701
+          },
+          "meets_100ms_p95_no_errors": true,
+          "client_total_ms": {
+            "p50": 14.208196999788925,
+            "p95": 21.20862335023046,
+            "p99": 26.8515104313701,
+            "mean": 14.920991172425602
+          },
+          "server_inference_ms": {
+            "p50": 2.815,
+            "p95": 6.291999999999989,
+            "p99": 8.933199999999998
+          },
+          "server_features_ms": {
+            "p50": 5.28,
+            "p95": 7.233999999999996
+          }
+        }
+      ]
+    }
+  }
+}
