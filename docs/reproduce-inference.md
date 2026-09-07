@@ -7,14 +7,16 @@ Run commands from the repository root. There are three distinct levels of reprod
 The versioned `configs/inference/selected.json` enumerates five files: the Whisper ONNX and metadata; the Cohere plan, metadata, and original audio frontend. The bundle is about 5.33 GB. It contains no training data. Model files are not embedded in Git or the presentation.
 
 ```bash
-uv run eot-artifacts install \
-  --source /path/to/model-bundle --root artifacts/deployment
+uv run python scripts/download_weights.py          # public Google Drive link pinned in the script, tar SHA-256 verified
 uv run eot-artifacts verify
+
+# The same files received another way (disk, another mirror):
+uv run eot-artifacts install --source /path/to/model-bundle --root artifacts/deployment
 ```
 
 The source bundle must contain `whisper-cpu/eot.onnx`, `whisper-cpu/eot.json`, `cohere-gpu/eot.plan`, `cohere-gpu/eot.json`, and `cohere-gpu/frontend.pt`. Paths can be relocated; hashes cannot. The installer reads only these enumerated files. Use `--model whisper-cpu` for CPU only.
 
-There is no public model-download URL in this repository. Request the separate inference bundle for a fresh machine, or rebuild it from the separately supplied checkpoint archive described in [training reproduction](reproduce-training.md). The archive predates the final TensorRT build, so recovering a checkpoint is not the same as recovering the selected plan.
+`scripts/download_weights.py` holds the public download link ([Google Drive, anyone with the link](https://drive.google.com/file/d/1Knd2B29FpMuOiUNmvyOV1Nf_uDj2JgI9/view?usp=sharing), SHA-256 `8c6ca046bde26f9a3860c5fe7e6ec0100cf6c6a70166beda95090814f1eb47b5`) and resumes interrupted downloads; `--model whisper-cpu` downloads and installs the CPU model only. The bundle can also be rebuilt from the separately supplied checkpoint archive described in [training reproduction](reproduce-training.md). The archive predates the final TensorRT build, so recovering a checkpoint is not the same as recovering the selected plan.
 
 ## 2. Build and run
 

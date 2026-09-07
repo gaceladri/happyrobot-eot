@@ -28,15 +28,30 @@ The [post-review verification](evidence/deployment/post-review/README.md) qualif
 ## Requirements
 
 - Python 3.13 and [uv](https://docs.astral.sh/uv/) for development; Docker with Compose 2.30+ to run the services.
-- The model bundle (5.3 GB: ONNX model, TensorRT plan, sidecars), supplied separately; hashes are pinned in [configs/inference/selected.json](configs/inference/selected.json).
+- The model bundle (5.3 GB: ONNX model, TensorRT plan, sidecars), downloaded by `scripts/download_weights.py` from a public read-only link; every hash is pinned in [configs/inference/selected.json](configs/inference/selected.json).
 - GPU service only: an NVIDIA driver with the container toolkit and an RTX 3090-class GPU. The TensorRT plan is specific to that hardware and runtime; another GPU needs a rebuild and requalification ([how](docs/reproduce-inference.md#4-rebuild-and-qualify-exports)).
+
+## Get the model weights
+
+The weights are one 5.3 GB tar on Google Drive, readable by anyone with the link, no account needed:
+[happyrobot-eot-weights-316125d.tar](https://drive.google.com/file/d/1Knd2B29FpMuOiUNmvyOV1Nf_uDj2JgI9/view?usp=sharing)
+(SHA-256 `8c6ca046bde26f9a3860c5fe7e6ec0100cf6c6a70166beda95090814f1eb47b5`). It contains exactly the five
+files listed in [configs/inference/selected.json](configs/inference/selected.json): the Whisper ONNX model and
+sidecar, and the Cohere TensorRT plan, sidecar and front-end.
+
+```bash
+uv sync --locked                                   # or any Python 3.11+ with the package installed
+uv run python scripts/download_weights.py          # downloads (resumable), verifies the tar and every file, installs to artifacts/deployment
+uv run python scripts/download_weights.py --model whisper-cpu   # CPU model only
+```
+
+The script pins the link and the hashes, so a tampered or truncated download is refused. Downloaded by
+hand instead (browser, `gdown`, `curl -L`)? Extract the tar and install it with
+`uv run eot-artifacts install --source model-bundle`; `uv run eot-artifacts verify` re-checks the installed files.
 
 ## Run the services
 
 ```bash
-uv run eot-artifacts install --source /path/to/model-bundle   # verifies every file, refuses to overwrite a different model
-uv run eot-artifacts verify
-
 docker compose -f compose.inference.yaml up -d --build whisper-cpu
 curl -fsS http://127.0.0.1:8891/healthz
 # On a compatible GPU host:
@@ -78,7 +93,7 @@ src/eot/          the package, ordered by pipeline stage (each stage imports onl
   eval/           causal endpointing policy, EoT Bench adapters, Krisp test set, held-out reports
   serving/        CPU (ONNX Runtime) and GPU (TensorRT) FastAPI services, artifact verification, load test
 tests/            synthetic contract and regression tests
-scripts/          export models, build and verify the TensorRT plan, measure HTTP, recompute public quality, release parity
+scripts/          download the weights, export models, build and verify the TensorRT plan, measure HTTP, recompute public quality, release parity
 configs/          selected inference artifacts (hashes) and the frozen final training protocol
 docs/             solution brief, presentation, discussion answers, reproduction guides, operations design, video script
 evidence/         final experiment report and deployment receipts (JSON, CSV, figures)
